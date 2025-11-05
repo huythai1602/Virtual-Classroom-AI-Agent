@@ -1,0 +1,75 @@
+(Được chép bởi TurboScribe.ai. Nâng cấp lên Không giới hạn để gỡ bỏ thông báo này.)
+
+Xin chào tất cả các con học sinh thân mến, chào mừng các con đã đến với khóa học bài giảng toán lớp 4, bộ sách mang tên Kết nối tri thức. Ở bài học hôm trước thì chúng mình đã cùng nhau đi ôn tập các số trong phạm vi 100 nghìn rồi đúng không nhỉ? Đến vừa học ngày hôm nay thì chúng mình sẽ cùng nhau đi học bài số 2, ôn tập các phép tính trong phạm vi 100 nghìn. Vậy chúng mình đã được học các phép tính trong phạm vi 100 nghìn là những phép tính nào rồi nhỉ? À, ở lớp 3 thì chúng ta đã được học về phép tính cộng, phép tính trừ, phép tính chia và phép tính nhân rồi đúng không nhỉ? Như vậy hôm nay chúng mình sẽ cùng nhau đi ôn tập lại các phép tính đó.
+
+Để dễ dàng làm được bài tập thì chúng mình sẽ cùng nhau vước sang phần luyện tập. Ở đây cũng có một trò chơi mang tên Đi tìm kho báo. Bây giờ chúng ta sẽ có các sơ đồ, có một sơ đồ kho báo và sẽ có các chạm phía sau.
+
+Đầu tiên là chạm số 1 này. Tiếp theo là chạm số 2, chạm số 3 và cuối cùng là chạm số 4. Để đi tới kho báo thì chúng ta sẽ phải đi qua 4 chạm này. Vậy để đi qua được 4 chạm này thì chúng mình sẽ cùng nhau đi giải từng chạm một nhé.
+
+Đối chạm đầu tiên, chúng mình sẽ cùng nhau đi khám phá đại dương. Chúng mình sẽ cùng nhau bước vào phần 1 IA. Đề bài người ta yêu cầu con đó là tổng của 53.640 và 8.290 là? Vậy để thực hiện phép tính tổng của số 53.640 và 8.290 thì chúng mình sẽ phải làm như thế nào nhỉ? À, để thực hiện tính tổng của 2 số này thì chúng ta sẽ phải thực hiện đặt tính rồi tính.
+
+Ta sẽ đặt tính rồi tính ta được kết quả là bao nhiêu nhỉ? Bây giờ chúng mình sẽ cùng nhau đi thực hiện. Cộng đặt các hàng thẳng cột với nhau và thực hiện cộng lần lượt tứ. Phải sang trái cho cô nhé.
+
+Ta lấy 0 cộng 0 là 0 viết 0. 4 cộng 9 làm với 3 viết 3 như 1. 6 cộng 2 là 8 thêm 1 là 9 viết 9. 5 3 cộng 8 bằng 11 viết 1 như 1. 5 cộng 0 là 5 thêm 1 là 6 viết 6. Như vậy ta được kết quả là 61.930 đúng không nhỉ? Vậy đáp ản đúng của chúng ta chính là đáp ản B. Tiếp theo chúng mình sẽ cùng nhau bước sang YB hiệu của 68.497 và 35.829 là bao nhiêu? Như vậy thì chúng ta sẽ cùng nhau đi thực hiện đặt tính rồi tính cho cô. Và ta sẽ đặt các hàng thẳng cột với nhau và thực hiện trừ lần lượt tứ phải sang trái cho cô. Các con có thời gian là 5 giây để suy nghĩ.
+
+Sau khi chúng ta đặt tính rồi tính thì chúng mình sẽ cùng nhau đi thực hiện nhé. Ta lấy 7 trừ 9. 7 không trừ được cho 9 như vậy. Ta sẽ lấy 17.
+
+17 trừ đi 9 ta được kết quả là 8 đúng không nhỉ? Tiếp theo này. 9 trừ đi 2 là 7 và ta lại nhớ 1 ở lần trước như vậy. Chỉ còn 6 thôi.
+
+Tiếp theo này. 4 trừ đi 8. 4 không trừ được cho 8 như vậy. Ta sẽ lấy 14.
+
+14 trừ đi 8 ta được kết quả là 6. Tiếp theo này. Ta lấy 8 trừ đi 5 bằng 3 và trừ đi 1 nữa ta được 2. 6 trừ đi 3 bằng 3. Vậy đáp án của chúng ta chính là 32.668 đúng không nhỉ? Vậy ta sẽ chọn đáp án đúng là đáp án D. Tiếp theo chúng mình sẽ đến với YC. Tích của 29.073 và 3 là bao nhiêu? Vậy để thực hiện phép tính tích của 29.073.3 thì chúng mình sẽ phải làm như thế nào? À, ta sẽ đặt tính rồi tính.
+
+Và ta sẽ nhân lần luật từ các hàng. Lần luật từ phải sang trái. Vậy ta lấy 3 x 3 bằng 9 viết 9. 3 x 7 bằng 21 viết 1 như 2. 3 x 0 là 0 thêm 2 là 2 viết 2. 3 x 9 là 27 viết 7 như 2. 3 x 2 là 6 thêm 2 là 8 viết 8. Vậy đáp án đúng của chúng mình là đáp án nào nhỉ? À, đáp án đúng của chúng mình chính là đáp án C. Ta được kết quả là 87.219. Tiếp theo là ý đây.
+
+Để mà người ta yêu cầu con thực hiện phép tính 54.658 chia cho 9. Ta được kết quả là bao nhiêu? À, bây giờ chúng mình sẽ cùng nhau đi thực hiện nhé. 54.658 chia cho 9. Đầu tiên, ta sẽ chia lần luật từ trái sang phải. Ta lấy 54 chia 9 ta được 6 viết 6 này.
+
+9 nhé, 6 x 9 bằng 54. 54 chiều đi 54 bằng 0 viết 0. Hạ 6 xuống ta được 6 chia cho 9 bằng 0 viết 0. Hạ 5 xuống ta được 65. 65 chia 9 bằng 7 viết 7. 7 x 9 bằng 63.
+
+Như vậy 65 chiều đi 63 được 2 viết 2. Hạ 8 xuống ta được 28 chia cho 9 được 3 và dư 1. Như vậy đáp án của chúng ta sẽ là thương là 673 và số dư là 1. Đúng không nhỉ? Như vậy đáp án đúng của chúng mình chính là đáp án B. Và, à, đáp án của chúng mình chính là đáp án A. Cô xin lỗi nhé. Đáp án A sẽ là thương là 6073 và số dư là 1. Tiếp theo chúng mình sẽ đến với YÉ. Tính nhầm 8000 cộng 7000 bằng bao nhiêu? À, chúng mình đã cùng nhau đi học tính nhầm rồi.
+
+Vậy 8000 cộng với 7000 sẽ bằng bao nhiêu nhỉ? À, ta sẽ lấy, ta sẽ nhầm này. 8 và viết thêm gương vị nghìn cộng với 7. Viết thêm gương vị nghìn ta lấy 8 cộng 7 bằng 15 đúng không nhỉ? Như vậy, 8000 mà cộng với 7000 ta sẽ phải được kết quả là 15.000. Như vậy ở đây chúng ta sẽ phải ra đáp án là 15.000. Tiếp theo là YÉ. F tính nhầm.
+
+Ta sẽ đi tính nhầm 73.000, trừ đi 3000, trừ đi 50.000. Vậy ta được kết quả là bao nhiêu nhỉ? À, ta sẽ lấy 73.000 mà trừ đi 3000 ta được kết quả là 70.000. 70.000 mà trừ đi 50.000 ta được kết quả là bao nhiêu? À, như vậy 70.000 mà trừ đi 50.000 ta sẽ được kết quả là 20.000 đúng không nhỉ? Vậy, kết tính 73.000 trừ đi 3000, trừ đi 50.000 ta được kết quả là 20.000. Tiếp theo chúng mình sẽ cùng nhau bước sang chạm số 2. Sau khi chúng ta hoàn thành xong chạm số 1 rồi bây giờ chúng ta sẽ cùng nhau bước sang chạm số 2 nhé. Chạm số 2. Để bài người ta cho con một bài toán đố như sau. Ở một nhà máy sản xuất đồ chơi trẻ em.
+
+Tháng 1 sản xuất được 12.960 sản phẩm. Số sản phẩm sản xuất được trong tháng 2 giảm đi 2 lần so với tháng 1. Hỏi tháng 2 nhà máy đó sản xuất được bao nhiêu sản phẩm. Vậy, để bài người ta cho con biết gì nhỉ? À, để bài người ta cho con biết đó là.
+
+Ở một nhà máy sản xuất đồ chơi trẻ em. Tháng 1 thì sản xuất được 12.960 sản phẩm. Số sản phẩm sản xuất được trong tháng 2 giảm đi 2 lần so với tháng 1. Vậy, để bài người ta hỏi con gì nhỉ? À, để bài người ta hỏi con đó là.
+
+Hỏi tháng 2 nhà máy đó sản xuất được bao nhiêu sản phẩm. Vậy, đầu tiên chúng ta sẽ cùng nhau đi thảo luận theo nhóm đôi cho cô nhé. Trong vòng 30 giây, chúng mình sẽ cùng nhau thảo luận cho cô xem.
+
+Chúng mình sẽ phải làm như thế nào? Để tìm xem trong tháng 2 nhà máy đó sản xuất được bao nhiêu sản phẩm nhỉ? Vậy, các con sẽ cùng nhau suy nghĩ cho cô trong 30 giây nhé. Sau khi thảo luận xong thì bây giờ chúng mình sẽ cùng nhau đi giải bài toán này nhé. Vậy, để tìm xem trong tháng 2 nhà máy đó sản xuất được bao nhiêu sản phẩm thì chúng mình sẽ phải làm như thế nào? À, ta biết rằng trong tháng 1 thì sản xuất được 12.960 sản phẩm.
+
+Vậy muốn tìm xem số sản phẩm sản xuất được trong tháng 2 là bao nhiêu? Ta đã biết số sản phẩm trong tháng 2 thì giảm đi 2 lần so với tháng 1. Như vậy, ta sẽ đi tìm số sản phẩm tháng 2 nhà máy đó sản xuất được là ta lấy 12.960 chia cho 2, bởi vì trong tháng 2 thì giảm đi 2 lần so với tháng 1. Vậy ta được kết quả 6.480 sản phẩm. Đáp số 6.480 sản phẩm. Vâng rồi, chúng mình đã cùng nhau hoàn thành xong trạm số 2 rồi.
+
+Bây giờ cô và con sẽ cùng nhau bước sang trạm số 3 nhé. Trạm số 3 đề bài người ta yêu cầu con tính giá trị của vật thức. Ở đây có 2 vật thức là IA, hiệu cuộn 54.000 trừ đi 6.000 tất cả chia cho 8 bằng.
+
+IP, 43.680 trừ đi 7.120 nhân với 5 bằng. Vậy để tính được giá trị của vật thức thì ta sẽ phải làm như thế nào nhỉ? À, để tìm được giá trị của vật thức thì chúng mình việc đầu tiên sẽ phải quan sát xem trong vật thức đó có dấu ngoặt hay không. Nếu mà có dấu ngoặt thì chúng ta sẽ phải ưu tiên thiêu kiệm trong ngoặt trước.
+
+Tiếp theo đó thì chúng mình sẽ phải thực hiện lần lượt theo thứ tự. Đó là ưu tiên nhân chia trước và cộng trừ sau. Như vậy với IA ta thấy rằng trong biểu thức này có dấu ngoặt.
+
+Vậy ta sẽ phải đi ưu tiên tính trong ngoặt trước. Ta lấy 54.000 mà trừ đi 6.000 ta được kết quả là 48.000. 48.000 ta chia cho 8 ta sẽ được kết quả là 6.000 đúng không nhỉ? Ở đây chúng ta sẽ sửa cho cô là số 8 nhé. Tiếp theo là IP, 43.680 trừ đi 7.120 nhân với 5. Ta thấy rằng ở biểu thức này thì không có ngoặt.
+
+Như vậy ta sẽ phải ưu tiên nhân chia trước cộng trừ sau. Ta lấy 43.680 trừ đi 7.120 mà nhân với 5 ta được kết quả là 35.600. 43.680 mà trừ đi 35.600 ta được kết quả là 8.080. Sau khi hoàn thành xong chặng số 3 chúng mình sẽ cùng nhau đi hoàn thành xong chặng số 4. Đó sẽ là chặng cuối cùng để chúng ta tìm được kho báo nhé. Chặng số 4 có đề bài như sau.
+
+Để phục vụ năm học mới, một cửa hàng nhập về 4.050 quyển sách tham khảo. Số sách giáo khoa nhập về gấp 5 lần số sách tham khảo. Hỏi cửa hàng đó nhập về tất cả bao nhiêu quyển sách giáo khoa và sách tham khảo.
+
+Vậy đề bài người ta cho con biết gì và đề bài người ta hỏi gì nhỉ? À, đề bài người ta cho con biết đó là một cửa hàng nhập về 4.050 quyển sách tham khảo. Số sách giáo khoa nhập về gấp 5 lần số sách tham khảo. Và đề bài người ta hỏi con là gì nhỉ? À, đề bài người ta hỏi là cửa hàng đó nhập về tất cả bao nhiêu quyển sách giáo khoa và sách tham khảo.
+
+Như vậy chúng mình sẽ cùng nhau đi đọc kỹ để hoàn thành bài tập này cho cô nhé. Vậy chúng mình sẽ cùng nhau đi tóm tác bài toán trước đã này. Cô có sơ đồ như sau.
+
+Sách tham khảo và sách giáo khoa. Ta biết rằng số sách giáo khoa nhập về thì gấp 5 lần số sách tham khảo. Như vậy sách tham khảo ta coi là 1 phần và sách giáo khoa ta coi là 5 phần.
+
+Sách tham khảo ta đã biết là có 4.050 quyển. Và sách giáo khoa ta chưa biết. Đề bài người ta lại hỏi là cửa hàng đó nhập về tất cả bao nhiêu quyển sách giáo khoa và sách tham khảo.
+
+Vậy đầu tiên ta sẽ phải tìm gì nhỉ? À, đầu tiên ta sẽ phải đi tìm xem sách giáo khoa có bao nhiêu quyển, bằng cách nào? Ta biết rằng số sách tham khảo là 4.050 quyển và số sách tham khảo thì... Số sách giáo khoa thì gấp 5 lần số sách tham khảo. Vậy ta có dễ dàng tìm được số sách giáo khoa hay không nhỉ? À, ta sẽ dễ dàng tìm được số sách giáo khoa. Từ đó thì ta sẽ dễ dàng tìm được xem cửa hàng đó nhập về tất cả bao nhiêu quyển sách giáo khoa và sách tham khảo đúng không nhỉ? Bây giờ chúng mình sẽ cùng nhau đi chứng bài nhé.
+
+Số sách giáo khoa cửa hàng nhập về là... Ta lấy số sách tham khảo nhân với năm ta bằng 4.050 nhân năm bằng 20.250 nguyễn. Bước số 2 ta sẽ đi tính tổng số sách giáo khoa và sách tham khảo cửa hàng nhập về là... Ta lấy số sách tham khảo là 4.050 cộng với số sách giáo khoa là 20.250 và đạt được kết quả là 24.300 quyển. Đáp số 24.300 quyển.
+
+Vâng rồi, chúng mình đã cùng nhau hoàn thành công trạng số 4. Vậy cô xin chúc mừng tất cả các bạn đã chinh phục được các thử thách. Đây chính là phần tưởng dành cho các bạn là một cái kho báo rất là nhiều vàng và trâu báo đúng nhỉ. Vừa rồi thì chúng mình đã cùng nhau đi học xong về bài số 2. Ô tập các phép tính trong phạm vi mùa 100.000. Cô xin chào và hẹn gặp lại các con ở những bài tiếp theo nhé.
+
+Khóa học về sách. Sự lựa chọn của hàng triệu phụ huynh vào học sinh. Trải nghiệm ngay khóa học về sách.
+
+Hẹn gặp lại các bạn.
+
+(Được chép bởi TurboScribe.ai. Nâng cấp lên Không giới hạn để gỡ bỏ thông báo này.)

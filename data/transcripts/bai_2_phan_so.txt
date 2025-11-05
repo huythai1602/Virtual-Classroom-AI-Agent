@@ -1,0 +1,41 @@
+Bài 2: Phân số - Khái niệm cơ bản
+
+Chào các em! Hôm nay chúng ta sẽ học về phân số.
+
+1. Phân số là gì?
+Phân số là cách biểu diễn một phần của một đơn vị. Phân số được viết dưới dạng a/b, trong đó:
+- a là tử số (số ở trên)
+- b là mẫu số (số ở dưới, khác 0)
+
+Ví dụ: 1/2 đọc là "một phần hai"
+        3/4 đọc là "ba phần tư"
+
+2. Ý nghĩa của phân số
+Khi chia một vật thành b phần bằng nhau và lấy a phần, ta được phân số a/b.
+
+Ví dụ 1: Một chiếc bánh chia thành 4 phần bằng nhau. Bạn ăn 1 phần.
+         → Bạn ăn 1/4 chiếc bánh.
+
+Ví dụ 2: Một đoạn dây dài 5m, cắt đi 2m.
+         → Đoạn dây bị cắt đi là 2/5 tổng chiều dài.
+
+3. Các loại phân số
+a) Phân số thật sự: Tử số nhỏ hơn mẫu số (1/3, 2/5, 3/7)
+b) Phân số bằng 1: Tử số bằng mẫu số (2/2, 5/5, 10/10)
+c) Phân số lớn hơn 1: Tử số lớn hơn mẫu số (5/3, 7/4, 9/2)
+
+4. So sánh phân số cùng mẫu số
+Khi hai phân số có cùng mẫu số, phân số nào có tử số lớn hơn thì phân số đó lớn hơn.
+
+Ví dụ: So sánh 2/7 và 5/7
+       Vì 2 < 5 nên 2/7 < 5/7
+
+5. Lưu ý quan trọng
+- Mẫu số không bao giờ bằng 0
+- Phân số có thể biểu diễn trên trục số
+- Phân số được dùng rất nhiều trong đời sống (chia đồ ăn, đo lường, tính toán)
+
+Bài tập về nhà:
+1. Viết phân số biểu diễn phần được tô màu trong hình
+2. So sánh các cặp phân số: 1/4 và 3/4; 2/5 và 4/5
+3. Cho ví dụ về việc sử dụng phân số trong cuộc sống hàng ngày

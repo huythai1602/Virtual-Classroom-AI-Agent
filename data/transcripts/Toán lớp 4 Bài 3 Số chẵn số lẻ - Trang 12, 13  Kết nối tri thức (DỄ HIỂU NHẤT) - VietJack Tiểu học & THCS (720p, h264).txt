@@ -1,0 +1,75 @@
+(Transcribed by TurboScribe.ai. Go Unlimited to remove this message.)
+
+Xin chào tất cả các con học sinh thân mến. Chào mừng các con đã đến với khóa học bài giảng toán lớp 4, bộ sách mang tên Kết nối tri thức. Bữa học ngày hôm nay chúng mình sẽ cùng nhau đi tìm hiểu về số chẵn và số lẻ bài số 3 trong sách giáo khoa toán lớp 4. Như vậy, thế nào là số chẵn và thế nào là số lẻ? Chắc hẳn chúng ta đã từng được nghe số chẵn và số lẻ rồi, nhưng mà hôm nay chúng ta sẽ cùng nhau đi tìm hiểu kỹ hơn về số chẵn và số lẻ, xem tại sao chúng lại gọi là số chẵn và tại sao lại gọi là số lẻ nhé.
+
+Đầu tiên thì chúng mình sẽ cùng nhau bước vào phần khởi động. Trong phần khởi động này thì cô có một trò chơi mang tên là trò chơi đố bạn. Ở đây có hai bạn nhỏ là một bạn gái và một bạn trai.
+
+Bạn gái và bạn trai sẽ thay phiên nhau hỏi những câu đố để đối phương trả lời. Như vậy, khi mà bạn nữ hỏi là, bạn nam hỏi là đố bạn đố bạn và bạn nữ hỏi đố gì đố gì, sau đó thì bạn nữ sẽ đặt ra câu hỏi như sau. 80.000 chia cho 4 thì bằng bao nhiêu? À, như vậy, chúng ta đã được học về số tròn chục nghìn chia cho một số tự nhiên rồi, tôi không nhầm.
+
+Như vậy, 80.000 chia cho 4, ta chỉ cần lấy 8 chia 4 được 2 và ta sẽ giữ nguyên chữ số không còn lại, ta được kết quả là 20.000. Như vậy, bạn trai sẽ trả lời là 20.000 này. Tiếp theo, bạn nữ lại hỏi tiếp 5.000 x 6 và bạn nam sẽ trả lời là 30.000 nếu không nhầm. Tiếp theo, bạn nữ lại hỏi là 4.000 x 6 chia cho 3 bằng bao nhiêu? Như vậy thì chúng mình sẽ cùng nhau thực hiện phép tính này.
+
+Ta có thể thực hiện phép tính nhân trước hoặc thực hiện phép tính chia đều được. Ta có thể lấy 6 chia cho 3 bằng 2. Như vậy, 4.000 x 2 ta được kết quả là 8.000. Từ đó thì chúng mình đã cùng nhau đi ôn lại bài tập. Về ôn tập các số đến phạm vi 100.000 trong bài học hôm trước rồi, đến bài học ngày hôm nay chúng mình lại cùng nhau đi khám phá về số chặn số lẻ.
+
+Đầu tiên, chúng mình quan sát bức tranh này cho cô. Ở đây có một bạn và bạn robot. Các bạn thì đang đứng ở một con phố, đúng không nhỉ? Con phố này thì có các nhà cao từng và mỗi nhà thì lại có một số, đúng không nhỉ? Như vậy thì bạn nữ đang nói là Tớ thấy một bên phố ghi các số nhà 10, 12, 14, 16, 18, v.v. Bên kia thì ghi các số nhà 11, 13, 15, 17, 19, v.v. Như vậy thì bạn thì thắc mắc là các số đó có đắc điểm gì nhỉ? À, bạn robot đã thông minh và trả lời là Để dễ tìm số nhà thì người ta đã dùng các số chặn như là 10, 12, 14, 16, 18, v.v. để đánh số nhà ở một bên của dãy phố.
+
+Bên còn lại thì người ta dùng các số lẻ như là số 11, 13, 15, 17, 19, v.v. Vậy các em có thắc mắc giống bạn nữ không nhỉ? Tại sao lại viết một bên thì ghi các số là 10, 12, 14, 16, 18, v.v. Bên còn lại thì lại ghi số 11, 13, 15, 17, 19. Vậy chúng có đặc điểm gì thì chúng mình sẽ cùng nhau đi tìm hiểu kỹ hơn nhé. Bây giờ chúng mình sẽ cùng nhau đi tìm hiểu này.
+
+Những số chia hết cho 2 là số chặn. Và số không chia hết cho 2 là số lẻ. Tại sao lại như vậy? Chúng ta sẽ nhớ cho cô đó là dấu hiệu chia hết cho 2. Những số mà chia hết cho 2 là những chữ số có tận cùng là 0, 2, 4, 6, 8 đúng không nhỉ? Như vậy, để dễ nhớ hơn thì các số chặn người ta đã định nghĩa đó là số chia hết cho 2 thì là số chặn.
+
+Và những số không chia hết cho 2 có chữ số tận cùng là 1, 3, 5, 7 và 9 thì là số lẻ. Từ đó thì chúng mình sẽ cùng nhau đi tìm hiểu xem có cách nào để dễ nhận biết được số chặn và số lẻ không nhỉ? À như vậy chúng ta thử nghĩ cho cô xem chúng ta có cách nào để nhận biết được xem số chặn và số lẻ một cách dễ dàng không nhỉ? À như vậy thì cô có nhận xét như sau. Các chữ số có tận cùng là 0, 2, 4, 6 và 8 là các số chặn.
+
+Có có ví dụ như là số 40. Số 40 này thì có chữ số tận cùng là 0, như vậy đây là số chặn này. Tiếp theo là số 72, có chữ số tận cùng là 2, như vậy đây cũng là số chặn.
+
+Số 214 có chữ số tận cùng là 4 và đây chính là số chặn. Tiếp theo là số 96, có chữ số tận cùng là 6, đây cũng là số chặn. Và cuối cùng là số 2318, có chữ số tận cùng là 8, như vậy đây cũng là số chặn.
+
+Bởi vì chúng có tận cùng là 0, 2, 4, 6 và 8. Tương tự như vậy thì các số có chữ số tận cùng là 1, 3, 5, 7 và 9 sẽ là các số lẻ. Cô có ví dụ như là số 31, có chữ số tận cùng là 1, như vậy đây là số lẻ. Số 73 có chữ số tận cùng là 3, như vậy đây cũng là số lẻ.
+
+Số 615 có chữ số tận cùng là 5, như vậy đây cũng là số lẻ. Số 107 có chữ số tận cùng là 7 và số 1909 có chữ số tận cùng là 9, đây cũng chính là các số lẻ. Bởi vì chúng có chữ số tận cùng là 1, 3, 5, 7 và 9, đúng không nhỉ? Như vậy sau khi chúng ta đã đi học về định nghĩa và nhận xét về số chặn số lẻ thì các con đã hiểu rõ hơn về số chặn và số lẻ chưa nhỉ? À, để tìm hiểu rõ hơn thì chúng mình sẽ cùng nhau đi thực hành các số chặn và số lẻ ở trong bảng số chẳng từ 0 đến 100 và bảng số lẻ từ 0 đến 100 nhé.
+
+Chúng ta có thể quan sát đây là một bảng số có từ 0 đến 100. Chúng mình sẽ cùng nhau đi tìm các số chẳng từ 0 đến 100 này nhé. À, chúng mình sẽ cùng nhau quan sát này.
+
+Để tìm được các số chẳng từ 0 đến 100 thì chúng mình lại phải nhớ cho cô. Đó là các số có chữ số tận cùng là 0, 2, 4, 6 và 8 thì là số chẳng đúng không nhỉ? Như vậy chúng mình cùng nhau quan sát và ta dễ dàng thấy số 0, số 2, số 4, số 6, số 8 là số chẳng này. Tiếp theo, số 10 này, số 12, 14, 16, 18 cũng là số chẳng.
+
+Tiếp theo tới hàng 20 này, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62, 64, 66, 68, 70, 72, 74, 76, 78, 80, 82, 84, 86, 88, 90, 92, 94, 96, 98 và cuối cùng là 100. Ờ, chúng ta sẽ nhớ cho cô, đó là những chữ số mà có chữ số tận cùng là 0, 2, 4, 6 và 8 thì sẽ là số chẳng. Tương tự như vậy chúng mình sẽ cùng nhau đi tìm bảng số lẻ nhé.
+
+Ở đây chúng ta để tìm được bảng các số lẻ từ 0 đến 100 thì chúng mình lại phải nhớ cho cô xem thế nào là số lẻ. À, số lẻ là số có chữ số tận cùng là 1, 3, 5, 7 và 9. Như vậy chúng mình dễ dàng tìm được các số lẻ như sau. 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, tương tự.
+
+Tiếp theo đến 91, 93, 95, 97 và 99 là các số lẻ trong phạm vi từ 0 đến 100 mà chúng ta đã cùng nhau đi tìm hiểu dấu hiệu nhận biết đúng không nhỉ? Như vậy, cô chốt lại cho các con, đó là các số lẻ là các số có chữ số tận cùng là 1, 3, 5, 7 và 9 nhé. Sau khi chúng mình đã cùng nhau đi tìm hiểu về các số chẵn và số lẻ rồi thì chúng mình lại cùng nhau đi tìm hiểu xem cái ứng dụng của số chẵn và số lẻ trong cuộc sống. Thì ở trong cuộc sống thì chúng mình có thắc mắc tại sao mà dãy các dãy nhà lại sắp xếp theo các số chẵn và số lẻ? Hay là ở trong một dãy ghế cũng như vậy người ta sẽ sắp xếp 1 bên là dãy ghế lẻ và 1 bên là dãy ghế chẵn không? À như vậy chúng ta sẽ đi tìm hiểu về ứng dụng của số chẵn và số lẻ trong cuộc sống nhé.
+
+Ở đây chúng ta có thể quan sát đây là một quyển lịch. Quyển lịch này thì có các ứng dụng về số chẵn và số lẻ đó là mang các ngày đúng không nhỉ? Như vậy chúng mình có thể quan sát đây là ngày mùng 1 này, ngày mùng 2, mùng 3, mùng 4 và mùng 5. Hoặc là chúng ta có thể tìm hiểu quan sát về đây là cầu thang máy đúng không nhỉ? Cầu thang máy này thì cũng có ứng dụng của các số chẵn và số lẻ. Như vậy chúng ta có thể lên từng chẵn hoặc từng lẻ theo ý thích của chúng ta.
+
+Hoặc là đây là một cái bàn phím ở trong điện thoại bàn thời xưa thì cũng có ứng dụng về các số chẵn và số lẻ. Hoặc là chúng ta có thể quan sát kỹ hơn ở trong cái điện thoại bàn thời xưa. Chúng ta có thể thấy các số chẵn và số lẻ được sắp xếp liền kề nhau đúng không nhỉ? Tiếp theo chúng mình có thể quan sát về biển báo P131B, đó là cấm tổ xe ngày lẻ là ở bên trái và biển báo P131C là biển cấm tổ xe ở ngày chẵn.
+
+Chúng ta có thể quan sát đây là những cái ứng dụng của số chẵn và số lẻ trong cuộc sống. Sau khi chúng mình đã cùng nhau đi tìm hiểu về số chẵn số lẻ và ứng dụng của chúng trong cuộc sống thì chúng mình sẽ cùng nhau bước sang phần hoạt động ôn tập lại những kiến thức chúng ta đã cùng nhau đi học nhé. Đầu tiên chúng mình sẽ cùng nhau đi làm bài tập số 1 trong phần hoạt động.
+
+Để bà người ta cho con biết là trong các số dưới đây thì số nào là số chẵn, số nào là số lẻ. Ở đây chúng ta quan sát chúng ta có 1 nông trường dưa hấu và chúng ta có 2 cái xe để chở dưa hấu đúng không nhỉ? Một bên thì là chở dưa hấu mang số chẵn và một bên thì mang dưa hấu chở số lẻ. Như vậy chúng mình có các quả dưa hấu mang số 12, 315, 108, 71, 194, 656, 649, 72, 113 và 107.
+
+Vậy để xếp về các quả dưa hấu vào trong xe mang số chẵn và số lẻ thì chúng mình sẽ phải nhớ cho cô xem thế nào là số chẵn và thế nào là số lẻ nhỉ? À, số chẵn là số có chữ số tận cùng là 0, 2, 4, 6 và 8. Số chẵn số lẻ là số có chữ số tận cùng là 1, 3, 5, 7 và 9. Như vậy chúng mình sẽ cùng nhau quan sát các số này và xếp các quả dưa hấu vào vị trí phù hợp nhé. Đầu tiên là quả mang số 12. Ta thấy rằng số 12 có chữ số tận cùng là 2. Như vậy đây là số chẵn đúng không nhỉ? Ta sẽ cho quả dưa hấu 12 vào bên xe số chẵn này.
+
+Tiếp theo là số 315. Số 315 có chữ số tận cùng là 5. Như vậy đây chính là quả dưa hấu mang số lẻ. Tiếp theo là quả dưa hấu mang số 108 có chữ số tận cùng là 8. Như vậy đây là số chẵn.
+
+Số 71 có chữ số tận cùng là 1. Như vậy quả dưa hấu này mang số lẻ. 194 có chữ số tận cùng là 4. Như vậy quả dưa hấu này có, mang chữ số chẵn. Quả dưa hấu mang số 506. 
+
+656 có chữ số tận cùng là 6. Như vậy quả dưa hấu này mang số chẵn. Tiếp theo là quả dưa hấu mang số 649 có chữ số tận cùng là 9. Như vậy đây là quả dưa hấu mang số lẻ. Quả dưa hấu mang số 72 có chữ số tận cùng là 2. Như vậy đây là quả dưa hấu mang số chẵn.
+
+Quả dưa hấu mang số 113 có chữ số tận cùng là 3. Như vậy đây là quả dưa hấu mang số lẻ. Và cuối cùng là quả dưa hấu mang số 107 có chữ số tận cùng là 7. Từ đó thì đây chính là quả dưa hấu mang số lẻ, đúng không nhỉ? Vừa rồi thì chúng mình đã cùng nhau đi sắp xếp các quả dưa hấu vào các xe phù hợp với nó rồi. Bây giờ chúng mình sẽ cùng nhau bước sang bài tập số 2 để bàn người ta yêu cầu con nêu các số chẵn, số lẻ trong tia số dưới đây.
+
+Ở đây người ta cho con một tia số có các số từ 0 đến 12. Và người yêu cầu con nêu các số chẵn và số lẻ trong tia số này. Vậy để làm được bài tập này thì chúng mình sẽ phải làm như thế nào? À, để làm được bài tập số 2 này thì chúng mình sẽ phải nhớ cho cô xem thế nào là số chẵn và thế nào là số lẻ.
+
+À, số lẻ là số có chữ số tận cùng là 1, 3, 5, 7 và 9. Số chẵn là số có chữ số tận cùng là 0, 2, 4, 6 và 8. Như vậy chúng mình quan sát tia số và dễ dàng tìm được các số phù hợp với các giỏ mà bạn đang cần tìm đúng không nhỉ? Như vậy, ở đây cô có một cây táo mang số từ 0 đến 12. Bây giờ chúng mình sẽ cùng nhau xếp các quả táo phù hợp vào trong giỏ nhé. Đầu tiên là số 0, ta sẽ mang vào giỏ số chẵn này.
+
+Tiếp theo là số 1, ta sẽ mang vào giỏ số lẻ. Số 2, ta sẽ mang vào giỏ số chẵn. Số 3, ta sẽ mang vào giỏ số lẻ.
+
+Số 4, ta sẽ mang vào giỏ số chẵn. Số 5, ta sẽ mang vào giỏ số lẻ. Số 6, ta sẽ mang vào giỏ số chẵn.
+
+Số 7, ta sẽ mang vào giỏ số lẻ. Số 8, ta sẽ mang vào giỏ số chẵn. Số 9, ta sẽ mang vào giỏ số lẻ.
+
+Và số 10, ta sẽ mang vào giỏ số chẵn bởi vì số 10 có chữ số tận cùng là 0. Số 11, ta sẽ mang vào giỏ số lẻ bởi vì số 11 có chữ số tận cùng là 1. Và số 12, ta sẽ mang vào giỏ số chẵn bởi vì số 12 có chữ số tận cùng là 2. Đúng không nhỉ? Vừa rồi chúng mình đã cùng nhau hoàn thành xong bài tập số 2. Bây giờ cô và con sẽ cùng nhau bước sang phần củng cố. Ở đây chúng ta sẽ cùng nhau như trả lời các câu hỏi để củng cố lại kiến thức chúng ta đã được học ở bài hôm nay nhé. Các con sẽ quan sát cho cô.
+
+Ở bức tranh này cô có 3 con ếch. Như vậy, 3 con ếch này mang số chẵn hay là số lẻ nhỉ? Chúng ta có 3 giây suy nghĩ. À, 3 con ếch này sẽ mang số lẻ.
+
+Đáp án đúng của chúng ta chính là số lẻ. Tiếp theo, ta có các con bướm này của chúng ta. Để tìm xem số con bướm này là số chẵn hay số lẻ thì chúng mình sẽ phải đi đếm số con bướm này đúng không nhỉ? Ta đếm này.
+
+1, 2, 3, 4, 5, 6. Như vậy có 6 con bướm. Vậy đây chính là số chẵn đúng không nhỉ? Và đáp án đúng của chúng ta chính là đáp án ai? Vừa rồi chúng mình đã cùng nhau đi trả lời tất cả các câu hỏi có trong bài số chẵn số lẻ và đi tìm hiểu khái niệm xem thế nào là số chẵn và thế nào là số lẻ. Cô xin chào và hẹn gặp lại các con ở những bài tiếp theo nhé!
+
+(Transcribed by TurboScribe.ai. Go Unlimited to remove this message.)
