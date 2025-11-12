@@ -11,9 +11,10 @@ from langgraph.graph import StateGraph, MessagesState, START, END
 from langgraph.checkpoint.memory import MemorySaver
 
 from .prompts import SYSTEM_PROMPT, INTENT_DETECTION_PROMPT
-from .tools.answer_tool import answer_with_context
+from .tools.answer_tool import answer_with_context, answer_with_confidence
 from .tools.explain_tool import explain_with_context
-from .tools.retriever_tool import get_context
+from .tools.retriever_tool import get_context, get_context_smart
+from .tools.intent_classifier_tool import classify_intent, should_use_intent_classifier
 
 # Load environment variables
 load_dotenv()
@@ -64,33 +65,66 @@ def intent_node(state: AgentState) -> dict:
 
 def retrieve_node(state: AgentState) -> dict:
     """
-    Node truy vấn ngữ cảnh từ ChromaDB
-    Đã tối ưu: Giảm k để giảm tokens
+    Node truy vấn ngữ cảnh từ ChromaDB với Smart Retrieval
     """
     query = state.get("current_query", "")
     intent = state.get("intent", "normal")
     lesson_id = state.get("lesson_id", None)  # Lấy lesson_id từ state
     
-    # Tối ưu: Giảm k từ 3/5/10 xuống 3/5
-    # Normal: 3 chunks (~600-1500 tokens)
-    # Deep: 5 chunks (~1000-2500 tokens)
-    k = 5 if intent == "deep" else 3
+    # PHASE 1: Smart Retrieval với query expansion
+    # Normal: 7 chunks với expansion
+    # Deep: 10 chunks với expansion
+    k = 10 if intent == "deep" else 7
     
-    # Truy vấn với lesson_id filter
-    context = get_context(query, k=k, lesson_id=lesson_id)
+    # Dùng smart retrieval thay vì get_context thông thường
+    context = get_context_smart(query, k=k, lesson_id=lesson_id)
     
     return {"context": context}
 
 
 def answer_node(state: AgentState) -> dict:
     """
-    Node trả lời ngắn gọn (Normal mode)
+    Node trả lời ngắn gọn với HYBRID APPROACH (Phase 1-4)
     """
     query = state.get("current_query", "")
     context = state.get("context", "")
+    lesson_id = state.get("lesson_id", None)
     
-    # Gọi tool trả lời
-    answer = answer_with_context(query, context)
+    # PHASE 2: Answer với confidence scoring
+    result = answer_with_confidence(query, context)
+    
+    confidence = result.get("confidence", 0.8)
+    answer = result.get("answer", "")
+    
+    print(f"[ANSWER NODE] Confidence: {confidence:.2f}")
+    
+    # PHASE 3: Nếu low confidence → classify intent và retry
+    if should_use_intent_classifier(confidence):
+        print(f"[ANSWER NODE] Low confidence ({confidence:.2f}), using intent classifier...")
+        
+        intent_result = classify_intent(query)
+        
+        if intent_result["classification"] == "IN-SCOPE" and intent_result["confidence"] > 0.8:
+            # Re-retrieve với lesson_id cụ thể
+            better_lesson_id = intent_result.get("lesson_id")
+            if better_lesson_id:
+                print(f"[ANSWER NODE] Re-retrieving with lesson_id: {better_lesson_id}")
+                better_context = get_context_smart(query, k=10, lesson_id=better_lesson_id)
+                
+                # Re-answer
+                result = answer_with_confidence(query, better_context)
+                answer = result.get("answer", "")
+                print(f"[ANSWER NODE] Re-answer confidence: {result.get('confidence', 0):.2f}")
+        
+        elif intent_result["classification"] == "OUT-OF-SCOPE" and intent_result["confidence"] > 0.85:
+            # Truly out-of-scope
+            topic = intent_result.get("topic", "câu hỏi này")
+            answer = (
+                f"Ối, {topic} chưa nằm trong chương trình Toán lớp 4 em ạ! "
+                f"Bây giờ chúng ta đang học về số học, phép tính và phân số. "
+                f"Em có muốn hỏi về các chủ đề này không?"
+            )
+            print(f"[ANSWER NODE] OUT-OF-SCOPE confirmed: {topic}")
     
     # Cập nhật messages
     new_message = AIMessage(content=answer)

@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  # Service chính - AI Agent API
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: langgraph_agent_api
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount code để development (có thể bỏ khi production)
+      - .:/app
+      # Mount data và chroma_db để persist
+      - ./data:/app/data
+      - ./chroma_db:/app/chroma_db
+    environment:
+      # Biến môi trường từ file .env
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - .env
+    restart: unless-stopped
+    networks:
+      - agent_network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Ngrok - Public tunnel cho localhost:8000
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: langgraph_agent_ngrok
+    command: http web:8000
+    ports:
+      - "4040:4040"  # Ngrok web interface
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
+    depends_on:
+      - web
+    restart: unless-stopped
+    networks:
+      - agent_network
+
+  # Optional: Redis cho caching (nếu cần mở rộng)
+  # redis:
+  #   image: "redis:alpine"
+  #   container_name: langgraph_agent_redis
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - redis_data:/data
+  #   restart: unless-stopped
+  #   networks:
+  #     - agent_network
+
+networks:
+  agent_network:
+    driver: bridge
+
+volumes:
+  # Volume cho Redis (nếu dùng)
+  # redis_data:
+  data:
+    driver: local
+  chroma_db:
+    driver: local

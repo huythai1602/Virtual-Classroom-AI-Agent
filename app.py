@@ -66,6 +66,8 @@ class AnalyzerRequest(BaseModel):
 class AnalyzerResponse(BaseModel):
     analysis: str
     thread_id: str
+    level: str  # Beginner/Intermediate/Advanced
+    level_reason: str  # Lý do đánh giá level
 
 
 class MindmapRequest(BaseModel):
@@ -90,6 +92,14 @@ class LessonInfo(BaseModel):
 
 class LessonsResponse(BaseModel):
     lessons: List[LessonInfo]
+
+
+class UserLevelResponse(BaseModel):
+    thread_id: str
+    level: str  # Beginner/Intermediate/Advanced
+    level_reason: str
+    messages_count: int
+    has_conversation: bool
 
 
 @app.get("/", response_model=HealthResponse)
@@ -301,12 +311,20 @@ async def analyzer_endpoint(request: AnalyzerRequest):
         topic = request.topic if request.topic else "Toán lớp 4"
         transcript = get_context(topic, k=5, lesson_id=request.lesson_id)
         
-        # Phân tích
-        analysis = analyze_with_data(conversation_history, transcript)
+        # Phân tích (bao gồm đánh giá level)
+        result = analyze_with_data(conversation_history, transcript)
+        
+        # Lưu level vào session
+        session = session_memory.get_session(request.thread_id)
+        session["latest_level"] = result["level"]
+        session["level_reason"] = result["level_reason"]
+        session_memory.update_session(request.thread_id, session)
         
         return AnalyzerResponse(
-            analysis=analysis,
-            thread_id=request.thread_id
+            analysis=result["analysis"],
+            thread_id=request.thread_id,
+            level=result["level"],
+            level_reason=result["level_reason"]
         )
     
     except HTTPException:
@@ -395,6 +413,60 @@ async def get_session(thread_id: str):
         raise HTTPException(
             status_code=500,
             detail=f"Lỗi khi lấy session: {str(e)}"
+        )
+
+
+@app.get("/user/{thread_id}/level", response_model=UserLevelResponse)
+async def get_user_level(thread_id: str):
+    """
+    Lấy level của user (cho backend services khác)
+    
+    Args:
+        thread_id: ID của user/thread
+        
+    Returns:
+        UserLevelResponse với level, lý do, và thống kê conversation
+    """
+    try:
+        session = session_memory.get_session(thread_id)
+        messages = session.get("messages", [])
+        
+        # Kiểm tra có conversation chưa
+        if not messages:
+            return UserLevelResponse(
+                thread_id=thread_id,
+                level="Beginner",
+                level_reason="Chưa có cuộc hội thoại nào",
+                messages_count=0,
+                has_conversation=False
+            )
+        
+        # Lấy level đã được lưu (từ analyzer)
+        latest_level = session.get("latest_level")
+        level_reason = session.get("level_reason")
+        
+        # Nếu chưa có level (chưa gọi analyzer), trả về Beginner
+        if not latest_level:
+            return UserLevelResponse(
+                thread_id=thread_id,
+                level="Beginner",
+                level_reason="Chưa được đánh giá. Vui lòng gọi /analyzer trước.",
+                messages_count=len(messages),
+                has_conversation=True
+            )
+        
+        return UserLevelResponse(
+            thread_id=thread_id,
+            level=latest_level,
+            level_reason=level_reason or "",
+            messages_count=len(messages),
+            has_conversation=True
+        )
+    
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Lỗi khi lấy level: {str(e)}"
         )
 
 

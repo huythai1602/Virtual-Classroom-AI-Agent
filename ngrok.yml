@@ -1,0 +1,4 @@
+version: 3
+agent:
+  authtoken: 3596bbbU2AW1O8edazvar1GwbqR_6fqqFqy1CFgsK2UYNctDt
+  update_channel: stable

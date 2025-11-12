@@ -43,15 +43,18 @@ def explain_question(query: str) -> str:
 
 def explain_with_context(query: str, context: str) -> str:
     """
-    Giải thích chi tiết với ngữ cảnh đã được cung cấp sẵn
+    Giải thích chi tiết với ngữ cảnh đã được cung cấp sẵn.
+    Bao gồm self-critique để đảm bảo độ chính xác.
     
     Args:
         query: Câu hỏi của học sinh
         context: Ngữ cảnh từ bài giảng
         
     Returns:
-        Giải thích chi tiết
+        Giải thích chi tiết đã được validate
     """
+    from .validator_tool import validate_answer, should_use_validation
+    
     prompt = DEEP_EXPLAIN_PROMPT.format(context=context, question=query)
     
     messages = [
@@ -60,4 +63,17 @@ def explain_with_context(query: str, context: str) -> str:
     ]
     
     response = llm.invoke(messages)
-    return response.content
+    answer = response.content
+    
+    # Self-critique cho deep mode
+    if should_use_validation(intent="deep"):
+        validation = validate_answer(query, answer, context)
+        
+        # Nếu validation phát hiện vấn đề và confidence < 70
+        if not validation["is_valid"] or validation["confidence"] < 70:
+            # Sử dụng corrected_answer nếu có
+            if validation["corrected_answer"] and validation["corrected_answer"] != answer:
+                answer = validation["corrected_answer"]
+                print(f"[VALIDATION] Đã sửa câu trả lời. Issues: {validation['issues']}")
+    
+    return answer

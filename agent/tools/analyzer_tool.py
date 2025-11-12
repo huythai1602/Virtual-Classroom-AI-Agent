@@ -8,6 +8,7 @@ from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_core.tools import tool
 from ..prompts import ANALYZER_PROMPT
 from .retriever_tool import get_context
+from .level_assessment_tool import assess_student_level_from_conversation
 
 # Load environment variables
 load_dotenv()
@@ -46,17 +47,18 @@ def analyze_session(conversation_history: str, topic: str = "") -> str:
     response = llm.invoke(messages)
     return response.content
 
-def analyze_with_data(conversation_history: str, transcript: str) -> str:
+def analyze_with_data(conversation_history: str, transcript: str) -> dict:
     """
-    Phân tích với dữ liệu đã được cung cấp sẵn
+    Phân tích với dữ liệu đã được cung cấp sẵn, bao gồm đánh giá level
     
     Args:
         conversation_history: Lịch sử hội thoại
         transcript: Nội dung bài giảng
         
     Returns:
-        Phân tích chi tiết
+        dict: {"analysis": str, "level": str, "level_reason": str}
     """
+    # Phân tích buổi học
     prompt = ANALYZER_PROMPT.format(
         transcript=transcript,
         conversation_history=conversation_history
@@ -68,4 +70,14 @@ def analyze_with_data(conversation_history: str, transcript: str) -> str:
     ]
     
     response = llm.invoke(messages)
-    return response.content
+    analysis = response.content
+    
+    # Đánh giá level dựa trên conversation (rule-based, không gọi LLM)
+    messages_count = conversation_history.count("\n") // 2  # Ước lượng số cặp Q&A
+    level_result = assess_student_level_from_conversation(conversation_history, messages_count)
+    
+    return {
+        "analysis": analysis,
+        "level": level_result.get("level", "Beginner"),
+        "level_reason": level_result.get("reason", "")
+    }
