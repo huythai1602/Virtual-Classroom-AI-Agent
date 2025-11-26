@@ -2,6 +2,7 @@
 FastAPI Backend cho hệ thống Agentic RAG
 """
 import json
+from datetime import datetime, timezone
 from fastapi import FastAPI, HTTPException, Depends, Header, Security
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
@@ -100,43 +101,149 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Security(
         )
 
 
+# Standard API Response wrapper
+class APIResponse(BaseModel):
+    status: str  # "success" | "error"
+    data: Optional[Any] = None
+    message: str
+    timestamp: str
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "status": "success",
+                "data": {"key": "value"},
+                "message": "Operation completed successfully",
+                "timestamp": "2025-11-26T10:30:00Z"
+            }
+        }
+
+
 # Request/Response models
 class ChatRequest(BaseModel):
     user_message: str
     lesson_id: Optional[str] = None
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "user_message": "Cho em hỏi số 12345 có mấy chữ số?",
+                "lesson_id": "toan-lop-4-bai-1"
+            }
+        }
 
 
-class ChatResponse(BaseModel):
+class ChatData(BaseModel):
     reply: str
-    intent: Optional[str] = None
-    user_id: str  # Changed from thread_id
+    intent: str
+    user_id: str
+
+
+class ChatResponse(APIResponse):
+    data: Optional[ChatData] = None
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "status": "success",
+                "data": {
+                    "reply": "Số 12345 có 5 chữ số",
+                    "intent": "normal",
+                    "user_id": "user_123"
+                },
+                "message": "Chat processed successfully",
+                "timestamp": "2025-11-26T10:30:00Z"
+            }
+        }
 
 
 class AnalyzerRequest(BaseModel):
     lesson_id: Optional[str] = None
     topic: Optional[str] = ""
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "lesson_id": "toan-lop-4-bai-1",
+                "topic": "phân số"
+            }
+        }
 
 
-class AnalyzerResponse(BaseModel):
+class AnalyzerData(BaseModel):
     analysis: str
-    user_id: str  # Changed from thread_id
-    level: str  # Beginner/Intermediate/Advanced
-    level_reason: str  # Lý do đánh giá level
+    user_id: str
+    level: str
+    level_reason: str
+
+
+class AnalyzerResponse(APIResponse):
+    data: Optional[AnalyzerData] = None
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "status": "success",
+                "data": {
+                    "analysis": "Học sinh đã hiểu khái niệm cơ bản...",
+                    "user_id": "user_123",
+                    "level": "Intermediate",
+                    "level_reason": "Học sinh trả lời đúng 80% câu hỏi"
+                },
+                "message": "Analysis completed",
+                "timestamp": "2025-11-26T10:30:00Z"
+            }
+        }
 
 
 class MindmapRequest(BaseModel):
     lesson_id: str
-    topic: Optional[str] = ""  # Topic để tạo mindmap, mặc định lấy toàn bộ bài
+    topic: Optional[str] = ""
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "lesson_id": "toan-lop-4-bai-1",
+                "topic": "số tự nhiên"
+            }
+        }
 
 
-class MindmapResponse(BaseModel):
+class MindmapData(BaseModel):
     mindmap_data: Dict[str, Any]
     lesson_id: str
 
 
-class HealthResponse(BaseModel):
-    status: str
-    message: str
+class MindmapResponse(APIResponse):
+    data: Optional[MindmapData] = None
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "status": "success",
+                "data": {
+                    "mindmap_data": {
+                        "nodes": [],
+                        "edges": []
+                    },
+                    "lesson_id": "toan-lop-4-bai-1"
+                },
+                "message": "Mindmap generated successfully",
+                "timestamp": "2025-11-26T10:30:00Z"
+            }
+        }
+
+
+class HealthResponse(APIResponse):
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "status": "success",
+                "data": None,
+                "message": "Agentic RAG API đang hoạt động",
+                "timestamp": "2025-11-26T10:30:00Z"
+            }
+        }
 
 
 class LessonInfo(BaseModel):
@@ -144,25 +251,68 @@ class LessonInfo(BaseModel):
     lesson_name: str
 
 
-class LessonsResponse(BaseModel):
+class LessonsData(BaseModel):
     lessons: List[LessonInfo]
 
 
-class UserLevelResponse(BaseModel):
-    user_id: str  # Changed from thread_id
-    level: str  # Beginner/Intermediate/Advanced
+class LessonsResponse(APIResponse):
+    data: Optional[LessonsData] = None
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "status": "success",
+                "data": {
+                    "lessons": [
+                        {
+                            "lesson_id": "toan-lop-4-bai-1",
+                            "lesson_name": "Ôn tập các số đến 100000"
+                        }
+                    ]
+                },
+                "message": "Lessons retrieved successfully",
+                "timestamp": "2025-11-26T10:30:00Z"
+            }
+        }
+
+
+class UserLevelData(BaseModel):
+    user_id: str
+    level: str
     level_reason: str
     messages_count: int
     has_conversation: bool
 
 
+class UserLevelResponse(APIResponse):
+    data: Optional[UserLevelData] = None
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "status": "success",
+                "data": {
+                    "user_id": "user_123",
+                    "level": "Intermediate",
+                    "level_reason": "Đã hoàn thành 10 bài tập",
+                    "messages_count": 15,
+                    "has_conversation": True
+                },
+                "message": "User level retrieved",
+                "timestamp": "2025-11-26T10:30:00Z"
+            }
+        }
+
+
 @app.get("/", response_model=HealthResponse)
 async def root():
     """Health check endpoint"""
-    return {
-        "status": "ok",
-        "message": "Agentic RAG API đang hoạt động"
-    }
+    return HealthResponse(
+        status="success",
+        data=None,
+        message="Agentic RAG API đang hoạt động",
+        timestamp=datetime.now(timezone.utc).isoformat()
+    )
 
 
 @app.get("/lessons", response_model=LessonsResponse)
@@ -185,12 +335,19 @@ async def get_lessons():
                         lesson_name=file_path.name
                     ))
         
-        return LessonsResponse(lessons=lessons)
+        return LessonsResponse(
+            status="success",
+            data=LessonsData(lessons=lessons),
+            message="Lessons retrieved successfully",
+            timestamp=datetime.now(timezone.utc).isoformat()
+        )
     
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Lỗi khi lấy danh sách bài giảng: {str(e)}"
+        return LessonsResponse(
+            status="error",
+            data=None,
+            message=f"Lỗi khi lấy danh sách bài giảng: {str(e)}",
+            timestamp=datetime.now(timezone.utc).isoformat()
         )
 
 
@@ -296,15 +453,22 @@ async def chat_endpoint(
             session_memory.update_session(thread_id, session)
             
             return ChatResponse(
-                reply=reply,
-                intent=intent,
-                user_id=user_id
+                status="success",
+                data=ChatData(
+                    reply=reply,
+                    intent=intent,
+                    user_id=user_id
+                ),
+                message="Chat processed successfully",
+                timestamp=datetime.now(timezone.utc).isoformat()
             )
     
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Lỗi khi xử lý chat: {str(e)}"
+        return ChatResponse(
+            status="error",
+            data=None,
+            message=f"Lỗi khi xử lý chat: {str(e)}",
+            timestamp=datetime.now(timezone.utc).isoformat()
         )
 
 
@@ -351,18 +515,30 @@ async def analyzer_endpoint(
         session_memory.update_session(thread_id, session)
         
         return AnalyzerResponse(
-            analysis=result["analysis"],
-            user_id=user_id,
-            level=result["level"],
-            level_reason=result["level_reason"]
+            status="success",
+            data=AnalyzerData(
+                analysis=result["analysis"],
+                user_id=user_id,
+                level=result["level"],
+                level_reason=result["level_reason"]
+            ),
+            message="Analysis completed successfully",
+            timestamp=datetime.now(timezone.utc).isoformat()
         )
     
-    except HTTPException:
-        raise
+    except HTTPException as he:
+        return AnalyzerResponse(
+            status="error",
+            data=None,
+            message=he.detail,
+            timestamp=datetime.now(timezone.utc).isoformat()
+        )
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Lỗi khi phân tích: {str(e)}"
+        return AnalyzerResponse(
+            status="error",
+            data=None,
+            message=f"Lỗi khi phân tích: {str(e)}",
+            timestamp=datetime.now(timezone.utc).isoformat()
         )
 
 
@@ -395,14 +571,21 @@ async def mindmap_endpoint(request: MindmapRequest):
             }
         
         return MindmapResponse(
-            mindmap_data=mindmap_data,
-            lesson_id=request.lesson_id
+            status="success",
+            data=MindmapData(
+                mindmap_data=mindmap_data,
+                lesson_id=request.lesson_id
+            ),
+            message="Mindmap generated successfully",
+            timestamp=datetime.now(timezone.utc).isoformat()
         )
     
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Lỗi khi tạo mindmap: {str(e)}"
+        return MindmapResponse(
+            status="error",
+            data=None,
+            message=f"Lỗi khi tạo mindmap: {str(e)}",
+            timestamp=datetime.now(timezone.utc).isoformat()
         )
 
 
@@ -417,11 +600,18 @@ async def clear_session(user_id: str = Depends(get_current_user)):
     """
     try:
         session_memory.clear_session(user_id)
-        return {"message": f"Đã xóa session của user {user_id}"}
+        return APIResponse(
+            status="success",
+            data=None,
+            message=f"Đã xóa session của user {user_id}",
+            timestamp=datetime.now(timezone.utc).isoformat()
+        )
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Lỗi khi xóa session: {str(e)}"
+        return APIResponse(
+            status="error",
+            data=None,
+            message=f"Lỗi khi xóa session: {str(e)}",
+            timestamp=datetime.now(timezone.utc).isoformat()
         )
 
 
@@ -436,15 +626,22 @@ async def get_session(user_id: str = Depends(get_current_user)):
     """
     try:
         session = session_memory.get_session(user_id)
-        return {
-            "user_id": user_id,
-            "messages_count": len(session.get("messages", [])),
-            "conversation_history": session_memory.get_conversation_history(user_id)
-        }
+        return APIResponse(
+            status="success",
+            data={
+                "user_id": user_id,
+                "messages_count": len(session.get("messages", [])),
+                "conversation_history": session_memory.get_conversation_history(user_id)
+            },
+            message="Session retrieved successfully",
+            timestamp=datetime.now(timezone.utc).isoformat()
+        )
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Lỗi khi lấy session: {str(e)}"
+        return APIResponse(
+            status="error",
+            data=None,
+            message=f"Lỗi khi lấy session: {str(e)}",
+            timestamp=datetime.now(timezone.utc).isoformat()
         )
 
 
@@ -467,11 +664,16 @@ async def get_user_level(user_id: str = Depends(get_current_user)):
         # Kiểm tra có conversation chưa
         if not messages:
             return UserLevelResponse(
-                user_id=user_id,
-                level="Beginner",
-                level_reason="Chưa có cuộc hội thoại nào",
-                messages_count=0,
-                has_conversation=False
+                status="success",
+                data=UserLevelData(
+                    user_id=user_id,
+                    level="Beginner",
+                    level_reason="Chưa có cuộc hội thoại nào",
+                    messages_count=0,
+                    has_conversation=False
+                ),
+                message="User level retrieved",
+                timestamp=datetime.now(timezone.utc).isoformat()
             )
         
         # Lấy level đã được lưu (từ analyzer)
@@ -481,25 +683,37 @@ async def get_user_level(user_id: str = Depends(get_current_user)):
         # Nếu chưa có level (chưa gọi analyzer), trả về Beginner
         if not latest_level:
             return UserLevelResponse(
-                user_id=user_id,
-                level="Beginner",
-                level_reason="Chưa được đánh giá. Vui lòng gọi /analyzer trước.",
-                messages_count=len(messages),
-                has_conversation=True
+                status="success",
+                data=UserLevelData(
+                    user_id=user_id,
+                    level="Beginner",
+                    level_reason="Chưa được đánh giá. Vui lòng gọi /analyzer trước.",
+                    messages_count=len(messages),
+                    has_conversation=True
+                ),
+                message="User level retrieved",
+                timestamp=datetime.now(timezone.utc).isoformat()
             )
         
         return UserLevelResponse(
-            user_id=user_id,
-            level=latest_level,
-            level_reason=level_reason or "",
-            messages_count=len(messages),
-            has_conversation=True
+            status="success",
+            data=UserLevelData(
+                user_id=user_id,
+                level=latest_level,
+                level_reason=level_reason or "",
+                messages_count=len(messages),
+                has_conversation=True
+            ),
+            message="User level retrieved successfully",
+            timestamp=datetime.now(timezone.utc).isoformat()
         )
     
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Lỗi khi lấy level: {str(e)}"
+        return UserLevelResponse(
+            status="error",
+            data=None,
+            message=f"Lỗi khi lấy level: {str(e)}",
+            timestamp=datetime.now(timezone.utc).isoformat()
         )
 
 
