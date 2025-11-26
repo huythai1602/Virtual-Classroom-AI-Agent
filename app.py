@@ -2,7 +2,8 @@
 FastAPI Backend cho hệ thống Agentic RAG
 """
 import json
-from fastapi import FastAPI, HTTPException, Depends, Header
+from fastapi import FastAPI, HTTPException, Depends, Header, Security
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
@@ -36,7 +37,10 @@ JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 app = FastAPI(
     title="Agentic RAG - Trợ giảng Toán lớp 4",
     description="Hệ thống RAG với LangGraph cho việc trợ giảng Toán lớp 4",
-    version="1.0.0"
+    version="1.0.0",
+    swagger_ui_parameters={
+        "persistAuthorization": True  # Lưu token khi refresh page
+    }
 )
 
 # CORS middleware
@@ -48,14 +52,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Security scheme for Swagger UI
+security = HTTPBearer()
+
 
 # JWT Authentication Helper
-async def get_current_user(authorization: Optional[str] = Header(None)) -> str:
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Security(security)) -> str:
     """
     Decode JWT token và trả về user_id
     
     Args:
-        authorization: Header Authorization: Bearer <token>
+        credentials: HTTPAuthorizationCredentials from Security(HTTPBearer())
         
     Returns:
         user_id: ID của user từ JWT payload
@@ -63,22 +70,9 @@ async def get_current_user(authorization: Optional[str] = Header(None)) -> str:
     Raises:
         HTTPException 401: Nếu token invalid hoặc missing
     """
-    if not authorization:
-        raise HTTPException(
-            status_code=401, 
-            detail="Missing Authorization header. Please provide: Authorization: Bearer <token>"
-        )
-    
     try:
-        # Extract token from "Bearer <token>"
-        parts = authorization.split()
-        if len(parts) != 2 or parts[0].lower() != "bearer":
-            raise HTTPException(
-                status_code=401, 
-                detail="Invalid Authorization header format. Use: Bearer <token>"
-            )
-        
-        token = parts[1]
+        # Get token from credentials
+        token = credentials.credentials
         
         # Decode JWT
         payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
