@@ -1,6 +1,27 @@
 version: '3.8'
 
 services:
+  # PostgreSQL with pgvector extension
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: langgraph_postgres
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - agent_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # Service chính - AI Agent API
   web:
     build:
@@ -12,15 +33,22 @@ services:
     volumes:
       # Mount code để development (có thể bỏ khi production)
       - .:/app
-      # Mount data và chroma_db để persist
+      # Mount data để persist transcripts
       - ./data:/app/data
-      - ./chroma_db:/app/chroma_db
     environment:
       # Biến môi trường từ file .env
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - PYTHONUNBUFFERED=1
     env_file:
       - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - agent_network
@@ -30,21 +58,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
-
-  # Ngrok - Public tunnel cho localhost:8000
-  ngrok:
-    image: ngrok/ngrok:latest
-    container_name: langgraph_agent_ngrok
-    command: http web:8000
-    ports:
-      - "4040:4040"  # Ngrok web interface
-    environment:
-      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
-    depends_on:
-      - web
-    restart: unless-stopped
-    networks:
-      - agent_network
 
   # Optional: Redis cho caching (nếu cần mở rộng)
   # redis:
@@ -63,9 +76,7 @@ networks:
     driver: bridge
 
 volumes:
-  # Volume cho Redis (nếu dùng)
-  # redis_data:
-  data:
+  postgres_data:
     driver: local
-  chroma_db:
+  data:
     driver: local

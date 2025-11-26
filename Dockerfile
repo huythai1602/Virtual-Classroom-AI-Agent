@@ -19,8 +19,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy toàn bộ source code
 COPY . /app/
 
-# Tạo thư mục cho ChromaDB nếu chưa có
-RUN mkdir -p /app/chroma_db /app/data/transcripts
+# Tạo thư mục cho data nếu chưa có
+RUN mkdir -p /app/data/transcripts
 
 # Expose port cho FastAPI
 EXPOSE 8000

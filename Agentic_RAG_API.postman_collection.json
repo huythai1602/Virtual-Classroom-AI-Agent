@@ -1,0 +1,324 @@
+{
+	"info": {
+		"_postman_id": "agentic-rag-api-v2",
+		"name": "Agentic RAG API - Toán lớp 4",
+		"description": "Complete API collection for testing Agentic RAG system with PostgreSQL + pgvector",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						""
+					]
+				},
+				"description": "Check if API is running"
+			},
+			"response": []
+		},
+		{
+			"name": "2. Get All Lessons",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/lessons",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"lessons"
+					]
+				},
+				"description": "Get list of all available lessons from PostgreSQL"
+			},
+			"response": []
+		},
+		{
+			"name": "3. Chat - Normal Answer (Lesson 1 - Place Value)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"thread_id\": \"student_001\",\n  \"user_message\": \"Chỗ số 6 trong số 36745 thuộc hàng nào?\",\n  \"lesson_id\": \"1\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8000/chat",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"chat"
+					]
+				},
+				"description": "CORRECT: Normal mode answer for Lesson 1 with place value question"
+			},
+			"response": []
+		},
+		{
+			"name": "4. Chat - Deep Explain (Lesson 1 - FIXED)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"thread_id\": \"student_001\",\n  \"user_message\": \"Cô ơi, giải thích chi tiết cách xác định hàng trong một số cho em với ạ.\",\n  \"lesson_id\": \"1\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8000/chat",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"chat"
+					]
+				},
+				"description": "FIXED: Deep mode explanation - Use Lesson 1 (not 2) because question is about place value which belongs to 'Ôn tập các số đến 100000'"
+			},
+			"response": []
+		},
+		{
+			"name": "5. Chat - Lesson 2 (Addition)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"thread_id\": \"student_002\",\n  \"user_message\": \"Cô ơi, cho em hỏi cách cộng hai số có năm chữ số?\",\n  \"lesson_id\": \"2\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8000/chat",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"chat"
+					]
+				},
+				"description": "Test Lesson 2: Ôn tập các phép tính trong phạm vi 100000"
+			},
+			"response": []
+		},
+		{
+			"name": "6. Chat - Lesson 3 (Even/Odd)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"thread_id\": \"student_003\",\n  \"user_message\": \"Số 248 là số chẵn hay số lẻ ạ?\",\n  \"lesson_id\": \"3\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8000/chat",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"chat"
+					]
+				},
+				"description": "Test Lesson 3: Số chẵn số lẻ"
+			},
+			"response": []
+		},
+		{
+			"name": "7. Chat - Out of Scope (History)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"thread_id\": \"student_001\",\n  \"user_message\": \"Cô ơi, cho em hỏi về lịch sử Việt Nam?\",\n  \"lesson_id\": \"1\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8000/chat",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"chat"
+					]
+				},
+				"description": "Test out-of-scope question detection (should politely decline)"
+			},
+			"response": []
+		},
+		{
+			"name": "8. Chat - Without lesson_id",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"thread_id\": \"student_004\",\n  \"user_message\": \"Số chẵn là gì?\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8000/chat",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"chat"
+					]
+				},
+				"description": "Test without lesson_id - should use default metadata and search across all lessons"
+			},
+			"response": []
+		},
+		{
+			"name": "10. Analyze Session",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"thread_id\": \"student_001\",\n  \"lesson_id\": \"1\",\n  \"topic\": \"Ôn tập các số đến 100000\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8000/analyzer",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"analyzer"
+					]
+				},
+				"description": "Analyze learning session and assess student level"
+			},
+			"response": []
+		},
+		{
+			"name": "12. Generate Mindmap (Lesson 3)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"lesson_id\": \"3\",\n  \"topic\": \"Số chẵn số lẻ\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8000/mindmap",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"mindmap"
+					]
+				},
+				"description": "Generate React Flow mindmap for Lesson 3: Số chẵn số lẻ"
+			},
+			"response": []
+		},
+		{
+			"name": "14. Get Session Info",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/session/student_001",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"session",
+						"student_001"
+					]
+				},
+				"description": "Get session information for a thread_id"
+			},
+			"response": []
+		},
+		{
+			"name": "15. Clear Session",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/session/student_001",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"session",
+						"student_001"
+					]
+				},
+				"description": "Clear all messages for a thread_id"
+			},
+			"response": []
+		}
+	]
+}

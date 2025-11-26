@@ -7,8 +7,9 @@ from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_core.tools import tool
-from ..prompts import SYSTEM_PROMPT, MINDMAP_PROMPT
+from ..prompts import MINDMAP_PROMPT, format_prompt, DEFAULT_METADATA
 from .retriever_tool import get_context
+from database.lessons_repository import get_lesson
 
 # Load environment variables
 load_dotenv()
@@ -21,27 +22,42 @@ llm = ChatOpenAI(
 )
 
 @tool
-def generate_mindmap(topic: str) -> str:
+def generate_mindmap(topic: str, lesson_id: str = None) -> str:
     """
     Tạo sơ đồ tư duy cho một chủ đề dưới dạng JSON React Flow.
     
     Args:
         topic: Chủ đề cần tạo sơ đồ tư duy
+        lesson_id: ID bài học (optional, dùng để lấy metadata)
         
     Returns:
         JSON string với format React Flow (nodes và edges)
     """
     # Lấy ngữ cảnh từ vector store
-    context = get_context(topic, k=5)
+    context = get_context(topic, k=5, lesson_id=lesson_id)
     
-    # Tạo prompt
-    prompt = MINDMAP_PROMPT.format(context=context, topic=topic)
+    # Lấy metadata từ database nếu có lesson_id
+    metadata = DEFAULT_METADATA.copy()
+    if lesson_id:
+        lesson = get_lesson(lesson_id)
+        if lesson:
+            metadata["subject"] = lesson.get("subject", "Toán")
+            metadata["grade"] = lesson.get("grade", 4)
+            metadata["topic"] = lesson.get("title", topic)
+    else:
+        metadata["topic"] = topic
+    
+    # Format prompt với metadata
+    prompt = format_prompt(
+        MINDMAP_PROMPT,
+        context=context,
+        topic=metadata["topic"],
+        subject=metadata["subject"],
+        grade=metadata["grade"]
+    )
     
     # Gọi LLM
-    messages = [
-        SystemMessage(content="Bạn là cô giáo Toán lớp 4 vui vẻ, đang giúp em học sinh tạo sơ đồ tư duy dễ nhớ. Chỉ trả về JSON thuần, không thêm text."),
-        HumanMessage(content=prompt)
-    ]
+    messages = [HumanMessage(content=prompt)]
     
     response = llm.invoke(messages)
     
@@ -60,23 +76,33 @@ def generate_mindmap(topic: str) -> str:
             "error": "Không thể tạo sơ đồ tư duy cho yêu cầu này."
         }, ensure_ascii=False)
 
-def generate_mindmap_with_context(topic: str, context: str) -> str:
+def generate_mindmap_with_context(topic: str, context: str, metadata: dict = None) -> str:
     """
     Tạo sơ đồ tư duy với ngữ cảnh đã được cung cấp sẵn
     
     Args:
         topic: Chủ đề cần tạo sơ đồ tư duy
         context: Ngữ cảnh từ bài giảng
+        metadata: Dict chứa subject, grade, topic (optional)
         
     Returns:
         JSON string với format React Flow
     """
-    prompt = MINDMAP_PROMPT.format(context=context, topic=topic)
+    # Use default metadata if not provided
+    if metadata is None:
+        metadata = DEFAULT_METADATA.copy()
+        metadata["topic"] = topic
     
-    messages = [
-        SystemMessage(content="Bạn là cô giáo Toán lớp 4 vui vẻ, đang giúp em học sinh tạo sơ đồ tư duy dễ nhớ. Chỉ trả về JSON thuần, không thêm text."),
-        HumanMessage(content=prompt)
-    ]
+    # Format prompt với metadata
+    prompt = format_prompt(
+        MINDMAP_PROMPT,
+        context=context,
+        topic=metadata.get("topic", topic),
+        subject=metadata.get("subject", "Toán"),
+        grade=metadata.get("grade", 4)
+    )
+    
+    messages = [HumanMessage(content=prompt)]
     
     response = llm.invoke(messages)
     

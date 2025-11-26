@@ -1,6 +1,6 @@
 # Hệ thống Agentic RAG - Trợ giảng Toán lớp 4
 
-Hệ thống RAG (Retrieval-Augmented Generation) sử dụng LangGraph, OpenAI LLM, và ChromaDB để trợ giảng Toán lớp 4.
+Hệ thống RAG (Retrieval-Augmented Generation) sử dụng LangGraph, OpenAI LLM, và PostgreSQL + pgvector để trợ giảng Toán lớp 4.
 
 ---
 
@@ -24,7 +24,7 @@ Hệ thống RAG (Retrieval-Augmented Generation) sử dụng LangGraph, OpenAI 
 pip install -r requirements.txt
 ```
 
-### 2. Cấu hình API key
+### 2. Cấu hình môi trường
 
 Tạo file `.env` từ template:
 
@@ -32,21 +32,87 @@ Tạo file `.env` từ template:
 copy .env.example .env
 ```
 
-Thêm OpenAI API key vào `.env`:
+Cấu hình `.env`:
 
 ```env
 OPENAI_API_KEY=sk-your-api-key-here
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_DB=virtual_classroom
+POSTGRES_USER=agent_user
+POSTGRES_PASSWORD=your-secure-password
 ```
 
-### 3. Chuẩn bị dữ liệu
-
-Đặt file transcript bài giảng (`.txt` hoặc `.pdf`) vào `data/transcripts/`
-
-### 4. Build Vector Store
+### 3. Khởi động PostgreSQL + pgvector
 
 ```powershell
-python vector_store/build_chroma.py
+# Sử dụng Docker (khuyến nghị)
+docker run -d `
+  --name postgres-virtual-classroom `
+  -e POSTGRES_USER=agent_user `
+  -e POSTGRES_PASSWORD=your-secure-password `
+  -e POSTGRES_DB=virtual_classroom `
+  -p 5432:5432 `
+  -v postgres_data:/var/lib/postgresql/data `
+  pgvector/pgvector:pg16
 ```
+
+### 4. Tạo Database Schema
+
+```powershell
+# Kết nối vào PostgreSQL
+docker exec -it postgres-virtual-classroom psql -U agent_user -d virtual_classroom
+
+# Chạy SQL commands:
+CREATE EXTENSION IF NOT EXISTS vector;
+
+CREATE TABLE lessons (
+    id SERIAL PRIMARY KEY,
+    lesson_id VARCHAR(50) UNIQUE NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    subject VARCHAR(50) NOT NULL,
+    grade INTEGER NOT NULL,
+    transcript TEXT NOT NULL,
+    summary TEXT,
+    total_chunks INTEGER DEFAULT 0,
+    status VARCHAR(20) DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    metadata JSONB
+);
+
+CREATE TABLE chunks (
+    id SERIAL PRIMARY KEY,
+    lesson_id VARCHAR(50) NOT NULL,
+    chunk_index INTEGER NOT NULL,
+    text TEXT NOT NULL,
+    embedding VECTOR(1536),
+    created_at TIMESTAMP DEFAULT NOW(),
+    CONSTRAINT fk_lesson FOREIGN KEY (lesson_id) REFERENCES lessons(lesson_id) ON DELETE CASCADE,
+    UNIQUE(lesson_id, chunk_index)
+);
+
+CREATE INDEX idx_lessons_lesson_id ON lessons(lesson_id);
+CREATE INDEX idx_lessons_subject_grade ON lessons(subject, grade);
+CREATE INDEX idx_lessons_status ON lessons(status);
+CREATE INDEX idx_chunks_lesson_id ON chunks(lesson_id);
+CREATE INDEX idx_chunks_embedding ON chunks USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100);
+```
+
+### 5. Migration: TXT files → PostgreSQL
+
+Đặt file transcript (`.txt`) vào `data/transcripts/`, sau đó chạy:
+
+```powershell
+python scripts/migrate_txt_to_postgres.py
+```
+
+Script sẽ:
+- Đọc tất cả `.txt` files
+- Parse metadata từ filename
+- Insert vào `lessons` table
+- Chunking + Embedding
+- Insert vào `chunks` table với vectors
 
 ---
 
@@ -165,17 +231,20 @@ GET /lessons
 langgraph_agent/
 ├── app.py                      # FastAPI backend
 ├── requirements.txt            
-├── .env                        # API keys (tự tạo)
+├── .env                        # API keys + PostgreSQL config (tự tạo)
 ├── agent/
 │   ├── graph.py               # LangGraph workflow
 │   ├── prompts.py             # Prompt templates
 │   ├── memory.py              # Session management
 │   └── tools/                 # Tools (retriever, answer, explain, mindmap, analyzer, summarizer)
-├── data/
-│   └── transcripts/           # Transcript files (.txt, .pdf)
-├── vector_store/
-│   └── build_chroma.py        # Build vector DB
-└── chroma_db/                 # Vector store (auto-generated)
+├── database/
+│   ├── db_connection.py       # PostgreSQL connection pool
+│   ├── lessons_repository.py  # Lessons table operations
+│   └── chunks_repository.py   # Chunks + pgvector search
+├── scripts/
+│   └── migrate_txt_to_postgres.py  # Migration script
+└── data/
+    └── transcripts/           # Transcript files (.txt)
 ```
 
 ---
@@ -185,7 +254,7 @@ langgraph_agent/
 - **LangGraph**: Stateful workflow với nodes/edges
 - **GPT-4**: Giải thích chi tiết, mindmap
 - **GPT-3.5-turbo**: Trả lời ngắn, phân tích (tối ưu chi phí)
-- **ChromaDB**: Vector database
+- **PostgreSQL + pgvector**: Vector database với cosine similarity search
 - **FastAPI**: REST API + Streaming
 - **MemorySaver**: Conversation history
 
@@ -213,17 +282,41 @@ langgraph_agent/
 # Copy file .env.example thành .env
 copy .env.example .env
 
-# Mở .env và điền OPENAI_API_KEY
+# Mở .env và điền các biến cần thiết
 notepad .env
+```
+
+Cấu hình tối thiểu trong `.env`:
+```env
+OPENAI_API_KEY=sk-your-api-key-here
+POSTGRES_USER=agent_user
+POSTGRES_PASSWORD=your-secure-password
+POSTGRES_DB=virtual_classroom
 ```
 
 #### Bước 2: Build và chạy
 ```powershell
-# Build và chạy tất cả services
+# Build và chạy tất cả services (PostgreSQL + API + Ngrok)
 docker-compose up --build
 
 # Hoặc chạy ở chế độ background (detached)
 docker-compose up -d --build
+```
+
+#### Bước 2.5: Khởi tạo Database Schema (chỉ lần đầu)
+```powershell
+# Kết nối vào PostgreSQL container
+docker exec -it langgraph_postgres psql -U agent_user -d virtual_classroom
+
+# Chạy lệnh SQL (copy từ phần "Tạo Database Schema" ở trên)
+# CREATE EXTENSION vector; CREATE TABLE lessons (...); etc.
+```
+
+#### Bước 2.6: Migration Data (nếu có transcript files)
+```powershell
+# Copy transcript files vào data/transcripts/
+# Sau đó chạy migration từ container
+docker exec -it langgraph_agent_api python scripts/migrate_txt_to_postgres.py
 ```
 
 #### Bước 3: Kiểm tra
@@ -257,7 +350,7 @@ docker-compose logs ngrok
 # Dừng và xóa containers
 docker-compose down
 
-# Dừng và xóa cả volumes (data/chroma_db)
+# Dừng và xóa cả volumes (postgres_data)
 docker-compose down -v
 ```
 
@@ -268,14 +361,29 @@ docker-compose down -v
 docker build -t langgraph-agent:latest .
 ```
 
-#### Chạy container
+#### Chạy PostgreSQL
+```powershell
+docker run -d `
+  --name postgres-virtual-classroom `
+  -e POSTGRES_USER=agent_user `
+  -e POSTGRES_PASSWORD=your-password `
+  -e POSTGRES_DB=virtual_classroom `
+  -p 5432:5432 `
+  pgvector/pgvector:pg16
+```
+
+#### Chạy API container
 ```powershell
 docker run -d `
   --name langgraph-agent `
   -p 8000:8000 `
   -e OPENAI_API_KEY=sk-your-api-key-here `
+  -e POSTGRES_HOST=host.docker.internal `
+  -e POSTGRES_PORT=5432 `
+  -e POSTGRES_DB=virtual_classroom `
+  -e POSTGRES_USER=agent_user `
+  -e POSTGRES_PASSWORD=your-password `
   -v ${PWD}/data:/app/data `
-  -v ${PWD}/chroma_db:/app/chroma_db `
   langgraph-agent:latest
 ```
 
@@ -299,8 +407,8 @@ docker ps
 # Xem logs
 docker-compose logs -f web
 
-# Chạy lệnh trong container
-docker-compose exec web python vector_store/build_chroma.py
+# Chạy migration script trong container
+docker-compose exec web python scripts/migrate_txt_to_postgres.py
 
 # Rebuild khi có thay đổi code
 docker-compose up --build
@@ -312,8 +420,8 @@ docker stats
 ### Cấu trúc Volumes
 
 Docker Compose tự động mount các thư mục sau:
+- `postgres_data` → PostgreSQL data persistence
 - `./data` → `/app/data` (Transcripts)
-- `./chroma_db` → `/app/chroma_db` (Vector database)
 - `.` → `/app` (Source code - chỉ cho development)
 
 ### Troubleshooting
@@ -360,7 +468,6 @@ docker-compose up
 volumes:
   # - .:/app  # Comment dòng này
   - ./data:/app/data
-  - ./chroma_db:/app/chroma_db
 ```
 
 2. **Sử dụng .env file riêng cho production**:
@@ -368,11 +475,18 @@ volumes:
 docker-compose --env-file .env.production up -d
 ```
 
-3. **Thêm reverse proxy** (Nginx/Traefik) cho SSL/TLS
+3. **Setup PostgreSQL backups**:
+```powershell
+# Backup
+docker exec langgraph_postgres pg_dump -U agent_user virtual_classroom > backup.sql
 
-4. **Enable monitoring** (Prometheus/Grafana)
+# Restore
+docker exec -i langgraph_postgres psql -U agent_user virtual_classroom < backup.sql
+```
 
-5. **Setup log aggregation** (ELK stack)
+5. **Enable monitoring** (Prometheus/Grafana)
+
+6. **Setup log aggregation** (ELK stack)
 
 ### Docker Image Size Optimization
 
@@ -429,6 +543,6 @@ Google Gemini có "Grounding with Google Search" giúp tăng độ chính xác:
 - Điểm accuracy: 8.5/10 (vs ChatGPT 8.3/10)
 
 Hệ thống này bắt chước cách tiếp cận đó bằng:
-- RAG với ChromaDB (thay vì Google Search)
+- RAG với PostgreSQL + pgvector (thay vì Google Search)
 - Metadata tracking và citation
 - Validation layer để tự kiểm tra

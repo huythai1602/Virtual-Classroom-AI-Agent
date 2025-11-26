@@ -1,8 +1,8 @@
-"""
+"""  
 FastAPI Backend cho hệ thống Agentic RAG
 """
 import json
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
@@ -12,6 +12,7 @@ import os
 from pathlib import Path
 import asyncio
 from langchain_core.messages import HumanMessage
+from jose import JWTError, jwt
 
 from agent.graph import compiled_graph
 from agent.memory import session_memory
@@ -26,6 +27,10 @@ load_dotenv()
 # Kiểm tra API key
 if not os.getenv("OPENAI_API_KEY"):
     print("CẢNH BÁO: OPENAI_API_KEY chưa được thiết lập!")
+
+# JWT configuration
+JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-secret-key-change-in-production")
+JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 
 # Khởi tạo FastAPI app
 app = FastAPI(
@@ -44,28 +49,83 @@ app.add_middleware(
 )
 
 
+# JWT Authentication Helper
+async def get_current_user(authorization: Optional[str] = Header(None)) -> str:
+    """
+    Decode JWT token và trả về user_id
+    
+    Args:
+        authorization: Header Authorization: Bearer <token>
+        
+    Returns:
+        user_id: ID của user từ JWT payload
+        
+    Raises:
+        HTTPException 401: Nếu token invalid hoặc missing
+    """
+    if not authorization:
+        raise HTTPException(
+            status_code=401, 
+            detail="Missing Authorization header. Please provide: Authorization: Bearer <token>"
+        )
+    
+    try:
+        # Extract token from "Bearer <token>"
+        parts = authorization.split()
+        if len(parts) != 2 or parts[0].lower() != "bearer":
+            raise HTTPException(
+                status_code=401, 
+                detail="Invalid Authorization header format. Use: Bearer <token>"
+            )
+        
+        token = parts[1]
+        
+        # Decode JWT
+        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+        
+        # Extract user_id (support multiple payload formats)
+        user_id = payload.get("sub") or payload.get("user_id") or payload.get("userId")
+        
+        if not user_id:
+            raise HTTPException(
+                status_code=401, 
+                detail="Token payload missing user identifier (sub/user_id/userId)"
+            )
+        
+        return str(user_id)
+        
+    except JWTError as e:
+        raise HTTPException(
+            status_code=401, 
+            detail=f"Invalid token: {str(e)}"
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=401, 
+            detail=f"Authentication error: {str(e)}"
+        )
+
+
 # Request/Response models
 class ChatRequest(BaseModel):
-    thread_id: str
     user_message: str
-    lesson_id: Optional[str] = None  # Thêm lesson_id
+    lesson_id: Optional[str] = None
 
 
 class ChatResponse(BaseModel):
     reply: str
     intent: Optional[str] = None
-    thread_id: str
+    user_id: str  # Changed from thread_id
 
 
 class AnalyzerRequest(BaseModel):
-    thread_id: str
-    lesson_id: Optional[str] = None  # Thêm lesson_id
+    lesson_id: Optional[str] = None
     topic: Optional[str] = ""
 
 
 class AnalyzerResponse(BaseModel):
     analysis: str
-    thread_id: str
+    user_id: str  # Changed from thread_id
     level: str  # Beginner/Intermediate/Advanced
     level_reason: str  # Lý do đánh giá level
 
@@ -95,7 +155,7 @@ class LessonsResponse(BaseModel):
 
 
 class UserLevelResponse(BaseModel):
-    thread_id: str
+    user_id: str  # Changed from thread_id
     level: str  # Beginner/Intermediate/Advanced
     level_reason: str
     messages_count: int
@@ -140,20 +200,29 @@ async def get_lessons():
         )
 
 
-@app.post("/chat", response_model=ChatResponse)
-async def chat_endpoint(request: ChatRequest):
+@app.post("/chat")
+async def chat_endpoint(
+    request: ChatRequest,
+    user_id: str = Depends(get_current_user)
+):
     """
-    Endpoint xử lý chat với học sinh
+    Unified chat endpoint - Tự động quyết định streaming hay non-streaming dựa vào intent
+    Requires JWT token in Authorization header
     
     Args:
-        request: ChatRequest chứa thread_id và user_message
+        request: ChatRequest chứa user_message và lesson_id
+        user_id: User ID extracted from JWT token (auto-injected)
         
     Returns:
-        ChatResponse với câu trả lời từ agent
+        - ChatResponse (JSON) nếu intent = normal (câu trả lời ngắn)
+        - StreamingResponse (SSE) nếu intent = deep/explain (câu trả lời dài)
     """
     try:
-        # Lấy session hiện tại để lưu vào SessionMemory (cho analyzer)
-        session = session_memory.get_session(request.thread_id)
+        # Use user_id as thread_id
+        thread_id = user_id
+        
+        # Lấy session hiện tại
+        session = session_memory.get_session(thread_id)
         
         # Lưu user message vào session
         session["messages"].append({
@@ -161,58 +230,82 @@ async def chat_endpoint(request: ChatRequest):
             "content": request.user_message
         })
         
-        # Tạo input state với message mới
-        # LangGraph sẽ tự động merge với messages cũ từ checkpoint
+        # Tạo input state
         input_state = {
             "messages": [HumanMessage(content=request.user_message)],
             "lesson_id": request.lesson_id or ""
         }
         
         # Config để load history
-        config = {"configurable": {"thread_id": request.thread_id}}
+        config = {"configurable": {"thread_id": thread_id}}
         
-        # Tối ưu: Lấy state hiện tại để summarize messages nếu cần
+        # Tối ưu: Summarize messages nếu cần
         try:
             current_state = compiled_graph.get_state(config)
             if current_state and current_state.values.get("messages"):
                 all_messages = current_state.values["messages"] + [HumanMessage(content=request.user_message)]
-                
-                # Summarize nếu có >6 messages (giữ 4 messages gần nhất + summary)
                 if len(all_messages) > 6:
                     summarized = summarize_old_messages(all_messages, keep_recent=4)
                     input_state["messages"] = summarized
         except:
-            # Nếu không lấy được state, tiếp tục với message mới
             pass
         
-        # Invoke graph - LangGraph tự load history từ MemorySaver
+        # STEP 1: Invoke graph để lấy intent
         result = compiled_graph.invoke(input_state, config)
-        
-        # Lấy câu trả lời cuối cùng
-        messages = result.get("messages", [])
-        if messages:
-            last_message = messages[-1]
-            reply = last_message.content if hasattr(last_message, 'content') else str(last_message)
-        else:
-            reply = "Xin lỗi, em không thể trả lời câu hỏi này."
-        
-        # Lưu response vào session
-        session["messages"].append({
-            "role": "assistant",
-            "content": reply
-        })
-        
-        # Lấy intent nếu có
         intent = result.get("intent", "normal")
         
-        # Update session
-        session_memory.update_session(request.thread_id, session)
+        # STEP 2: Quyết định streaming hay non-streaming dựa vào intent
+        if intent in ["deep", "explain"]:
+            # STREAMING: Câu trả lời dài, cần suy nghĩ chuyên sâu
+            async def generate_stream():
+                try:
+                    full_response = ""
+                    
+                    # Re-invoke với astream để lấy chunks
+                    async for event in compiled_graph.astream(input_state, config):
+                        if "messages" in event:
+                            for msg in event["messages"]:
+                                if hasattr(msg, 'content') and msg.content:
+                                    chunk = msg.content
+                                    full_response = chunk
+                                    yield f"data: {json.dumps({'chunk': chunk, 'done': False, 'intent': intent})}\n\n"
+                    
+                    # Lưu response vào session
+                    session["messages"].append({
+                        "role": "assistant",
+                        "content": full_response
+                    })
+                    session_memory.update_session(thread_id, session)
+                    
+                    # Send final event
+                    yield f"data: {json.dumps({'chunk': '', 'done': True, 'user_id': user_id, 'intent': intent})}\n\n"
+                    
+                except Exception as e:
+                    yield f"data: {json.dumps({'error': str(e)})}\n\n"
+            
+            return StreamingResponse(generate_stream(), media_type="text/event-stream")
         
-        return ChatResponse(
-            reply=reply,
-            intent=intent,
-            thread_id=request.thread_id
-        )
+        else:
+            # NON-STREAMING: Câu trả lời ngắn, trả về ngay
+            messages = result.get("messages", [])
+            if messages:
+                last_message = messages[-1]
+                reply = last_message.content if hasattr(last_message, 'content') else str(last_message)
+            else:
+                reply = "Xin lỗi, em không thể trả lời câu hỏi này."
+            
+            # Lưu response vào session
+            session["messages"].append({
+                "role": "assistant",
+                "content": reply
+            })
+            session_memory.update_session(thread_id, session)
+            
+            return ChatResponse(
+                reply=reply,
+                intent=intent,
+                user_id=user_id
+            )
     
     except Exception as e:
         raise HTTPException(
@@ -221,90 +314,33 @@ async def chat_endpoint(request: ChatRequest):
         )
 
 
-@app.post("/chat/stream")
-async def chat_stream_endpoint(request: ChatRequest):
-    """
-    Streaming version của chat endpoint để giảm latency cảm nhận
-    
-    Returns:
-        Server-Sent Events stream với chunks của response
-    """
-    async def generate():
-        try:
-            # Get/create session
-            session = session_memory.get_session(request.thread_id)
-            
-            # Save user message
-            session["messages"].append({
-                "role": "user",
-                "content": request.user_message
-            })
-            
-            # Prepare state
-            input_state = {
-                "messages": [HumanMessage(content=request.user_message)],
-                "lesson_id": request.lesson_id or ""
-            }
-            
-            config = {"configurable": {"thread_id": request.thread_id}}
-            
-            # Summarize if needed
-            try:
-                current_state = compiled_graph.get_state(config)
-                if current_state and current_state.values.get("messages"):
-                    all_messages = current_state.values["messages"] + [HumanMessage(content=request.user_message)]
-                    if len(all_messages) > 6:
-                        summarized = summarize_old_messages(all_messages, keep_recent=4)
-                        input_state["messages"] = summarized
-            except:
-                pass
-            
-            # Stream graph execution
-            full_response = ""
-            async for event in compiled_graph.astream(input_state, config):
-                # Tìm AI message trong event
-                if "messages" in event:
-                    for msg in event["messages"]:
-                        if hasattr(msg, 'content') and msg.content:
-                            chunk = msg.content
-                            full_response = chunk
-                            yield f"data: {json.dumps({'chunk': chunk, 'done': False})}\n\n"
-            
-            # Save assistant message
-            session["messages"].append({
-                "role": "assistant",
-                "content": full_response
-            })
-            session_memory.update_session(request.thread_id, session)
-            
-            # Send final event
-            yield f"data: {json.dumps({'chunk': '', 'done': True, 'thread_id': request.thread_id})}\n\n"
-            
-        except Exception as e:
-            yield f"data: {json.dumps({'error': str(e)})}\n\n"
-    
-    return StreamingResponse(generate(), media_type="text/event-stream")
-
-
 @app.post("/analyzer", response_model=AnalyzerResponse)
-async def analyzer_endpoint(request: AnalyzerRequest):
+async def analyzer_endpoint(
+    request: AnalyzerRequest,
+    user_id: str = Depends(get_current_user)
+):
     """
     Endpoint phân tích buổi học
+    Requires JWT token in Authorization header
     
     Args:
-        request: AnalyzerRequest chứa thread_id và topic (optional)
+        request: AnalyzerRequest chứa lesson_id và topic (optional)
+        user_id: User ID extracted from JWT token (auto-injected)
         
     Returns:
         AnalyzerResponse với kết quả phân tích
     """
     try:
+        # Use user_id as thread_id
+        thread_id = user_id
+        
         # Lấy conversation history từ session
-        conversation_history = session_memory.get_conversation_history(request.thread_id)
+        conversation_history = session_memory.get_conversation_history(thread_id)
         
         if not conversation_history:
             raise HTTPException(
                 status_code=404,
-                detail=f"Không tìm thấy lịch sử hội thoại cho thread_id: {request.thread_id}"
+                detail=f"Không tìm thấy lịch sử hội thoại cho user_id: {user_id}"
             )
         
         # Lấy transcript (Tối ưu: k=10→5 để giảm tokens cho analyzer)
@@ -315,14 +351,14 @@ async def analyzer_endpoint(request: AnalyzerRequest):
         result = analyze_with_data(conversation_history, transcript)
         
         # Lưu level vào session
-        session = session_memory.get_session(request.thread_id)
+        session = session_memory.get_session(thread_id)
         session["latest_level"] = result["level"]
         session["level_reason"] = result["level_reason"]
-        session_memory.update_session(request.thread_id, session)
+        session_memory.update_session(thread_id, session)
         
         return AnalyzerResponse(
             analysis=result["analysis"],
-            thread_id=request.thread_id,
+            user_id=user_id,
             level=result["level"],
             level_reason=result["level_reason"]
         )
@@ -376,17 +412,18 @@ async def mindmap_endpoint(request: MindmapRequest):
         )
 
 
-@app.delete("/session/{thread_id}")
-async def clear_session(thread_id: str):
+@app.delete("/session")
+async def clear_session(user_id: str = Depends(get_current_user)):
     """
-    Xóa session/thread
+    Xóa session của user hiện tại
+    Requires JWT token in Authorization header
     
     Args:
-        thread_id: ID của thread cần xóa
+        user_id: User ID extracted from JWT token (auto-injected)
     """
     try:
-        session_memory.clear_session(thread_id)
-        return {"message": f"Đã xóa session {thread_id}"}
+        session_memory.clear_session(user_id)
+        return {"message": f"Đã xóa session của user {user_id}"}
     except Exception as e:
         raise HTTPException(
             status_code=500,
@@ -394,20 +431,21 @@ async def clear_session(thread_id: str):
         )
 
 
-@app.get("/session/{thread_id}")
-async def get_session(thread_id: str):
+@app.get("/session")
+async def get_session(user_id: str = Depends(get_current_user)):
     """
-    Lấy thông tin session
+    Lấy thông tin session của user hiện tại
+    Requires JWT token in Authorization header
     
     Args:
-        thread_id: ID của thread
+        user_id: User ID extracted from JWT token (auto-injected)
     """
     try:
-        session = session_memory.get_session(thread_id)
+        session = session_memory.get_session(user_id)
         return {
-            "thread_id": thread_id,
+            "user_id": user_id,
             "messages_count": len(session.get("messages", [])),
-            "conversation_history": session_memory.get_conversation_history(thread_id)
+            "conversation_history": session_memory.get_conversation_history(user_id)
         }
     except Exception as e:
         raise HTTPException(
@@ -416,25 +454,26 @@ async def get_session(thread_id: str):
         )
 
 
-@app.get("/user/{thread_id}/level", response_model=UserLevelResponse)
-async def get_user_level(thread_id: str):
+@app.get("/user/level", response_model=UserLevelResponse)
+async def get_user_level(user_id: str = Depends(get_current_user)):
     """
-    Lấy level của user (cho backend services khác)
+    Lấy level của user hiện tại
+    Requires JWT token in Authorization header
     
     Args:
-        thread_id: ID của user/thread
+        user_id: User ID extracted from JWT token (auto-injected)
         
     Returns:
         UserLevelResponse với level, lý do, và thống kê conversation
     """
     try:
-        session = session_memory.get_session(thread_id)
+        session = session_memory.get_session(user_id)
         messages = session.get("messages", [])
         
         # Kiểm tra có conversation chưa
         if not messages:
             return UserLevelResponse(
-                thread_id=thread_id,
+                user_id=user_id,
                 level="Beginner",
                 level_reason="Chưa có cuộc hội thoại nào",
                 messages_count=0,
@@ -448,7 +487,7 @@ async def get_user_level(thread_id: str):
         # Nếu chưa có level (chưa gọi analyzer), trả về Beginner
         if not latest_level:
             return UserLevelResponse(
-                thread_id=thread_id,
+                user_id=user_id,
                 level="Beginner",
                 level_reason="Chưa được đánh giá. Vui lòng gọi /analyzer trước.",
                 messages_count=len(messages),
@@ -456,7 +495,7 @@ async def get_user_level(thread_id: str):
             )
         
         return UserLevelResponse(
-            thread_id=thread_id,
+            user_id=user_id,
             level=latest_level,
             level_reason=level_reason or "",
             messages_count=len(messages),

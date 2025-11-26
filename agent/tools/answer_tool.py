@@ -6,8 +6,10 @@ from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_core.tools import tool
-from ..prompts import SYSTEM_PROMPT, NORMAL_ANSWER_PROMPT
+from ..prompts import NORMAL_ANSWER_PROMPT, TEACHER_ROLE, ACCURACY_CONSTRAINTS, format_prompt, DEFAULT_METADATA
 from .retriever_tool import get_context
+from database.lessons_repository import get_lesson
+from database.chunks_repository import search_similar_chunks
 
 # Load environment variables
 load_dotenv()
@@ -16,60 +18,85 @@ load_dotenv()
 llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
 
 @tool
-def answer_question(query: str) -> str:
+def answer_question(query: str, lesson_id: str = None) -> str:
     """
     Trả lời ngắn gọn câu hỏi của học sinh dựa trên transcript bài giảng.
     
     Args:
         query: Câu hỏi của học sinh
+        lesson_id: ID bài học (optional, dùng để lấy metadata)
         
     Returns:
         Câu trả lời ngắn gọn
     """
     # Lấy ngữ cảnh từ vector store
-    context = get_context(query)
+    context = get_context(query, lesson_id=lesson_id)
     
-    # Tạo prompt
-    prompt = NORMAL_ANSWER_PROMPT.format(context=context, question=query)
+    # Lấy metadata từ database nếu có lesson_id
+    metadata = DEFAULT_METADATA.copy()
+    if lesson_id:
+        lesson = get_lesson(lesson_id)
+        if lesson:
+            metadata["subject"] = lesson.get("subject", "Toán")
+            metadata["grade"] = lesson.get("grade", 4)
+            metadata["topic"] = lesson.get("title", "Bài học")
+    
+    # Format prompt với metadata
+    prompt = format_prompt(
+        NORMAL_ANSWER_PROMPT,
+        context=context,
+        question=query,
+        subject=metadata["subject"],
+        grade=metadata["grade"],
+        topic=metadata["topic"]
+    )
     
     # Gọi LLM
-    messages = [
-        SystemMessage(content=SYSTEM_PROMPT),
-        HumanMessage(content=prompt)
-    ]
+    messages = [HumanMessage(content=prompt)]
     
     response = llm.invoke(messages)
     return response.content
 
-def answer_with_context(query: str, context: str) -> str:
+def answer_with_context(query: str, context: str, metadata: dict = None) -> str:
     """
     Trả lời câu hỏi với ngữ cảnh đã được cung cấp sẵn
     
     Args:
         query: Câu hỏi của học sinh
         context: Ngữ cảnh từ bài giảng
+        metadata: Dict chứa subject, grade, topic (optional)
         
     Returns:
         Câu trả lời ngắn gọn
     """
-    prompt = NORMAL_ANSWER_PROMPT.format(context=context, question=query)
+    # Use default metadata if not provided
+    if metadata is None:
+        metadata = DEFAULT_METADATA.copy()
     
-    messages = [
-        SystemMessage(content=SYSTEM_PROMPT),
-        HumanMessage(content=prompt)
-    ]
+    # Format prompt với metadata
+    prompt = format_prompt(
+        NORMAL_ANSWER_PROMPT,
+        context=context,
+        question=query,
+        subject=metadata.get("subject", "Toán"),
+        grade=metadata.get("grade", 4),
+        topic=metadata.get("topic", "Bài học")
+    )
+    
+    messages = [HumanMessage(content=prompt)]
     
     response = llm.invoke(messages)
     return response.content
 
 
-def answer_with_confidence(query: str, context: str) -> dict:
+def answer_with_confidence(query: str, context: str, metadata: dict = None) -> dict:
     """
-    Trả lời câu hỏi với confidence scoring (PHASE 2)
+    Trả lời câu hỏi với confidence scoring
     
     Args:
         query: Câu hỏi của học sinh
         context: Ngữ cảnh từ bài giảng
+        metadata: Dict chứa subject, grade, topic (optional)
         
     Returns:
         dict với answer, confidence, reasoning
@@ -77,37 +104,48 @@ def answer_with_confidence(query: str, context: str) -> dict:
     import json
     from langchain_openai import ChatOpenAI
     
+    # Use default metadata if not provided
+    if metadata is None:
+        metadata = DEFAULT_METADATA.copy()
+    
+    # Format base prompt
+    base_prompt = format_prompt(
+        NORMAL_ANSWER_PROMPT,
+        context=context,
+        question=query,
+        subject=metadata.get("subject", "Toán"),
+        grade=metadata.get("grade", 4),
+        topic=metadata.get("topic", "Bài học")
+    )
+    
     # Enhanced prompt với confidence scoring
-    enhanced_prompt = f"""{NORMAL_ANSWER_PROMPT.format(context=context, question=query)}
+    enhanced_prompt = f"""{base_prompt}
 
 ---
-SAU KHI TRẢ LỜI, ĐÁNH GIÁ CONFIDENCE:
+AFTER ANSWERING, EVALUATE CONFIDENCE:
 
 CONFIDENCE LEVELS:
-- HIGH (0.8-1.0): Chắc chắn câu hỏi liên quan BÀI HỌC và có đủ thông tin rõ ràng
-- MEDIUM (0.5-0.8): Có thể liên quan nhưng thông tin không đầy đủ hoặc mơ hồ
-- LOW (0.0-0.5): Không tìm thấy thông tin liên quan trong bài học
+- HIGH (0.8-1.0): Question clearly related to lesson content with sufficient information
+- MEDIUM (0.5-0.8): Related but information incomplete or ambiguous
+- LOW (0.0-0.5): No relevant information found in lesson
 
-Trả về JSON:
+Return JSON:
 {{
-    "answer": "câu trả lời tự nhiên của cô",
+    "answer": "natural Vietnamese answer",
     "confidence": 0.9,
-    "reasoning": "tại sao đánh giá confidence này"
+    "reasoning": "why this confidence score"
 }}
 
-CHỈ trả về JSON, không thêm text:"""
+Return ONLY JSON, no additional text:"""
     
-    # Dùng JSON mode
+    # Use JSON mode
     llm_json = ChatOpenAI(
         model="gpt-3.5-turbo",
         temperature=0,
         model_kwargs={"response_format": {"type": "json_object"}}
     )
     
-    messages = [
-        SystemMessage(content=SYSTEM_PROMPT),
-        HumanMessage(content=enhanced_prompt)
-    ]
+    messages = [HumanMessage(content=enhanced_prompt)]
     
     try:
         response = llm_json.invoke(messages)
@@ -126,7 +164,7 @@ CHỈ trả về JSON, không thêm text:"""
         print(f"[ERROR] Confidence scoring failed: {e}")
         # Fallback: return normal answer
         return {
-            "answer": answer_with_context(query, context),
+            "answer": answer_with_context(query, context, metadata),
             "confidence": 0.8,
             "reasoning": "Fallback to normal mode"
         }

@@ -1,53 +1,52 @@
 """
-Retriever tool - Truy vấn ngữ cảnh từ ChromaDB với Smart Query Expansion
+Retriever tool - Truy vấn ngữ cảnh từ PostgreSQL + pgvector với Smart Query Expansion
 """
 import os
 import re
 from typing import List, Dict
 from dotenv import load_dotenv
-from langchain_community.vectorstores import Chroma
-from langchain_openai import OpenAIEmbeddings
+from openai import OpenAI
 from langchain_core.tools import tool
+from database.chunks_repository import search_similar_chunks
 
 # Load environment variables
 load_dotenv()
 
-# Đường dẫn đến ChromaDB
-CHROMA_DB_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "chroma_db")
+# OpenAI client for embeddings
+client = OpenAI()
 
 # Topic Expansion Map - Mapping keywords to related concepts
 TOPIC_EXPANSIONS = {
-    r"chữ số|hàng": "hàng đơn vị hàng chục hàng trăm hàng nghìn hàng vạn giá trị vị trí số đọc số viết số",
+    r"chữ số|hàng|thuộc hàng": "hàng đơn vị hàng chục hàng trăm hàng nghìn hàng chục nghìn giá trị vị trí số đọc số viết số xác định hàng chữ số thuộc hàng nào",
     r"phân số|tử|mẫu": "phân số tử số mẫu số rút gọn so sánh phân số quy đồng",
-    r"cộng|trừ|nhân|chia|tính": "phép tính phép cộng phép trừ phép nhân phép chia tổng hiệu tích thương",
+    r"cộng|trừ|nhân|chia|tính|cách cộng|cách trừ": "phép tính phép cộng phép trừ phép nhân phép chia tổng hiệu tích thương cách cộng cách trừ cách nhân cách chia",
     r"số chẵn|số lẻ": "số chẵn số lẻ chia hết dư phép chia",
     r"làm tròn": "làm tròn số gần đúng ước lượng",
     r"hình|chu vi|diện tích": "hình học hình chữ nhật hình vuông chu vi diện tích",
 }
 
+def get_embedding(text: str) -> list:
+    """Get OpenAI embedding for text"""
+    try:
+        response = client.embeddings.create(
+            model="text-embedding-3-small",
+            input=text
+        )
+        return response.data[0].embedding
+    except Exception as e:
+        print(f"Lỗi khi tạo embedding: {e}")
+        raise
+
+
 class RetrieverTool:
-    """Class quản lý việc truy vấn vector store"""
+    """Class quản lý việc truy vấn PostgreSQL + pgvector"""
     
-    def __init__(self, db_path: str = CHROMA_DB_PATH):
-        self.db_path = db_path
-        self.vectorstore = None
-        self._initialize_vectorstore()
-    
-    def _initialize_vectorstore(self):
-        """Khởi tạo vector store từ ChromaDB"""
-        try:
-            embeddings = OpenAIEmbeddings()
-            self.vectorstore = Chroma(
-                persist_directory=self.db_path,
-                embedding_function=embeddings
-            )
-        except Exception as e:
-            print(f"Lỗi khi khởi tạo vectorstore: {e}")
-            self.vectorstore = None
+    def __init__(self):
+        pass
     
     def retrieve(self, query: str, k: int = 3, lesson_id: str = None) -> List[Dict]:
         """
-        Truy vấn các đoạn nội dung liên quan từ vector store với metadata
+        Truy vấn các đoạn nội dung liên quan từ PostgreSQL pgvector
         
         Args:
             query: Câu hỏi/truy vấn
@@ -57,29 +56,29 @@ class RetrieverTool:
         Returns:
             List các dict chứa content và metadata (source, lesson_id)
         """
-        if self.vectorstore is None:
-            return [{"content": "Chưa có dữ liệu bài giảng trong hệ thống.", "source": "system"}]
-        
         try:
-            # Nếu có lesson_id, filter theo metadata
-            if lesson_id:
-                docs = self.vectorstore.similarity_search(
-                    query, 
-                    k=k,
-                    filter={"lesson_id": lesson_id}
-                )
-            else:
-                docs = self.vectorstore.similarity_search(query, k=k)
+            # 1. Get query embedding
+            query_embedding = get_embedding(query)
             
-            # Trả về content + metadata
-            results = []
-            for doc in docs:
-                results.append({
-                    "content": doc.page_content,
-                    "source": doc.metadata.get("source", "unknown"),
-                    "lesson_id": doc.metadata.get("lesson_id", "")
+            # 2. Vector search in PostgreSQL
+            results = search_similar_chunks(
+                query_embedding=query_embedding,
+                lesson_id=lesson_id,
+                k=k
+            )
+            
+            # 3. Format results
+            formatted_results = []
+            for result in results:
+                formatted_results.append({
+                    "content": result["text"],
+                    "source": f"Bài {result['lesson_id']} (chunk {result['chunk_index']})",
+                    "lesson_id": result["lesson_id"],
+                    "similarity": result["similarity"]
                 })
-            return results
+            
+            return formatted_results if formatted_results else [{"content": "Không tìm thấy thông tin liên quan.", "source": "system"}]
+            
         except Exception as e:
             print(f"Lỗi khi truy vấn: {e}")
             return [{"content": "Không thể truy vấn dữ liệu bài giảng.", "source": "error"}]
