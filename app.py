@@ -108,15 +108,18 @@ class APIResponse(BaseModel):
     message: str
     timestamp: str
     
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "status": "success",
-                "data": {"key": "value"},
-                "message": "Operation completed successfully",
-                "timestamp": "2025-11-26T10:30:00Z"
-            }
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "status": "success",
+                    "data": {"key": "value"},
+                    "message": "Operation completed successfully",
+                    "timestamp": "2025-11-26T10:30:00Z"
+                }
+            ]
         }
+    }
 
 
 # Request/Response models
@@ -124,13 +127,16 @@ class ChatRequest(BaseModel):
     user_message: str
     lesson_id: Optional[str] = None
     
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "user_message": "Cho em hỏi số 12345 có mấy chữ số?",
-                "lesson_id": "toan-lop-4-bai-1"
-            }
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "user_message": "Cho em hỏi số 12345 có mấy chữ số?",
+                    "lesson_id": "toan-lop-4-bai-1"
+                }
+            ]
         }
+    }
 
 
 class ChatData(BaseModel):
@@ -142,32 +148,38 @@ class ChatData(BaseModel):
 class ChatResponse(APIResponse):
     data: Optional[ChatData] = None
     
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "status": "success",
-                "data": {
-                    "reply": "Số 12345 có 5 chữ số",
-                    "intent": "normal",
-                    "user_id": "user_123"
-                },
-                "message": "Chat processed successfully",
-                "timestamp": "2025-11-26T10:30:00Z"
-            }
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "status": "success",
+                    "data": {
+                        "reply": "Số 12345 có 5 chữ số",
+                        "intent": "normal",
+                        "user_id": "user_123"
+                    },
+                    "message": "Chat processed successfully",
+                    "timestamp": "2025-11-26T10:30:00Z"
+                }
+            ]
         }
+    }
 
 
 class AnalyzerRequest(BaseModel):
     lesson_id: Optional[str] = None
     topic: Optional[str] = ""
     
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "lesson_id": "toan-lop-4-bai-1",
-                "topic": "phân số"
-            }
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "lesson_id": "toan-lop-4-bai-1",
+                    "topic": "phân số"
+                }
+            ]
         }
+    }
 
 
 class AnalyzerData(BaseModel):
@@ -180,33 +192,39 @@ class AnalyzerData(BaseModel):
 class AnalyzerResponse(APIResponse):
     data: Optional[AnalyzerData] = None
     
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "status": "success",
-                "data": {
-                    "analysis": "Học sinh đã hiểu khái niệm cơ bản...",
-                    "user_id": "user_123",
-                    "level": "Intermediate",
-                    "level_reason": "Học sinh trả lời đúng 80% câu hỏi"
-                },
-                "message": "Analysis completed",
-                "timestamp": "2025-11-26T10:30:00Z"
-            }
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "status": "success",
+                    "data": {
+                        "analysis": "Học sinh đã hiểu khái niệm cơ bản...",
+                        "user_id": "user_123",
+                        "level": "Intermediate",
+                        "level_reason": "Học sinh trả lời đúng 80% câu hỏi"
+                    },
+                    "message": "Analysis completed",
+                    "timestamp": "2025-11-26T10:30:00Z"
+                }
+            ]
         }
+    }
 
 
 class MindmapRequest(BaseModel):
     lesson_id: str
     topic: Optional[str] = ""
     
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "lesson_id": "toan-lop-4-bai-1",
-                "topic": "số tự nhiên"
-            }
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "lesson_id": "toan-lop-4-bai-1",
+                    "topic": "số tự nhiên"
+                }
+            ]
         }
+    }
 
 
 class MindmapData(BaseModel):
@@ -217,33 +235,39 @@ class MindmapData(BaseModel):
 class MindmapResponse(APIResponse):
     data: Optional[MindmapData] = None
     
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "status": "success",
-                "data": {
-                    "mindmap_data": {
-                        "nodes": [],
-                        "edges": []
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "status": "success",
+                    "data": {
+                        "mindmap_data": {
+                            "nodes": [],
+                            "edges": []
+                        },
+                        "lesson_id": "toan-lop-4-bai-1"
                     },
-                    "lesson_id": "toan-lop-4-bai-1"
-                },
-                "message": "Mindmap generated successfully",
-                "timestamp": "2025-11-26T10:30:00Z"
-            }
+                    "message": "Mindmap generated successfully",
+                    "timestamp": "2025-11-26T10:30:00Z"
+                }
+            ]
         }
+    }
 
 
 class HealthResponse(APIResponse):
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "status": "success",
-                "data": None,
-                "message": "Agentic RAG API đang hoạt động",
-                "timestamp": "2025-11-26T10:30:00Z"
-            }
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "status": "success",
+                    "data": None,
+                    "message": "Agentic RAG API đang hoạt động",
+                    "timestamp": "2025-11-26T10:30:00Z"
+                }
+            ]
         }
+    }
 
 
 class LessonInfo(BaseModel):
@@ -258,22 +282,25 @@ class LessonsData(BaseModel):
 class LessonsResponse(APIResponse):
     data: Optional[LessonsData] = None
     
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "status": "success",
-                "data": {
-                    "lessons": [
-                        {
-                            "lesson_id": "toan-lop-4-bai-1",
-                            "lesson_name": "Ôn tập các số đến 100000"
-                        }
-                    ]
-                },
-                "message": "Lessons retrieved successfully",
-                "timestamp": "2025-11-26T10:30:00Z"
-            }
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "status": "success",
+                    "data": {
+                        "lessons": [
+                            {
+                                "lesson_id": "toan-lop-4-bai-1",
+                                "lesson_name": "Ôn tập các số đến 100000"
+                            }
+                        ]
+                    },
+                    "message": "Lessons retrieved successfully",
+                    "timestamp": "2025-11-26T10:30:00Z"
+                }
+            ]
         }
+    }
 
 
 class UserLevelData(BaseModel):
@@ -287,21 +314,24 @@ class UserLevelData(BaseModel):
 class UserLevelResponse(APIResponse):
     data: Optional[UserLevelData] = None
     
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "status": "success",
-                "data": {
-                    "user_id": "user_123",
-                    "level": "Intermediate",
-                    "level_reason": "Đã hoàn thành 10 bài tập",
-                    "messages_count": 15,
-                    "has_conversation": True
-                },
-                "message": "User level retrieved",
-                "timestamp": "2025-11-26T10:30:00Z"
-            }
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "status": "success",
+                    "data": {
+                        "user_id": "user_123",
+                        "level": "Intermediate",
+                        "level_reason": "Đã hoàn thành 10 bài tập",
+                        "messages_count": 15,
+                        "has_conversation": True
+                    },
+                    "message": "User level retrieved",
+                    "timestamp": "2025-11-26T10:30:00Z"
+                }
+            ]
         }
+    }
 
 
 @app.get("/", response_model=HealthResponse)
