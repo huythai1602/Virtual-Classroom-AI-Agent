@@ -106,7 +106,7 @@ class APIResponse(BaseModel):
     status: str  # "success" | "error"
     data: Optional[Any] = None
     message: str
-    timestamp: str
+    createdAt: str = Field(..., alias="createdAt")
     
     model_config = {
         "json_schema_extra": {
@@ -115,7 +115,7 @@ class APIResponse(BaseModel):
                     "status": "success",
                     "data": {"key": "value"},
                     "message": "Operation completed successfully",
-                    "timestamp": "2025-11-26T10:30:00Z"
+                    "createdAt": "2025-11-26T10:30:00Z"
                 }
             ]
         }
@@ -189,7 +189,7 @@ class AnalyzerResponse(APIResponse):
                         "levelReason": "Học sinh trả lời đúng 80% câu hỏi"
                     },
                     "message": "Analysis completed",
-                    "timestamp": "2025-11-26T10:30:00Z"
+                    "createdAt": "2025-11-26T10:30:00Z"
                 }
             ]
         }
@@ -235,7 +235,7 @@ class MindmapResponse(APIResponse):
                         "title": "Ôn tập các số đến 100000"
                     },
                     "message": "Mindmap generated successfully",
-                    "timestamp": "2025-11-26T10:30:00Z"
+                    "createdAt": "2025-11-26T10:30:00Z"
                 }
             ]
         }
@@ -250,7 +250,7 @@ class HealthResponse(APIResponse):
                     "status": "success",
                     "data": None,
                     "message": "Agentic RAG API đang hoạt động",
-                    "timestamp": "2025-11-26T10:30:00Z"
+                    "createdAt": "2025-11-26T10:30:00Z"
                 }
             ]
         }
@@ -287,7 +287,7 @@ class LessonsResponse(APIResponse):
                         ]
                     },
                     "message": "Lessons retrieved successfully",
-                    "timestamp": "2025-11-26T10:30:00Z"
+                    "createdAt": "2025-11-26T10:30:00Z"
                 }
             ]
         }
@@ -318,7 +318,7 @@ class UserLevelResponse(APIResponse):
                         "hasConversation": True
                     },
                     "message": "User level retrieved",
-                    "timestamp": "2025-11-26T10:30:00Z"
+                    "createdAt": "2025-11-26T10:30:00Z"
                 }
             ]
         }
@@ -332,7 +332,7 @@ async def root():
         status="success",
         data=None,
         message="Agentic RAG API đang hoạt động",
-        timestamp=datetime.now(timezone.utc).isoformat()
+        createdAt=datetime.now(timezone.utc).isoformat()
     )
 
 
@@ -364,7 +364,7 @@ async def get_lessons():
             status="success",
             data=LessonsData(lessons=lessons),
             message="Lessons retrieved successfully",
-            timestamp=datetime.now(timezone.utc).isoformat()
+            createdAt=datetime.now(timezone.utc).isoformat()
         )
     
     except Exception as e:
@@ -372,7 +372,7 @@ async def get_lessons():
             status="error",
             data=None,
             message=f"Lỗi khi lấy danh sách bài giảng: {str(e)}",
-            timestamp=datetime.now(timezone.utc).isoformat()
+            createdAt=datetime.now(timezone.utc).isoformat()
         )
 
 
@@ -395,7 +395,7 @@ async def get_lessons():
                                     "intent": "normal"
                                 },
                                 "message": "Chat processed successfully",
-                                "timestamp": "2025-11-26T10:30:00.123Z"
+                                "createdAt": "2025-11-26T10:30:00.123Z"
                             }
                         },
                         "deep_explanation": {
@@ -408,7 +408,7 @@ async def get_lessons():
                                     "intent": "deep"
                                 },
                                 "message": "Deep explanation provided",
-                                "timestamp": "2025-11-26T10:35:15.456Z"
+                                "createdAt": "2025-11-26T10:35:15.456Z"
                             }
                         }
                     }
@@ -530,7 +530,7 @@ async def chat_endpoint(
                     intent=intent
                 ),
                 message="Chat processed successfully",
-                timestamp=datetime.now(timezone.utc).isoformat()
+                createdAt=datetime.now(timezone.utc).isoformat()
             )
     
     except Exception as e:
@@ -538,7 +538,7 @@ async def chat_endpoint(
             status="error",
             data=None,
             message=f"Lỗi khi xử lý chat: {str(e)}",
-            timestamp=datetime.now(timezone.utc).isoformat()
+            createdAt=datetime.now(timezone.utc).isoformat()
         )
 
 
@@ -593,7 +593,7 @@ async def analyzer_endpoint(
                 levelReason=result["level_reason"]
             ),
             message="Analysis completed successfully",
-            timestamp=datetime.now(timezone.utc).isoformat()
+            createdAt=datetime.now(timezone.utc).isoformat()
         )
     
     except HTTPException as he:
@@ -601,14 +601,14 @@ async def analyzer_endpoint(
             status="error",
             data=None,
             message=he.detail,
-            timestamp=datetime.now(timezone.utc).isoformat()
+            createdAt=datetime.now(timezone.utc).isoformat()
         )
     except Exception as e:
         return AnalyzerResponse(
             status="error",
             data=None,
             message=f"Lỗi khi phân tích: {str(e)}",
-            timestamp=datetime.now(timezone.utc).isoformat()
+            createdAt=datetime.now(timezone.utc).isoformat()
         )
 
 
@@ -657,7 +657,7 @@ async def mindmap_endpoint(request: MindmapRequest):
                 title=lesson["title"]
             ),
             message="Mindmap generated successfully",
-            timestamp=datetime.now(timezone.utc).isoformat()
+            createdAt=datetime.now(timezone.utc).isoformat()
         )
     
     except Exception as e:
@@ -665,7 +665,7 @@ async def mindmap_endpoint(request: MindmapRequest):
             status="error",
             data=None,
             message=f"Lỗi khi tạo mindmap: {str(e)}",
-            timestamp=datetime.now(timezone.utc).isoformat()
+            createdAt=datetime.now(timezone.utc).isoformat()
         )
 
 
@@ -684,14 +684,14 @@ async def clear_session(user_id: str = Depends(get_current_user)):
             status="success",
             data=None,
             message=f"Đã xóa session của user {user_id}",
-            timestamp=datetime.now(timezone.utc).isoformat()
+            createdAt=datetime.now(timezone.utc).isoformat()
         )
     except Exception as e:
         return APIResponse(
             status="error",
             data=None,
             message=f"Lỗi khi xóa session: {str(e)}",
-            timestamp=datetime.now(timezone.utc).isoformat()
+            createdAt=datetime.now(timezone.utc).isoformat()
         )
 
 
@@ -714,14 +714,14 @@ async def get_session_info(user_id: str = Depends(get_current_user)):
                 "conversationHistory": session_memory.get_conversation_history(user_id)
             },
             message="Session retrieved successfully",
-            timestamp=datetime.now(timezone.utc).isoformat()
+            createdAt=datetime.now(timezone.utc).isoformat()
         )
     except Exception as e:
         return APIResponse(
             status="error",
             data=None,
             message=f"Lỗi khi lấy session: {str(e)}",
-            timestamp=datetime.now(timezone.utc).isoformat()
+            createdAt=datetime.now(timezone.utc).isoformat()
         )
 
 
@@ -753,7 +753,7 @@ async def get_user_level(user_id: str = Depends(get_current_user)):
                     hasConversation=False
                 ),
                 message="User level retrieved",
-                timestamp=datetime.now(timezone.utc).isoformat()
+                createdAt=datetime.now(timezone.utc).isoformat()
             )
         
         # Lấy level đã được lưu (từ analyzer)
@@ -772,7 +772,7 @@ async def get_user_level(user_id: str = Depends(get_current_user)):
                     hasConversation=True
                 ),
                 message="User level retrieved",
-                timestamp=datetime.now(timezone.utc).isoformat()
+                createdAt=datetime.now(timezone.utc).isoformat()
             )
         
         return UserLevelResponse(
@@ -785,7 +785,7 @@ async def get_user_level(user_id: str = Depends(get_current_user)):
                 hasConversation=True
             ),
             message="User level retrieved successfully",
-            timestamp=datetime.now(timezone.utc).isoformat()
+            createdAt=datetime.now(timezone.utc).isoformat()
         )
     
     except Exception as e:
@@ -793,7 +793,7 @@ async def get_user_level(user_id: str = Depends(get_current_user)):
             status="error",
             data=None,
             message=f"Lỗi khi lấy level: {str(e)}",
-            timestamp=datetime.now(timezone.utc).isoformat()
+            createdAt=datetime.now(timezone.utc).isoformat()
         )
 
 
