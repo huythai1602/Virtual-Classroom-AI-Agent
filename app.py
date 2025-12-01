@@ -147,7 +147,6 @@ class ChatRequest(BaseModel):
 class ChatData(BaseModel):
     reply: str
     intent: str
-    userId: str = Field(..., serialization_alias="userId")
 
 
 class ChatResponse(APIResponse):
@@ -172,7 +171,6 @@ class AnalyzerRequest(BaseModel):
 
 class AnalyzerData(BaseModel):
     analysis: str
-    userId: str = Field(..., serialization_alias="userId")
     level: str
     levelReason: str = Field(..., serialization_alias="levelReason")
 
@@ -187,7 +185,6 @@ class AnalyzerResponse(APIResponse):
                     "status": "success",
                     "data": {
                         "analysis": "Học sinh đã hiểu khái niệm cơ bản...",
-                        "userId": "user_123",
                         "level": "Intermediate",
                         "levelReason": "Học sinh trả lời đúng 80% câu hỏi"
                     },
@@ -395,8 +392,7 @@ async def get_lessons():
                                 "status": "success",
                                 "data": {
                                     "reply": "Số 12345 có 5 chữ số. Đây là số tự nhiên gồm: 1 chục nghìn, 2 nghìn, 3 trăm, 4 chục và 5 đơn vị.",
-                                    "intent": "normal",
-                                    "userId": "user_123"
+                                    "intent": "normal"
                                 },
                                 "message": "Chat processed successfully",
                                 "timestamp": "2025-11-26T10:30:00.123Z"
@@ -409,8 +405,7 @@ async def get_lessons():
                                 "status": "success",
                                 "data": {
                                     "reply": "### Giải thích chi tiết về Phân số\n\n**1. Khái niệm cơ bản**\nPhân số là một cách biểu diễn các phần của một tổng thể. Ví dụ: nếu chia một cái bánh thành 4 phần bằng nhau và lấy 3 phần, ta có phân số 3/4.\n\n**2. Thành phần của phân số**\n- Tử số: Số phần ta lấy (số ở trên)\n- Mẫu số: Tổng số phần bằng nhau (số ở dưới)\n- Gạch ngang: Dấu chia\n\n**3. Ví dụ minh họa**\nCho 1 hình tròn chia thành 8 phần bằng nhau:\n- Nếu tô màu 3 phần → 3/8\n- Nếu tô màu 5 phần → 5/8\n\n**4. Lưu ý quan trọng**\n- Mẫu số không bao giờ bằng 0\n- Tử số có thể bằng 0 (nghĩa là không lấy phần nào)\n- Khi tử số = mẫu số → phân số = 1 (lấy hết)\n\n**5. Bài tập thực hành**\nHãy biểu diễn phân số sau bằng hình vẽ: 2/5",
-                                    "intent": "deep",
-                                    "userId": "user_456"
+                                    "intent": "deep"
                                 },
                                 "message": "Deep explanation provided",
                                 "timestamp": "2025-11-26T10:35:15.456Z"
@@ -532,8 +527,7 @@ async def chat_endpoint(
                 status="success",
                 data=ChatData(
                     reply=reply,
-                    intent=intent,
-                    userId=user_id
+                    intent=intent
                 ),
                 message="Chat processed successfully",
                 timestamp=datetime.now(timezone.utc).isoformat()
@@ -595,7 +589,6 @@ async def analyzer_endpoint(
             status="success",
             data=AnalyzerData(
                 analysis=result["analysis"],
-                userId=user_id,
                 level=result["level"],
                 levelReason=result["level_reason"]
             ),
