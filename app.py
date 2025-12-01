@@ -154,14 +154,14 @@ class ChatResponse(APIResponse):
 
 
 class AnalyzerRequest(BaseModel):
-    id: Optional[int] = None  # Lesson ID (numeric)
+    lessonId: Optional[int] = Field(None, serialization_alias="lessonId")  # Lesson ID (numeric)
     topic: Optional[str] = ""
     
     model_config = {
         "json_schema_extra": {
             "examples": [
                 {
-                    "id": 1,
+                    "lessonId": 1,
                     "topic": "phân số"
                 }
             ]
@@ -197,14 +197,14 @@ class AnalyzerResponse(APIResponse):
 
 
 class MindmapRequest(BaseModel):
-    id: int  # Lesson ID (numeric, required)
+    lessonId: int = Field(..., serialization_alias="lessonId")  # Lesson ID (numeric, required)
     topic: Optional[str] = ""
     
     model_config = {
         "json_schema_extra": {
             "examples": [
                 {
-                    "id": 1,
+                    "lessonId": 1,
                     "topic": "số tự nhiên"
                 }
             ]
@@ -214,7 +214,7 @@ class MindmapRequest(BaseModel):
 
 class MindmapData(BaseModel):
     mindmapData: Dict[str, Any] = Field(..., serialization_alias="mindmapData")
-    id: int
+    lessonId: int = Field(..., serialization_alias="lessonId")
     title: str
 
 
@@ -231,7 +231,7 @@ class MindmapResponse(APIResponse):
                             "nodes": [],
                             "edges": []
                         },
-                        "id": 1,
+                        "lessonId": 1,
                         "title": "Ôn tập các số đến 100000"
                     },
                     "message": "Mindmap generated successfully",
@@ -258,7 +258,7 @@ class HealthResponse(APIResponse):
 
 
 class LessonInfo(BaseModel):
-    id: int
+    lessonId: int = Field(..., serialization_alias="lessonId")
     title: str
 
 
@@ -277,11 +277,11 @@ class LessonsResponse(APIResponse):
                     "data": {
                         "lessons": [
                             {
-                                "id": 1,
+                                "lessonId": 1,
                                 "title": "Ôn tập các số đến 100000"
                             },
                             {
-                                "id": 2,
+                                "lessonId": 2,
                                 "title": "Phân số"
                             }
                         ]
@@ -358,7 +358,7 @@ async def get_lessons():
             rows = cursor.fetchall()
             cursor.close()
         
-        lessons = [LessonInfo(id=row[0], title=row[1]) for row in rows]
+        lessons = [LessonInfo(lessonId=row[0], title=row[1]) for row in rows]
         
         return LessonsResponse(
             status="success",
@@ -452,10 +452,10 @@ async def chat_endpoint(
             "content": request.userMessage
         })
         
-        # Tạo input state (convert id to string for compatibility)
+        # Tạo input state (convert lessonId to string for compatibility)
         input_state = {
             "messages": [HumanMessage(content=request.userMessage)],
-            "lesson_id": str(request.id) if request.id else ""
+            "lesson_id": str(request.lessonId) if request.lessonId else ""
         }
         
         # Config để load history
@@ -573,7 +573,7 @@ async def analyzer_endpoint(
         
         # Lấy transcript (Tối ưu: k=10→5 để giảm tokens cho analyzer)
         topic = request.topic if request.topic else "Toán lớp 4"
-        lesson_id = str(request.id) if request.id else None
+        lesson_id = str(request.lessonId) if request.lessonId else None
         transcript = get_context(topic, k=5, lesson_id=lesson_id)
         
         # Phân tích (bao gồm đánh giá level)
@@ -626,16 +626,16 @@ async def mindmap_endpoint(request: MindmapRequest):
     try:
         # Get lesson info
         from database.lessons_repository import get_lesson
-        lesson = get_lesson(str(request.id))
+        lesson = get_lesson(str(request.lessonId))
         if not lesson:
             raise HTTPException(
                 status_code=404,
-                detail=f"Không tìm thấy bài học với id: {request.id}"
+                detail=f"Không tìm thấy bài học với id: {request.lessonId}"
             )
         
         # Lấy context từ bài học (Tối ưu: k=10→7 để giảm tokens)
         topic = request.topic if request.topic else "toàn bộ bài học"
-        context = get_context(topic, k=7, lesson_id=str(request.id))
+        context = get_context(topic, k=7, lesson_id=str(request.lessonId))
         
         # Tạo mindmap
         mindmap_json_str = generate_mindmap_with_context(topic, context)
@@ -653,7 +653,7 @@ async def mindmap_endpoint(request: MindmapRequest):
             status="success",
             data=MindmapData(
                 mindmapData=mindmap_data,
-                id=request.id,
+                lessonId=request.lessonId,
                 title=lesson["title"]
             ),
             message="Mindmap generated successfully",
