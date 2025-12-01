@@ -60,6 +60,10 @@ app.add_middleware(
 async def add_cors_headers(request, call_next):
     # Handle OPTIONS preflight
     if request.method == "OPTIONS":
+        print(f"🔍 OPTIONS request: {request.url.path}")
+        print(f"   Origin: {request.headers.get('origin', 'N/A')}")
+        print(f"   Access-Control-Request-Headers: {request.headers.get('access-control-request-headers', 'N/A')}")
+        
         response = Response(status_code=200)
         response.headers["Access-Control-Allow-Origin"] = "*"
         response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
