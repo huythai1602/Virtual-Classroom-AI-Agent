@@ -44,14 +44,14 @@ app = FastAPI(
     }
 )
 
-# CORS middleware - Comprehensive configuration
+# CORS middleware - Accept any origin (equivalent to NestJS origin: true)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Allow all origins
-    allow_credentials=True,  # Must be False when using allow_origins=["*"]
-    allow_methods=["*"],  # Allow all HTTP methods
-    allow_headers=["*"],  # Allow all headers including Authorization, Content-Type
-    expose_headers=["*"],  # Expose all response headers to frontend
+    allow_origin_regex=".*",  # Accept any origin (like NestJS origin: true)
+    allow_credentials=True,  # Allow cookies and authorization headers
+    allow_methods=["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization"],
+    expose_headers=["Content-Type", "Authorization", "Set-Cookie"],
     max_age=3600,  # Cache preflight for 1 hour
 )
 
