@@ -44,13 +44,14 @@ app = FastAPI(
     }
 )
 
-# CORS middleware
+# CORS middleware - Allow all origins without credentials for simplicity
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
+    allow_credentials=False,  # Must be False when using allow_origins=["*"]
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 # Security scheme for Swagger UI
