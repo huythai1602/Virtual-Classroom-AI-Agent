@@ -125,7 +125,7 @@ class APIResponse(BaseModel):
 # Request/Response models
 class ChatRequest(BaseModel):
     userMessage: str = Field(..., alias="userMessage")
-    id: Optional[int] = None  # Lesson ID (numeric)
+    lessonId: Optional[int] = Field(None, alias="lessonId")  # Lesson ID (numeric)
     
     model_config = {
         "populate_by_name": True,
@@ -133,11 +133,11 @@ class ChatRequest(BaseModel):
             "examples": [
                 {
                     "userMessage": "Cho em hỏi số 12345 có mấy chữ số?",
-                    "id": 1
+                    "lessonId": 1
                 },
                 {
                     "userMessage": "Giải thích cho em hiểu về phân số với nhé cô",
-                    "id": 2
+                    "lessonId": 2
                 }
             ]
         }
