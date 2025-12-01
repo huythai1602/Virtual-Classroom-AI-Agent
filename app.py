@@ -325,7 +325,7 @@ class UserLevelResponse(APIResponse):
     }
 
 
-@app.get("/", response_model=HealthResponse)
+@app.get("/api/health", response_model=HealthResponse)
 async def root():
     """Health check endpoint"""
     return HealthResponse(
@@ -336,7 +336,7 @@ async def root():
     )
 
 
-@app.get("/lessons", response_model=LessonsResponse)
+@app.get("/api/lessons", response_model=LessonsResponse)
 async def get_lessons():
     """
     Lấy danh sách các bài giảng có sẵn từ database
@@ -377,7 +377,7 @@ async def get_lessons():
 
 
 @app.post(
-    "/chat",
+    "/api/agent/chat",
     response_model=ChatResponse,
     responses={
         200: {
@@ -542,7 +542,7 @@ async def chat_endpoint(
         )
 
 
-@app.post("/analyzer", response_model=AnalyzerResponse)
+@app.post("/api/agent/analyzer", response_model=AnalyzerResponse)
 async def analyzer_endpoint(
     request: AnalyzerRequest,
     user_id: str = Depends(get_current_user)
@@ -612,7 +612,7 @@ async def analyzer_endpoint(
         )
 
 
-@app.post("/mindmap", response_model=MindmapResponse)
+@app.post("/api/lessons/mindmap", response_model=MindmapResponse)
 async def mindmap_endpoint(request: MindmapRequest):
     """
     Endpoint tạo sơ đồ tư duy cho bài học
@@ -669,7 +669,7 @@ async def mindmap_endpoint(request: MindmapRequest):
         )
 
 
-@app.delete("/session")
+@app.delete("/api/session")
 async def clear_session(user_id: str = Depends(get_current_user)):
     """
     Xóa session của user hiện tại
@@ -695,8 +695,8 @@ async def clear_session(user_id: str = Depends(get_current_user)):
         )
 
 
-@app.get("/session")
-async def get_session(user_id: str = Depends(get_current_user)):
+@app.get("/api/session")
+async def get_session_info(user_id: str = Depends(get_current_user)):
     """
     Lấy thông tin session của user hiện tại
     Requires JWT token in Authorization header
@@ -725,7 +725,7 @@ async def get_session(user_id: str = Depends(get_current_user)):
         )
 
 
-@app.get("/user/level", response_model=UserLevelResponse)
+@app.get("/api/user/level", response_model=UserLevelResponse)
 async def get_user_level(user_id: str = Depends(get_current_user)):
     """
     Lấy level của user hiện tại
