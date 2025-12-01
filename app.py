@@ -7,7 +7,7 @@ from fastapi import FastAPI, HTTPException, Depends, Header, Security
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, Dict, Any, List
 from dotenv import load_dotenv
 import os
@@ -124,18 +124,19 @@ class APIResponse(BaseModel):
 
 # Request/Response models
 class ChatRequest(BaseModel):
-    user_message: str
+    userMessage: str = Field(..., alias="userMessage")
     id: Optional[int] = None  # Lesson ID (numeric)
     
     model_config = {
+        "populate_by_name": True,
         "json_schema_extra": {
             "examples": [
                 {
-                    "user_message": "Cho em hỏi số 12345 có mấy chữ số?",
+                    "userMessage": "Cho em hỏi số 12345 có mấy chữ số?",
                     "id": 1
                 },
                 {
-                    "user_message": "Giải thích cho em hiểu về phân số với nhé cô",
+                    "userMessage": "Giải thích cho em hiểu về phân số với nhé cô",
                     "id": 2
                 }
             ]
@@ -146,7 +147,7 @@ class ChatRequest(BaseModel):
 class ChatData(BaseModel):
     reply: str
     intent: str
-    user_id: str
+    userId: str = Field(..., serialization_alias="userId")
 
 
 class ChatResponse(APIResponse):
@@ -171,9 +172,9 @@ class AnalyzerRequest(BaseModel):
 
 class AnalyzerData(BaseModel):
     analysis: str
-    user_id: str
+    userId: str = Field(..., serialization_alias="userId")
     level: str
-    level_reason: str
+    levelReason: str = Field(..., serialization_alias="levelReason")
 
 
 class AnalyzerResponse(APIResponse):
@@ -186,9 +187,9 @@ class AnalyzerResponse(APIResponse):
                     "status": "success",
                     "data": {
                         "analysis": "Học sinh đã hiểu khái niệm cơ bản...",
-                        "user_id": "user_123",
+                        "userId": "user_123",
                         "level": "Intermediate",
-                        "level_reason": "Học sinh trả lời đúng 80% câu hỏi"
+                        "levelReason": "Học sinh trả lời đúng 80% câu hỏi"
                     },
                     "message": "Analysis completed",
                     "timestamp": "2025-11-26T10:30:00Z"
@@ -215,7 +216,7 @@ class MindmapRequest(BaseModel):
 
 
 class MindmapData(BaseModel):
-    mindmap_data: Dict[str, Any]
+    mindmapData: Dict[str, Any] = Field(..., serialization_alias="mindmapData")
     id: int
     title: str
 
@@ -229,7 +230,7 @@ class MindmapResponse(APIResponse):
                 {
                     "status": "success",
                     "data": {
-                        "mindmap_data": {
+                        "mindmapData": {
                             "nodes": [],
                             "edges": []
                         },
@@ -297,11 +298,11 @@ class LessonsResponse(APIResponse):
 
 
 class UserLevelData(BaseModel):
-    user_id: str
+    userId: str = Field(..., serialization_alias="userId")
     level: str
-    level_reason: str
-    messages_count: int
-    has_conversation: bool
+    levelReason: str = Field(..., serialization_alias="levelReason")
+    messagesCount: int = Field(..., serialization_alias="messagesCount")
+    hasConversation: bool = Field(..., serialization_alias="hasConversation")
 
 
 class UserLevelResponse(APIResponse):
@@ -313,11 +314,11 @@ class UserLevelResponse(APIResponse):
                 {
                     "status": "success",
                     "data": {
-                        "user_id": "user_123",
+                        "userId": "user_123",
                         "level": "Intermediate",
-                        "level_reason": "Đã hoàn thành 10 bài tập",
-                        "messages_count": 15,
-                        "has_conversation": True
+                        "levelReason": "Đã hoàn thành 10 bài tập",
+                        "messagesCount": 15,
+                        "hasConversation": True
                     },
                     "message": "User level retrieved",
                     "timestamp": "2025-11-26T10:30:00Z"
@@ -395,7 +396,7 @@ async def get_lessons():
                                 "data": {
                                     "reply": "Số 12345 có 5 chữ số. Đây là số tự nhiên gồm: 1 chục nghìn, 2 nghìn, 3 trăm, 4 chục và 5 đơn vị.",
                                     "intent": "normal",
-                                    "user_id": "user_123"
+                                    "userId": "user_123"
                                 },
                                 "message": "Chat processed successfully",
                                 "timestamp": "2025-11-26T10:30:00.123Z"
@@ -409,7 +410,7 @@ async def get_lessons():
                                 "data": {
                                     "reply": "### Giải thích chi tiết về Phân số\n\n**1. Khái niệm cơ bản**\nPhân số là một cách biểu diễn các phần của một tổng thể. Ví dụ: nếu chia một cái bánh thành 4 phần bằng nhau và lấy 3 phần, ta có phân số 3/4.\n\n**2. Thành phần của phân số**\n- Tử số: Số phần ta lấy (số ở trên)\n- Mẫu số: Tổng số phần bằng nhau (số ở dưới)\n- Gạch ngang: Dấu chia\n\n**3. Ví dụ minh họa**\nCho 1 hình tròn chia thành 8 phần bằng nhau:\n- Nếu tô màu 3 phần → 3/8\n- Nếu tô màu 5 phần → 5/8\n\n**4. Lưu ý quan trọng**\n- Mẫu số không bao giờ bằng 0\n- Tử số có thể bằng 0 (nghĩa là không lấy phần nào)\n- Khi tử số = mẫu số → phân số = 1 (lấy hết)\n\n**5. Bài tập thực hành**\nHãy biểu diễn phân số sau bằng hình vẽ: 2/5",
                                     "intent": "deep",
-                                    "user_id": "user_456"
+                                    "userId": "user_456"
                                 },
                                 "message": "Deep explanation provided",
                                 "timestamp": "2025-11-26T10:35:15.456Z"
@@ -453,12 +454,12 @@ async def chat_endpoint(
         # Lưu user message vào session
         session["messages"].append({
             "role": "user",
-            "content": request.user_message
+            "content": request.userMessage
         })
         
         # Tạo input state (convert id to string for compatibility)
         input_state = {
-            "messages": [HumanMessage(content=request.user_message)],
+            "messages": [HumanMessage(content=request.userMessage)],
             "lesson_id": str(request.id) if request.id else ""
         }
         
@@ -532,7 +533,7 @@ async def chat_endpoint(
                 data=ChatData(
                     reply=reply,
                     intent=intent,
-                    user_id=user_id
+                    userId=user_id
                 ),
                 message="Chat processed successfully",
                 timestamp=datetime.now(timezone.utc).isoformat()
@@ -594,9 +595,9 @@ async def analyzer_endpoint(
             status="success",
             data=AnalyzerData(
                 analysis=result["analysis"],
-                user_id=user_id,
+                userId=user_id,
                 level=result["level"],
-                level_reason=result["level_reason"]
+                levelReason=result["level_reason"]
             ),
             message="Analysis completed successfully",
             timestamp=datetime.now(timezone.utc).isoformat()
@@ -658,7 +659,7 @@ async def mindmap_endpoint(request: MindmapRequest):
         return MindmapResponse(
             status="success",
             data=MindmapData(
-                mindmap_data=mindmap_data,
+                mindmapData=mindmap_data,
                 id=request.id,
                 title=lesson["title"]
             ),
@@ -715,9 +716,9 @@ async def get_session(user_id: str = Depends(get_current_user)):
         return APIResponse(
             status="success",
             data={
-                "user_id": user_id,
-                "messages_count": len(session.get("messages", [])),
-                "conversation_history": session_memory.get_conversation_history(user_id)
+                "userId": user_id,
+                "messagesCount": len(session.get("messages", [])),
+                "conversationHistory": session_memory.get_conversation_history(user_id)
             },
             message="Session retrieved successfully",
             timestamp=datetime.now(timezone.utc).isoformat()
@@ -752,11 +753,11 @@ async def get_user_level(user_id: str = Depends(get_current_user)):
             return UserLevelResponse(
                 status="success",
                 data=UserLevelData(
-                    user_id=user_id,
+                    userId=user_id,
                     level="Beginner",
-                    level_reason="Chưa có cuộc hội thoại nào",
-                    messages_count=0,
-                    has_conversation=False
+                    levelReason="Chưa có cuộc hội thoại nào",
+                    messagesCount=0,
+                    hasConversation=False
                 ),
                 message="User level retrieved",
                 timestamp=datetime.now(timezone.utc).isoformat()
@@ -771,11 +772,11 @@ async def get_user_level(user_id: str = Depends(get_current_user)):
             return UserLevelResponse(
                 status="success",
                 data=UserLevelData(
-                    user_id=user_id,
+                    userId=user_id,
                     level="Beginner",
-                    level_reason="Chưa được đánh giá. Vui lòng gọi /analyzer trước.",
-                    messages_count=len(messages),
-                    has_conversation=True
+                    levelReason="Chưa được đánh giá. Vui lòng gọi /analyzer trước.",
+                    messagesCount=len(messages),
+                    hasConversation=True
                 ),
                 message="User level retrieved",
                 timestamp=datetime.now(timezone.utc).isoformat()
@@ -784,11 +785,11 @@ async def get_user_level(user_id: str = Depends(get_current_user)):
         return UserLevelResponse(
             status="success",
             data=UserLevelData(
-                user_id=user_id,
+                userId=user_id,
                 level=latest_level,
-                level_reason=level_reason or "",
-                messages_count=len(messages),
-                has_conversation=True
+                levelReason=level_reason or "",
+                messagesCount=len(messages),
+                hasConversation=True
             ),
             message="User level retrieved successfully",
             timestamp=datetime.now(timezone.utc).isoformat()
