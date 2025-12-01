@@ -3,7 +3,7 @@ FastAPI Backend cho hệ thống Agentic RAG
 """
 import json
 from datetime import datetime, timezone
-from fastapi import FastAPI, HTTPException, Depends, Header, Security
+from fastapi import FastAPI, HTTPException, Depends, Header, Security, Response
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
@@ -53,6 +53,24 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["*"],
 )
+
+
+# Add CORS headers middleware for preflight
+@app.middleware("http")
+async def add_cors_headers(request, call_next):
+    # Handle OPTIONS preflight
+    if request.method == "OPTIONS":
+        response = Response(status_code=200)
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
+        response.headers["Access-Control-Allow-Headers"] = "*"
+        response.headers["Access-Control-Max-Age"] = "3600"
+        return response
+    
+    response = await call_next(request)
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    return response
+
 
 # Security scheme for Swagger UI
 security = HTTPBearer()
