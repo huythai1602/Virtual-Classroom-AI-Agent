@@ -44,15 +44,43 @@ app = FastAPI(
     }
 )
 
-# CORS middleware - Accept any origin (equivalent to NestJS origin: true)
+# CORS middleware - Allow specific origins for dev/prod
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],           # hoặc allow_origin_regex=r"https?://.*"
+    allow_origins=[
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "https://doan2025-production-f7c9.up.railway.app"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
+
+# Logging middleware for debugging
+@app.middleware("http")
+async def log_requests(request, call_next):
+    print(f"[REQUEST] {request.method} {request.url.path} | Origin: {request.headers.get('origin', 'N/A')}")
+    response = await call_next(request)
+    print(f"[RESPONSE] {response.status_code} | Headers: {dict(response.headers)}")
+    return response
+
+# Fallback OPTIONS handler for all paths (debugging preflight)
+@app.options("/{rest_of_path:path}")
+async def catch_all_options(rest_of_path: str):
+    """Catch-all OPTIONS handler to ensure preflight always returns 200"""
+    print(f"[PREFLIGHT] Caught OPTIONS request for /{rest_of_path}")
+    return Response(
+        status_code=200,
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "*",
+            "Access-Control-Allow-Headers": "*",
+            "Access-Control-Max-Age": "3600",
+        }
+    )
 
 # Security scheme for Swagger UI
 security = HTTPBearer()
