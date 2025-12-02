@@ -47,23 +47,11 @@ app = FastAPI(
 # CORS middleware - Accept any origin (equivalent to NestJS origin: true)
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=r"https?://.*",  # Accept any HTTP/HTTPS origin
-    allow_credentials=True,  # Allow cookies and authorization headers
-    allow_methods=["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allow_headers=["*"],  # Allow all headers
-    expose_headers=["*"],  # Expose all headers
-    max_age=3600,  # Cache preflight for 1 hour
+    allow_origins=["*"],           # hoặc allow_origin_regex=r"https?://.*"
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
-
-
-# Global OPTIONS handler for all routes (must be defined after middleware)
-@app.options("/{full_path:path}")
-async def preflight_handler(full_path: str):
-    """Handle all OPTIONS preflight requests"""
-    return {
-        "status": "ok",
-        "message": "Preflight OK"
-    }
 
 
 # Security scheme for Swagger UI
