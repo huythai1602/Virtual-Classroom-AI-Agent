@@ -56,6 +56,13 @@ app.add_middleware(
 )
 
 
+# Global OPTIONS handler for all routes to fix preflight 404
+@app.options("/{full_path:path}")
+async def preflight_handler(full_path: str):
+    """Handle all OPTIONS preflight requests"""
+    return Response(status_code=200)
+
+
 # Security scheme for Swagger UI
 security = HTTPBearer()
 
