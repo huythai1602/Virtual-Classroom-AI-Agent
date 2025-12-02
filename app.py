@@ -59,7 +59,9 @@ security = HTTPBearer()
 
 
 # JWT Authentication Helper
-async def get_current_user(credentials: HTTPAuthorizationCredentials = Security(security)) -> str:
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Security(security, scopes=[])
+) -> str:
     """
     Decode JWT token và trả về user_id
     
@@ -100,6 +102,33 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Security(
             status_code=401, 
             detail=f"Authentication error: {str(e)}"
         )
+
+
+# Optional authentication - không raise exception nếu không có token
+async def get_optional_user(
+    authorization: str = Header(None)
+) -> str:
+    """
+    Optional JWT decode - không raise 401 nếu thiếu token
+    Dùng cho endpoints cần CORS preflight work
+    """
+    if not authorization:
+        return "anonymous"
+    
+    try:
+        # Remove "Bearer " prefix
+        token = authorization.replace("Bearer ", "")
+        
+        # Decode JWT
+        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+        
+        # Extract user_id
+        user_id = payload.get("sub") or payload.get("user_id") or payload.get("userId")
+        
+        return str(user_id) if user_id else "anonymous"
+        
+    except:
+        return "anonymous"
 
 
 # Standard API Response wrapper
@@ -426,7 +455,7 @@ async def get_lessons():
 )
 async def chat_endpoint(
     request: ChatRequest,
-    user_id: str = Depends(get_current_user)
+    user_id: str = Depends(get_optional_user)
 ):
     """
     Unified chat endpoint - Tự động quyết định streaming hay non-streaming dựa vào intent
@@ -546,7 +575,7 @@ async def chat_endpoint(
 @app.post("/api/agent/analyzer", response_model=AnalyzerResponse)
 async def analyzer_endpoint(
     request: AnalyzerRequest,
-    user_id: str = Depends(get_current_user)
+    user_id: str = Depends(get_optional_user)
 ):
     """
     Endpoint phân tích buổi học
@@ -671,7 +700,7 @@ async def mindmap_endpoint(request: MindmapRequest):
 
 
 @app.delete("/api/session")
-async def clear_session(user_id: str = Depends(get_current_user)):
+async def clear_session(user_id: str = Depends(get_optional_user)):
     """
     Xóa session của user hiện tại
     Requires JWT token in Authorization header
@@ -697,7 +726,7 @@ async def clear_session(user_id: str = Depends(get_current_user)):
 
 
 @app.get("/api/session")
-async def get_session_info(user_id: str = Depends(get_current_user)):
+async def get_session_info(user_id: str = Depends(get_optional_user)):
     """
     Lấy thông tin session của user hiện tại
     Requires JWT token in Authorization header
@@ -727,7 +756,7 @@ async def get_session_info(user_id: str = Depends(get_current_user)):
 
 
 @app.get("/api/user/level", response_model=UserLevelResponse)
-async def get_user_level(user_id: str = Depends(get_current_user)):
+async def get_user_level(user_id: str = Depends(get_optional_user)):
     """
     Lấy level của user hiện tại
     Requires JWT token in Authorization header
