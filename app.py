@@ -3,6 +3,7 @@ FastAPI Application - Clean Architecture
 Agentic RAG System for Grade 4 Math
 """
 import asyncio
+import json
 from datetime import datetime, timezone
 from fastapi import FastAPI, Depends, Header, Response, Security
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -209,23 +210,29 @@ async def stream_agent_response(thread_id: str, question: str, lesson_id: int = 
                     ai_message = value["messages"][-1]
                     content = ai_message.content
                     
-                    # Send word by word
+                    # Send word by word as JSON chunks
                     words = content.split()
                     for word in words:
                         buffer += word + " "
-                        yield f"data: {buffer.strip()}\n\n"
+                        chunk_data = {
+                            "type": "content",
+                            "chunk": word + " ",
+                            "fullText": buffer.strip()
+                        }
+                        yield f"data: {json.dumps(chunk_data, ensure_ascii=False)}\n\n"
                         await asyncio.sleep(0.05)
         
         # Update session with persistence
         session["messages"] = messages
         session_memory.update_session(thread_id, session, persist=True)
         
-        yield "data: [DONE]\n\n"
+        # Send done signal
+        done_data = {"type": "done", "fullText": buffer.strip()}
+        yield f"data: {json.dumps(done_data, ensure_ascii=False)}\n\n"
         
     except Exception as e:
-        error_msg = f"Lỗi: {str(e)}"
-        yield f"data: {error_msg}\n\n"
-        yield "data: [DONE]\n\n"
+        error_data = {"type": "error", "message": f"Lỗi: {str(e)}"}
+        yield f"data: {json.dumps(error_data, ensure_ascii=False)}\n\n"
 
 
 @app.post(
