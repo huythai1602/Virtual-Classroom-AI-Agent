@@ -12,6 +12,8 @@ class AgentState(MessagesState):
     current_query: str = ""
     lesson_id: str = ""
     metadata: dict = {}
+    conversation_history: str = ""  # Recent conversation for context
+    thread_id: str = ""
 
 
 class ChatContext(TypedDict):

@@ -161,7 +161,12 @@ Return ONLY ONE WORD:
 DEFAULT_METADATA = {
     "subject": "Toán",
     "grade": 4,
-    "topic": "Bài học"
+    "topic": "Bài học",
+    "curriculum": "Kết nối tri thức",
+    "difficulty": "Cơ bản",
+    "prerequisites": [],
+    "learning_objectives": [],
+    "keywords": []
 }
 
 # ============================================================

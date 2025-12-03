@@ -8,6 +8,7 @@ from rank_bm25 import BM25Okapi
 from sentence_transformers import CrossEncoder
 from openai import OpenAI
 import tiktoken
+import re
 
 from config.settings import settings
 
@@ -15,12 +16,12 @@ client = OpenAI()
 
 
 class RAGRetriever:
-    """Advanced RAG retriever with hybrid search and reranking"""
+    """Advanced RAG retriever with hybrid search, reranking, and semantic chunking"""
     
     def __init__(self):
         self.reranker = CrossEncoder(settings.RERANK_MODEL)
         self.encoding = tiktoken.encoding_for_model("gpt-4")
-        print(f"✅ RAG Retriever initialized")
+        print(f"✅ RAG Retriever initialized with semantic chunking")
     
     def count_tokens(self, text: str) -> int:
         """Count tokens"""
@@ -28,6 +29,67 @@ class RAGRetriever:
             return len(self.encoding.encode(text))
         except:
             return len(text) // 4
+    
+    def semantic_chunk(self, text: str, max_chunk_size: int = 500) -> List[str]:
+        """
+        Split text into semantically coherent chunks using embedding similarity
+        
+        Args:
+            text: Input text to chunk
+            max_chunk_size: Maximum words per chunk
+            
+        Returns:
+            List of semantically coherent text chunks
+        """
+        # Split into sentences
+        sentences = re.split(r'(?<=[.!?])\s+', text)
+        if len(sentences) <= 1:
+            return [text]
+        
+        # Get embeddings for each sentence
+        embeddings = []
+        for sent in sentences:
+            if sent.strip():
+                try:
+                    embeddings.append(self.get_embedding(sent))
+                except:
+                    embeddings.append([0] * 1536)
+        
+        if len(embeddings) <= 1:
+            return [text]
+        
+        # Calculate similarity between consecutive sentences
+        embeddings_array = np.array(embeddings)
+        similarities = []
+        for i in range(len(embeddings_array) - 1):
+            sim = np.dot(embeddings_array[i], embeddings_array[i + 1])
+            similarities.append(sim)
+        
+        # Find split points where similarity < threshold
+        threshold = settings.SEMANTIC_THRESHOLD
+        split_indices = [0]
+        current_chunk_size = 0
+        
+        for i, sim in enumerate(similarities):
+            current_chunk_size += len(sentences[i].split())
+            
+            # Split if: low semantic similarity OR chunk too large
+            if sim < threshold or current_chunk_size >= max_chunk_size:
+                split_indices.append(i + 1)
+                current_chunk_size = 0
+        
+        split_indices.append(len(sentences))
+        
+        # Build chunks
+        chunks = []
+        for i in range(len(split_indices) - 1):
+            start = split_indices[i]
+            end = split_indices[i + 1]
+            chunk_text = ' '.join(sentences[start:end])
+            if chunk_text.strip():
+                chunks.append(chunk_text.strip())
+        
+        return chunks if chunks else [text]
     
     def adaptive_k(self, query: str, intent: str = "normal") -> int:
         """Adaptive k based on intent and query complexity"""
@@ -220,10 +282,11 @@ class RAGRetriever:
         query: str,
         lesson_id: Optional[str] = None,
         k: Optional[int] = None,
-        intent: str = "normal"
+        intent: str = "normal",
+        use_semantic_chunking: bool = True
     ) -> str:
         """
-        Complete retrieval pipeline
+        Complete retrieval pipeline with semantic chunking
         Returns formatted context string
         """
         # Adaptive k
@@ -238,6 +301,25 @@ class RAGRetriever:
         
         # MMR for diversity
         results = self.mmr_selection(query, candidates, k=k)
+        
+        # Apply semantic chunking to results if enabled
+        if use_semantic_chunking:
+            refined_results = []
+            for r in results:
+                semantic_chunks = self.semantic_chunk(r["text"])
+                
+                # Re-evaluate each semantic chunk against query
+                for chunk_text in semantic_chunks:
+                    refined_results.append({
+                        **r,
+                        "text": chunk_text,
+                        "original_text": r["text"],
+                        "is_semantic_chunk": True
+                    })
+            
+            # Re-rank semantic chunks
+            if refined_results:
+                results = self.rerank(query, refined_results, k=k*2)[:k]
         
         # Format with token budget
         formatted_chunks = []

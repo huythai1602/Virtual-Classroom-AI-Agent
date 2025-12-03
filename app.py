@@ -115,11 +115,11 @@ async def get_lessons(
 # CHAT ENDPOINT (Streaming with Auto Intent Detection)
 # ============================================================
 
-async def stream_agent_response(thread_id: str, question: str, lesson_id: int = None):
+async def stream_agent_response(thread_id: str, question: str, lesson_id: int = None, user_id: str = None):
     """Stream agent response via SSE with automatic intent detection"""
     try:
-        # Get or create session
-        session = session_memory.get_session(thread_id)
+        # Get or create session (with persistence)
+        session = session_memory.get_session(thread_id, user_id=user_id)
         messages = session.get("messages", [])
         
         # Summarize old messages if needed
@@ -140,7 +140,8 @@ async def stream_agent_response(thread_id: str, question: str, lesson_id: int = 
         # Prepare input (convert lesson_id to string for agent)
         input_data = {
             "messages": messages,
-            "lesson_id": str(lesson_id) if lesson_id else ""
+            "lesson_id": str(lesson_id) if lesson_id else "",
+            "thread_id": thread_id  # Pass thread_id for conversation context
         }
         
         # Stream response (agent auto-detects intent: normal or deep)
@@ -158,9 +159,9 @@ async def stream_agent_response(thread_id: str, question: str, lesson_id: int = 
                         yield f"data: {buffer.strip()}\n\n"
                         await asyncio.sleep(0.05)
         
-        # Update session
+        # Update session with persistence
         session["messages"] = messages
-        session_memory.update_session(thread_id, session)
+        session_memory.update_session(thread_id, session, persist=True)
         
         yield "data: [DONE]\n\n"
         
@@ -197,7 +198,7 @@ async def agent_chat(
     thread_id = f"user_{user_id}_session"
     
     return StreamingResponse(
-        stream_agent_response(thread_id, request.question, request.lesson_id),
+        stream_agent_response(thread_id, request.question, request.lesson_id, user_id),
         media_type="text/event-stream",
         headers={
             "Cache-Control": "no-cache",
