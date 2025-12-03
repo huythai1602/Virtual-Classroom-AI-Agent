@@ -4,7 +4,8 @@ Agentic RAG System for Grade 4 Math
 """
 import asyncio
 from datetime import datetime, timezone
-from fastapi import FastAPI, Depends, Header, Response
+from fastapi import FastAPI, Depends, Header, Response, Security
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from langchain_core.messages import HumanMessage
@@ -14,15 +15,25 @@ from core.agent import agent
 from core.memory import session_memory
 from core.state import ChatContext
 from models import ChatRequest, MindmapRequest, AnalyzerRequest
+from models.responses import StandardResponse, MindmapData, AnalyzerData, LessonsData, SessionData, UserLevelData, LessonItem
 from tools import generate_mindmap_json, analyze_session, summarize_conversation
 from utils import get_optional_user, get_user_id
 
+
+# Security scheme for Swagger UI
+security = HTTPBearer(
+    scheme_name="Bearer Token",
+    description="Enter your JWT token (without 'Bearer' prefix)"
+)
 
 # Initialize app
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
-    swagger_ui_parameters={"persistAuthorization": True}
+    swagger_ui_parameters={
+        "persistAuthorization": True,
+        "docExpansion": "none"
+    }
 )
 
 # CORS
@@ -67,48 +78,94 @@ async def root():
     }
 
 
-@app.get("/health")
+@app.get(
+    "/health",
+    response_model=StandardResponse[dict],
+    summary="Health Check",
+    description="Check if the API is running"
+)
 async def health_check():
-    return {"status": "healthy", "timestamp": datetime.now(timezone.utc).isoformat()}
+    return StandardResponse(
+        status="success",
+        data={"healthy": True},
+        message="API is running",
+        createdAt=datetime.now(timezone.utc).isoformat()
+    )
 
 
 # ============================================================
 # LESSONS ENDPOINT
 # ============================================================
 
-@app.get("/api/lessons")
+@app.get(
+    "/api/lessons",
+    response_model=StandardResponse[LessonsData],
+    summary="Get All Lessons",
+    description="Retrieve all lessons with optional filters",
+    responses={
+        200: {
+            "description": "Successful response",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "status": "success",
+                        "data": {
+                            "lessons": [
+                                {
+                                    "lessonId": "bai_2_phan_so",
+                                    "title": "Phân số",
+                                    "subject": "Toán",
+                                    "grade": 4,
+                                    "totalChunks": 32,
+                                    "status": "active"
+                                }
+                            ],
+                            "total": 1
+                        },
+                        "message": "Retrieved 1 lessons",
+                        "createdAt": "2025-12-03T18:30:00Z"
+                    }
+                }
+            }
+        }
+    }
+)
 async def get_lessons(
     subject: str = None,
     grade: int = None,
     user_id: str = Depends(get_optional_user)
 ):
-    """
-    Get Lessons - Retrieve all lessons with optional filters
-    
-    Query params:
-    - subject: Filter by subject (e.g., "Toán")
-    - grade: Filter by grade (e.g., 4)
-    
-    Returns: List of lessons
-    """
     try:
         from repositories.lessons import get_all_lessons
         
-        lessons = get_all_lessons(subject=subject, grade=grade)
+        lessons_raw = get_all_lessons(subject=subject, grade=grade)
         
-        return {
-            "status": "success",
-            "data": lessons,
-            "message": f"Retrieved {len(lessons)} lessons",
-            "createdAt": datetime.now(timezone.utc).isoformat()
-        }
+        # Convert to camelCase
+        lessons = [
+            LessonItem(
+                lessonId=lesson["lesson_id"],
+                title=lesson["title"],
+                subject=lesson["subject"],
+                grade=lesson["grade"],
+                totalChunks=lesson["total_chunks"],
+                status=lesson["status"]
+            )
+            for lesson in lessons_raw
+        ]
+        
+        return StandardResponse(
+            status="success",
+            data=LessonsData(lessons=lessons, total=len(lessons)),
+            message=f"Retrieved {len(lessons)} lessons",
+            createdAt=datetime.now(timezone.utc).isoformat()
+        )
     except Exception as e:
-        return {
-            "status": "error",
-            "data": [],
-            "message": f"Failed to retrieve lessons: {str(e)}",
-            "createdAt": datetime.now(timezone.utc).isoformat()
-        }
+        return StandardResponse(
+            status="error",
+            data=None,
+            message=f"Failed to retrieve lessons: {str(e)}",
+            createdAt=datetime.now(timezone.utc).isoformat()
+        )
 
 
 # ============================================================
@@ -171,34 +228,51 @@ async def stream_agent_response(thread_id: str, question: str, lesson_id: int = 
         yield "data: [DONE]\n\n"
 
 
-@app.post("/api/agent/chat")
+@app.post(
+    "/api/agent/chat",
+    summary="Chat with AI Agent",
+    description="Stream AI responses with automatic intent detection (normal/deep mode)",
+    responses={
+        200: {
+            "description": "Streaming response (Server-Sent Events)",
+            "content": {
+                "text/event-stream": {
+                    "example": "data: Phân số là số biểu diễn một phần của tổng thể...\n\ndata: [DONE]\n\n"
+                }
+            }
+        }
+    }
+)
 async def agent_chat(
     request: ChatRequest,
+    credentials: HTTPAuthorizationCredentials = Security(security),
     user_id: str = Depends(get_user_id)
 ):
     """
-    Chat Endpoint - Streaming response with auto intent detection
+    **Chat Endpoint** - Streaming AI response
     
-    Request body:
+    **Authentication:** Bearer token in Authorization header
+    
+    **Request Body:**
+    ```json
     {
-        "question": "Câu hỏi của học sinh",
-        "lesson_id": 1  // optional integer
+        "question": "Phân số là gì?",
+        "lessonId": 2
     }
+    ```
     
-    Headers:
-    {
-        "Authorization": "Bearer <JWT_TOKEN>"
-    }
+    **Returns:** Server-Sent Events (text/event-stream)
     
-    Returns: text/event-stream (SSE)
-    
-    Note: Agent automatically detects intent (normal/deep) based on question keywords
+    **Features:**
+    - Automatic intent detection (normal/deep)
+    - Conversation history awareness
+    - Context from lesson materials
     """
     # Auto-generate thread_id from user_id
     thread_id = f"user_{user_id}_session"
     
     return StreamingResponse(
-        stream_agent_response(thread_id, request.question, request.lesson_id, user_id),
+        stream_agent_response(thread_id, request.question, request.lessonId, user_id),
         media_type="text/event-stream",
         headers={
             "Cache-Control": "no-cache",
@@ -212,188 +286,333 @@ async def agent_chat(
 # MINDMAP ENDPOINT
 # ============================================================
 
-@app.post("/api/lessons/mindmap")
+@app.post(
+    "/api/lessons/mindmap",
+    response_model=StandardResponse[MindmapData],
+    summary="Generate Mindmap",
+    description="Generate React Flow compatible mindmap JSON from topic",
+    responses={
+        200: {
+            "description": "Successful response",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "status": "success",
+                        "data": {
+                            "mindmap": {
+                                "nodes": [
+                                    {"id": "1", "data": {"label": "Phân số"}, "position": {"x": 0, "y": 0}}
+                                ],
+                                "edges": []
+                            },
+                            "topic": "Phân số"
+                        },
+                        "message": "Mindmap created successfully",
+                        "createdAt": "2025-12-03T18:30:00Z"
+                    }
+                }
+            }
+        }
+    }
+)
 async def create_mindmap(
     request: MindmapRequest,
+    credentials: HTTPAuthorizationCredentials = Security(security),
     user_id: str = Depends(get_user_id)
 ):
     """
-    Generate mindmap JSON for React Flow (JWT Required)
+    **Generate Mindmap** - Create React Flow compatible mindmap
     
-    Request body:
+    **Authentication:** Bearer token in Authorization header
+    
+    **Request Body:**
+    ```json
     {
         "topic": "Phân số",
-        "lesson_id": 1  // optional integer
+        "lessonId": 2
     }
-    
-    Returns:
-    {
-        "status": "success",
-        "data": {
-            "mindmap": {...},
-            "topic": "Phân số"
-        },
-        "message": "Mindmap created",
-        "createdAt": "2025-12-03T..."
-    }
+    ```
     """
     try:
-        # Convert lesson_id to string for internal functions
-        lesson_id_str = str(request.lesson_id) if request.lesson_id else None
+        # Convert lessonId to string for internal functions
+        lesson_id_str = str(request.lessonId) if request.lessonId else None
         mindmap_data = generate_mindmap_json(request.topic, lesson_id_str)
         
-        return {
-            "status": "success",
-            "data": {
-                "mindmap": mindmap_data,
-                "topic": request.topic
-            },
-            "message": "Mindmap created successfully",
-            "createdAt": datetime.now(timezone.utc).isoformat()
-        }
+        return StandardResponse(
+            status="success",
+            data=MindmapData(
+                mindmap=mindmap_data,
+                topic=request.topic
+            ),
+            message="Mindmap created successfully",
+            createdAt=datetime.now(timezone.utc).isoformat()
+        )
     except Exception as e:
-        return {
-            "status": "error",
-            "data": None,
-            "message": f"Failed to create mindmap: {str(e)}",
-            "createdAt": datetime.now(timezone.utc).isoformat()
-        }
+        return StandardResponse(
+            status="error",
+            data=None,
+            message=f"Failed to create mindmap: {str(e)}",
+            createdAt=datetime.now(timezone.utc).isoformat()
+        )
 
 
 # ============================================================
 # ANALYZER ENDPOINT
 # ============================================================
 
-@app.post("/api/agent/analyzer")
-async def analyze(
+@app.post(
+    "/api/agent/analyzer",
+    response_model=StandardResponse[AnalyzerData],
+    summary="Analyze Student Session",
+    description="Get AI-powered analysis of student's understanding and performance",
+    responses={
+        200: {
+            "description": "Successful response",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "status": "success",
+                        "data": {
+                            "analysis": "Học sinh đã nắm vững khái niệm phân số cơ bản, có thể nhận biết và đọc phân số chính xác. Tuy nhiên, cần luyện tập thêm về so sánh phân số.",
+                            "level": "Khá",
+                            "levelReason": "Trả lời đúng 75% câu hỏi, hiểu rõ khái niệm cơ bản nhưng chưa thạo về ứng dụng",
+                            "threadId": "user_123_session"
+                        },
+                        "message": "Analysis completed successfully",
+                        "createdAt": "2025-12-03T18:30:00Z"
+                    }
+                }
+            }
+        }
+    }
+)
+async def analyzer(
     request: AnalyzerRequest,
+    credentials: HTTPAuthorizationCredentials = Security(security),
     user_id: str = Depends(get_user_id)
 ):
     """
-    Analyze learning session (JWT Required)
+    **Session Analyzer** - AI analysis of student understanding
     
-    Request body:
-    {
-        "lesson_id": 1  // optional integer
-    }
+    **Authentication:** Bearer token in Authorization header
     
-    Returns:
+    **Request Body:**
+    ```json
     {
-        "status": "success",
-        "data": {
-            "analysis": "...",
-            "level": "Tốt",
-            "level_reason": "..."
-        },
-        "message": "Analysis completed",
-        "createdAt": "..."
+        "topic": "Phân số",
+        "lessonId": 2
     }
+    ```
+    
+    **Analysis includes:**
+    - Detailed understanding assessment
+    - Proficiency level (Xuất sắc/Giỏi/Khá/Trung bình)
+    - Reasoning for the level
+    - Specific recommendations
     """
     try:
         # Auto-generate thread_id from user_id
         thread_id = f"user_{user_id}_session"
         
-        # Get conversation history
-        conversation_history = session_memory.get_conversation_history(thread_id)
+        # Get session
+        session = session_memory.get_session(thread_id, user_id=user_id)
+        messages = session.get("messages", [])
         
-        if not conversation_history:
-            return {
-                "status": "error",
-                "data": None,
-                "message": "No conversation found for this user",
-                "createdAt": datetime.now(timezone.utc).isoformat()
-            }
+        if not messages:
+            return StandardResponse(
+                status="error",
+                data=None,
+                message="No conversation history found",
+                createdAt=datetime.now(timezone.utc).isoformat()
+            )
         
-        # Analyze (convert lesson_id to string)
-        lesson_id_str = str(request.lesson_id) if request.lesson_id else None
-        result = analyze_session(conversation_history, lesson_id_str)
+        # Convert lessonId to string
+        lesson_id_str = str(request.lessonId) if request.lessonId else None
         
-        return {
-            "status": "success",
-            "data": result,
-            "message": "Analysis completed",
-            "createdAt": datetime.now(timezone.utc).isoformat()
-        }
+        # Analyze session with topic
+        analysis_result = analyze_session(messages, lesson_id_str, topic=request.topic)
+        
+        return StandardResponse(
+            status="success",
+            data=AnalyzerData(
+                analysis=analysis_result["analysis"],
+                level=analysis_result["level"],
+                levelReason=analysis_result["level_reason"],
+                threadId=thread_id
+            ),
+            message="Analysis completed successfully",
+            createdAt=datetime.now(timezone.utc).isoformat()
+        )
     except Exception as e:
-        return {
-            "status": "error",
-            "data": None,
-            "message": f"Analysis failed: {str(e)}",
-            "createdAt": datetime.now(timezone.utc).isoformat()
-        }
+        return StandardResponse(
+            status="error",
+            data=None,
+            message=f"Analysis failed: {str(e)}",
+            createdAt=datetime.now(timezone.utc).isoformat()
+        )
 
 
 # ============================================================
 # SESSION MANAGEMENT
 # ============================================================
 
-@app.get("/api/session")
+@app.get(
+    "/api/session",
+    response_model=StandardResponse[SessionData],
+    summary="Get Session Info",
+    description="Retrieve current session information",
+    responses={
+        200: {
+            "description": "Successful response",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "status": "success",
+                        "data": {
+                            "threadId": "user_123_session",
+                            "messageCount": 10,
+                            "lastActivity": "2025-12-03T18:30:00Z"
+                        },
+                        "message": "Session info retrieved",
+                        "createdAt": "2025-12-03T18:30:00Z"
+                    }
+                }
+            }
+        }
+    }
+)
 async def get_session_info(
+    credentials: HTTPAuthorizationCredentials = Security(security),
     user_id: str = Depends(get_user_id)
 ):
     """
-    Get Session Info - Retrieve current session status
+    **Get Session Info** - Retrieve current session data
     
-    Returns session metadata (message count, conversation status)
+    **Authentication:** Bearer token in Authorization header
     """
-    thread_id = f"user_{user_id}_session"
-    conversation_history = session_memory.get_conversation_history(thread_id)
-    
-    return {
-        "status": "success",
-        "data": {
-            "has_conversation": bool(conversation_history),
-            "message_count": conversation_history.count("\n") if conversation_history else 0
-        },
-        "message": "Session info retrieved",
-        "createdAt": datetime.now(timezone.utc).isoformat()
+    try:
+        thread_id = f"user_{user_id}_session"
+        session = session_memory.get_session(thread_id, user_id=user_id)
+        messages = session.get("messages", [])
+        
+        return StandardResponse(
+            status="success",
+            data=SessionData(
+                threadId=thread_id,
+                messageCount=len(messages),
+                lastActivity=session.get("updated_at", datetime.now(timezone.utc).isoformat())
+            ),
+            message="Session info retrieved",
+            createdAt=datetime.now(timezone.utc).isoformat()
+        )
+    except Exception as e:
+        return StandardResponse(
+            status="error",
+            data=None,
+            message=f"Failed to retrieve session: {str(e)}",
+            createdAt=datetime.now(timezone.utc).isoformat()
+        )
+
+
+@app.delete(
+    "/api/session",
+    response_model=StandardResponse[dict],
+    summary="Clear Session",
+    description="Delete conversation history and reset session",
+    responses={
+        200: {
+            "description": "Successful response",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "status": "success",
+                        "data": {"cleared": True},
+                        "message": "Session cleared successfully",
+                        "createdAt": "2025-12-03T18:30:00Z"
+                    }
+                }
+            }
+        }
     }
-
-
-@app.delete("/api/session")
+)
 async def clear_session(
+    credentials: HTTPAuthorizationCredentials = Security(security),
     user_id: str = Depends(get_user_id)
 ):
     """
-    Clear Session - Delete user's conversation history
+    **Clear Session** - Delete all conversation history
     
-    Removes all messages from current session
+    **Authentication:** Bearer token in Authorization header
     """
-    thread_id = f"user_{user_id}_session"
-    session_memory.clear_session(thread_id)
-    
-    return {
-        "status": "success",
-        "data": {"cleared": True},
-        "message": "Session cleared",
-        "createdAt": datetime.now(timezone.utc).isoformat()
-    }
+    try:
+        thread_id = f"user_{user_id}_session"
+        session_memory.clear_session(thread_id)
+        
+        return StandardResponse(
+            status="success",
+            data={"cleared": True},
+            message="Session cleared successfully",
+            createdAt=datetime.now(timezone.utc).isoformat()
+        )
+    except Exception as e:
+        return StandardResponse(
+            status="error",
+            data=None,
+            message=f"Failed to clear session: {str(e)}",
+            createdAt=datetime.now(timezone.utc).isoformat()
+        )
 
 
 # ============================================================
 # USER LEVEL ENDPOINT (Placeholder)
 # ============================================================
 
-@app.get("/api/user/level")
+@app.get(
+    "/api/user/level",
+    response_model=StandardResponse[UserLevelData],
+    summary="Get User Level",
+    description="Retrieve user's proficiency level and progress",
+    responses={
+        200: {
+            "description": "Successful response",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "status": "success",
+                        "data": {
+                            "level": "Intermediate",
+                            "score": 850,
+                            "progress": 75.5
+                        },
+                        "message": "User level retrieved",
+                        "createdAt": "2025-12-03T18:30:00Z"
+                    }
+                }
+            }
+        }
+    }
+)
 async def get_user_level(
+    credentials: HTTPAuthorizationCredentials = Security(security),
     user_id: str = Depends(get_user_id)
 ):
     """
-    Get User Level - Retrieve user's learning level assessment
+    **Get User Level** - Retrieve proficiency level and progress
     
-    Returns user performance metrics and level
+    **Authentication:** Bearer token in Authorization header
+    
+    **Note:** Placeholder endpoint - implement with actual level calculation logic
     """
-    # TODO: Implement user level tracking in database
-    return {
-        "status": "success",
-        "data": {
-            "user_id": user_id,
-            "level": "Chưa đánh giá",
-            "message": "Chưa có đủ dữ liệu để đánh giá"
-        },
-        "message": "User level retrieved",
-        "createdAt": datetime.now(timezone.utc).isoformat()
-    }
+    return StandardResponse(
+        status="success",
+        data=UserLevelData(
+            level="Beginner",
+            score=0,
+            progress=0.0
+        ),
+        message="User level retrieved (placeholder)",
+        createdAt=datetime.now(timezone.utc).isoformat()
+    )
 
 if __name__ == "__main__":
     import uvicorn

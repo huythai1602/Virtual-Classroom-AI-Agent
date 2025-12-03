@@ -1,12 +1,24 @@
 """Pydantic models module"""
 from .requests import ChatRequest, MindmapRequest, AnalyzerRequest
-from .responses import ChatResponse, MindmapResponse, AnalyzerResponse
+from .responses import (
+    StandardResponse,
+    MindmapData,
+    AnalyzerData,
+    LessonsData,
+    LessonItem,
+    SessionData,
+    UserLevelData
+)
 
 __all__ = [
     "ChatRequest",
     "MindmapRequest", 
     "AnalyzerRequest",
-    "ChatResponse",
-    "MindmapResponse",
-    "AnalyzerResponse"
+    "StandardResponse",
+    "MindmapData",
+    "AnalyzerData",
+    "LessonsData",
+    "LessonItem",
+    "SessionData",
+    "UserLevelData"
 ]
