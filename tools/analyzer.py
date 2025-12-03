@@ -1,7 +1,8 @@
 """
-Session analyzer tool
+"""Session analyzer tool
 Consolidated from agent/tools/analyzer_tool.py
 """
+from typing import Union
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage
 
@@ -15,7 +16,7 @@ llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
 
 def analyze_session(
     conversation_history: str,
-    lesson_id: str = None,
+    lesson_id: Union[str, int] = None,
     topic: str = ""
 ) -> dict:
     """

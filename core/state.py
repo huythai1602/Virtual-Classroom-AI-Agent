@@ -1,7 +1,7 @@
 """
-State definitions for LangGraph agent
+"""State definitions for LangGraph agent
 """
-from typing import TypedDict
+from typing import TypedDict, Union, Optional
 from langgraph.graph import MessagesState
 
 
@@ -10,7 +10,7 @@ class AgentState(MessagesState):
     context: str = ""
     intent: str = ""  # normal or deep
     current_query: str = ""
-    lesson_id: str = ""
+    lesson_id: Optional[Union[str, int]] = None
     metadata: dict = {}
     conversation_history: str = ""  # Recent conversation for context
     thread_id: str = ""

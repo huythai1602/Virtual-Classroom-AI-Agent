@@ -1,11 +1,12 @@
 """
 Chunks repository - Consolidated from database/chunks_repository.py
 """
+from typing import Union
 from pgvector.psycopg2 import register_vector
 from .db import get_connection
 
 
-def search_similar_chunks(query_embedding: list, lesson_id: str = None, k: int = 7) -> list:
+def search_similar_chunks(query_embedding: list, lesson_id: Union[str, int] = None, k: int = 7) -> list:
     """
     Vector similarity search using pgvector
     
@@ -67,17 +68,27 @@ def search_similar_chunks(query_embedding: list, lesson_id: str = None, k: int =
         ]
 
 
-def get_chunks_by_lesson(lesson_id: str) -> list:
-    """Get all chunks for a lesson"""
+def get_chunks_by_lesson(lesson_id: Union[str, int]) -> list:
+    """Get all chunks for a lesson (supports both lesson_id string and lessons.id integer)"""
     with get_connection() as conn:
         cursor = conn.cursor()
         
-        query = """
-            SELECT id, lesson_id, chunk_index, text
-            FROM chunks
-            WHERE lesson_id = %s
-            ORDER BY chunk_index;
-        """
+        # If integer, join with lessons table to get lesson_id
+        if isinstance(lesson_id, int):
+            query = """
+                SELECT c.id, c.lesson_id, c.chunk_index, c.text
+                FROM chunks c
+                JOIN lessons l ON c.lesson_id = l.lesson_id
+                WHERE l.id = %s
+                ORDER BY c.chunk_index;
+            """
+        else:
+            query = """
+                SELECT id, lesson_id, chunk_index, text
+                FROM chunks
+                WHERE lesson_id = %s
+                ORDER BY chunk_index;
+            """
         
         cursor.execute(query, (lesson_id,))
         rows = cursor.fetchall()

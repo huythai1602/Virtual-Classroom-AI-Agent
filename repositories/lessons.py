@@ -1,10 +1,11 @@
 """
 Lessons repository - Consolidated from database/lessons_repository.py
 """
+from typing import Union
 from .db import get_connection
 
 
-def get_lesson(lesson_id: str) -> dict:
+def get_lesson(lesson_id: Union[str, int]) -> dict:
     """Get lesson by ID"""
     with get_connection() as conn:
         cursor = conn.cursor()

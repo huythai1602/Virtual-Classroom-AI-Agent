@@ -2,7 +2,7 @@
 RAG Retrieval Service
 Consolidated from agent/tools/advanced_retriever.py
 """
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Union
 import numpy as np
 from rank_bm25 import BM25Okapi
 from sentence_transformers import CrossEncoder
@@ -110,9 +110,9 @@ class RAGRetriever:
         return response.data[0].embedding
     
     def vector_search(
-        self, 
-        query: str, 
-        lesson_id: Optional[str] = None,
+        self,
+        query: str,
+        lesson_id: Optional[Union[str, int]] = None,
         k: int = 20
     ) -> List[Dict]:
         """Vector similarity search"""
@@ -129,7 +129,7 @@ class RAGRetriever:
     def bm25_search(
         self,
         query: str,
-        lesson_id: Optional[str] = None,
+        lesson_id: Optional[Union[str, int]] = None,
         k: int = 10
     ) -> List[Dict]:
         """BM25 keyword search"""
@@ -168,7 +168,7 @@ class RAGRetriever:
     def hybrid_search(
         self,
         query: str,
-        lesson_id: Optional[str] = None,
+        lesson_id: Optional[Union[str, int]] = None,
         k: int = 20
     ) -> List[Dict]:
         """Hybrid: 70% vector + 30% BM25"""
@@ -280,7 +280,7 @@ class RAGRetriever:
     def retrieve(
         self,
         query: str,
-        lesson_id: Optional[str] = None,
+        lesson_id: Optional[Union[str, int]] = None,
         k: Optional[int] = None,
         intent: str = "normal",
         use_semantic_chunking: bool = True
@@ -371,7 +371,7 @@ def get_retriever() -> RAGRetriever:
 
 def get_context(
     query: str,
-    lesson_id: Optional[str] = None,
+    lesson_id: Optional[Union[str, int]] = None,
     k: Optional[int] = None,
     intent: str = "normal"
 ) -> str:

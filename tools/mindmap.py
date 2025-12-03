@@ -1,8 +1,9 @@
 """
-Mindmap generation tool
+"""Mindmap generation tool
 Consolidated from agent/tools/mindmap_tool.py
 """
 import json
+from typing import Union
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage
 
@@ -19,7 +20,7 @@ llm = ChatOpenAI(
 )
 
 
-def generate_mindmap_json(topic: str, lesson_id: str = None) -> dict:
+def generate_mindmap_json(topic: str, lesson_id: Union[str, int] = None) -> dict:
     """
     Generate mindmap JSON for React Flow
     

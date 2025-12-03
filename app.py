@@ -173,7 +173,7 @@ async def get_lessons(
 # CHAT ENDPOINT (Streaming with Auto Intent Detection)
 # ============================================================
 
-async def stream_agent_response(thread_id: str, question: str, lesson_id: int = None, user_id: str = None):
+async def stream_agent_response(thread_id: str, question: str, lesson_id: Optional[int] = None, user_id: str = None):
     """Stream agent response via SSE with automatic intent detection"""
     try:
         # Get or create session (with persistence)
@@ -195,40 +195,65 @@ async def stream_agent_response(thread_id: str, question: str, lesson_id: int = 
             "recursion_limit": 50
         }
         
-        # Prepare input (convert lesson_id to string for agent)
+        # Prepare input (lesson_id supports both int and str)
         input_data = {
             "messages": messages,
-            "lesson_id": str(lesson_id) if lesson_id else "",
+            "lesson_id": lesson_id,
             "thread_id": thread_id  # Pass thread_id for conversation context
         }
         
-        # Stream response (agent auto-detects intent: normal or deep)
+        # Run agent and get response
+        # Note: Agent uses llm.invoke() so response comes all at once
+        # We simulate streaming by sending the full response as chunks
         full_response = ""
         
-        async for event in agent.astream(input_data, config):
-            for value in event.values():
-                if "messages" in value:
-                    ai_message = value["messages"][-1]
-                    content = ai_message.content
-                    
-                    # Check if this is new content
-                    if content != full_response:
-                        # Get the new part
-                        new_content = content[len(full_response):]
-                        full_response = content
-                        
-                        # Send chunk
-                        chunk_data = {
-                            "type": "content",
-                            "chunk": new_content,
-                            "fullText": full_response
-                        }
-                        yield f"data: {json.dumps(chunk_data, ensure_ascii=False)}\n\n"
+        try:
+            # Run agent
+            result = await agent.ainvoke(input_data, config)
+            
+            # Extract AI message
+            if "messages" in result:
+                ai_messages = result["messages"]
+                # Find last AI message
+                for msg in reversed(ai_messages):
+                    if hasattr(msg, 'type') and msg.type == 'ai':
+                        full_response = msg.content
+                        break
+                    elif hasattr(msg, 'content') and not hasattr(msg, 'type'):
+                        # Fallback for AIMessage without type attribute
+                        from langchain_core.messages import AIMessage
+                        if isinstance(msg, AIMessage):
+                            full_response = msg.content
+                            break
+            
+            # If we got a response, send it as chunks for smooth UI
+            if full_response:
+                # Split response into words for streaming effect
+                words = full_response.split()
+                accumulated = ""
+                
+                for word in words:
+                    accumulated += word + " "
+                    chunk_data = {
+                        "type": "content",
+                        "chunk": word + " ",
+                        "fullText": accumulated.strip()
+                    }
+                    yield f"data: {json.dumps(chunk_data, ensure_ascii=False)}\n\n"
+                    await asyncio.sleep(0.03)  # Small delay for streaming effect
+            else:
+                # No response - send error
+                raise Exception("Agent returned empty response")
         
-        # Add AI response to messages
-        if full_response:
+            # Add AI response to messages
             from langchain_core.messages import AIMessage
             messages.append(AIMessage(content=full_response))
+            
+        except Exception as agent_error:
+            # Agent execution failed
+            error_msg = f"Agent error: {str(agent_error)}"
+            print(f"❌ {error_msg}")
+            raise
         
         # Update session with persistence
         session["messages"] = messages
@@ -239,6 +264,9 @@ async def stream_agent_response(thread_id: str, question: str, lesson_id: int = 
         yield f"data: {json.dumps(done_data, ensure_ascii=False)}\n\n"
         
     except Exception as e:
+        # Top-level error handler
+        import traceback
+        traceback.print_exc()
         error_data = {"type": "error", "message": f"Lỗi: {str(e)}"}
         yield f"data: {json.dumps(error_data, ensure_ascii=False)}\n\n"
 
@@ -349,9 +377,8 @@ async def create_mindmap(
     ```
     """
     try:
-        # Convert lessonId to string for internal functions
-        lesson_id_str = str(request.lessonId) if request.lessonId else None
-        mindmap_data = generate_mindmap_json(request.topic, lesson_id_str)
+        # Generate mindmap (lessonId supports both int and str)
+        mindmap_data = generate_mindmap_json(request.topic, request.lessonId)
         
         return StandardResponse(
             status="success",
@@ -441,11 +468,8 @@ async def analyzer(
                 createdAt=datetime.now(timezone.utc).isoformat()
             )
         
-        # Convert lessonId to string
-        lesson_id_str = str(request.lessonId) if request.lessonId else None
-        
-        # Analyze session with topic
-        analysis_result = analyze_session(messages, lesson_id_str, topic=request.topic)
+        # Analyze session with topic (lessonId supports both int and str)
+        analysis_result = analyze_session(messages, request.lessonId, topic=request.topic)
         
         return StandardResponse(
             status="success",
