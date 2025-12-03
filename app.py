@@ -203,31 +203,39 @@ async def stream_agent_response(thread_id: str, question: str, lesson_id: int = 
         }
         
         # Stream response (agent auto-detects intent: normal or deep)
-        buffer = ""
+        full_response = ""
+        
         async for event in agent.astream(input_data, config):
             for value in event.values():
                 if "messages" in value:
                     ai_message = value["messages"][-1]
                     content = ai_message.content
                     
-                    # Send word by word as JSON chunks
-                    words = content.split()
-                    for word in words:
-                        buffer += word + " "
+                    # Check if this is new content
+                    if content != full_response:
+                        # Get the new part
+                        new_content = content[len(full_response):]
+                        full_response = content
+                        
+                        # Send chunk
                         chunk_data = {
                             "type": "content",
-                            "chunk": word + " ",
-                            "fullText": buffer.strip()
+                            "chunk": new_content,
+                            "fullText": full_response
                         }
                         yield f"data: {json.dumps(chunk_data, ensure_ascii=False)}\n\n"
-                        await asyncio.sleep(0.05)
+        
+        # Add AI response to messages
+        if full_response:
+            from langchain_core.messages import AIMessage
+            messages.append(AIMessage(content=full_response))
         
         # Update session with persistence
         session["messages"] = messages
         session_memory.update_session(thread_id, session, persist=True)
         
         # Send done signal
-        done_data = {"type": "done", "fullText": buffer.strip()}
+        done_data = {"type": "done", "fullText": full_response}
         yield f"data: {json.dumps(done_data, ensure_ascii=False)}\n\n"
         
     except Exception as e:
