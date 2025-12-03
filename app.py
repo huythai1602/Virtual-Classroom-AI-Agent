@@ -256,7 +256,7 @@ async def agent_chat(
     **Request Body:**
     ```json
     {
-        "question": "Phân số là gì?",
+        "userMessage": "Phân số là gì?",
         "lessonId": 2
     }
     ```
@@ -272,7 +272,7 @@ async def agent_chat(
     thread_id = f"user_{user_id}_session"
     
     return StreamingResponse(
-        stream_agent_response(thread_id, request.question, request.lessonId, user_id),
+        stream_agent_response(thread_id, request.userMessage, request.lessonId, user_id),
         media_type="text/event-stream",
         headers={
             "Cache-Control": "no-cache",

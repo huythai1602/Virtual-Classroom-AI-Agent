@@ -5,14 +5,14 @@ from typing import Optional
 
 class ChatRequest(BaseModel):
     """Chat request model"""
-    question: str = Field(..., description="User question", min_length=1)
+    userMessage: str = Field(..., description="User message", min_length=1, alias="userMessage")
     lessonId: Optional[int] = Field(None, description="Lesson ID (integer)", alias="lessonId")
     
     class Config:
         populate_by_name = True
         json_schema_extra = {
             "example": {
-                "question": "Phân số là gì?",
+                "userMessage": "Phân số là gì?",
                 "lessonId": 2
             }
         }
