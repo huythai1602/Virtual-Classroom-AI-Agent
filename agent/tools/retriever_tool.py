@@ -39,48 +39,87 @@ def get_embedding(text: str) -> list:
 
 
 class RetrieverTool:
-    """Class quản lý việc truy vấn PostgreSQL + pgvector"""
+    """
+    Retriever tool using advanced RAG pipeline
+    
+    Features:
+    - Hybrid Search (Vector + BM25)
+    - Cross-Encoder Reranking  
+    - MMR Diversification
+    - Query Expansion
+    """
     
     def __init__(self):
-        pass
+        # Import here to avoid circular dependency
+        from agent.tools.advanced_retriever import get_retriever
+        self._advanced_retriever = None
     
-    def retrieve(self, query: str, k: int = 3, lesson_id: str = None) -> List[Dict]:
+    @property
+    def advanced_retriever(self):
+        """Lazy load advanced retriever"""
+        if self._advanced_retriever is None:
+            from agent.tools.advanced_retriever import get_retriever
+            self._advanced_retriever = get_retriever()
+        return self._advanced_retriever
+    
+    def retrieve(
+        self, 
+        query: str, 
+        k: int = 3, 
+        lesson_id: str = None,
+        use_advanced: bool = True
+    ) -> List[Dict]:
         """
-        Truy vấn các đoạn nội dung liên quan từ PostgreSQL pgvector
+        Retrieve relevant chunks using advanced RAG pipeline
         
         Args:
-            query: Câu hỏi/truy vấn
-            k: Số lượng kết quả trả về
-            lesson_id: ID của bài giảng (filter theo metadata)
+            query: User query
+            k: Number of results
+            lesson_id: Filter by lesson
+            use_advanced: Use advanced retriever (hybrid+rerank+mmr)
             
         Returns:
-            List các dict chứa content và metadata (source, lesson_id)
+            List of relevant chunks with metadata
         """
         try:
-            # 1. Get query embedding
-            query_embedding = get_embedding(query)
-            
-            # 2. Vector search in PostgreSQL
-            results = search_similar_chunks(
-                query_embedding=query_embedding,
-                lesson_id=lesson_id,
-                k=k
-            )
-            
-            # 3. Format results
-            formatted_results = []
-            for result in results:
-                formatted_results.append({
-                    "content": result["text"],
-                    "source": f"Bài {result['lesson_id']} (chunk {result['chunk_index']})",
-                    "lesson_id": result["lesson_id"],
-                    "similarity": result["similarity"]
-                })
-            
-            return formatted_results if formatted_results else [{"content": "Không tìm thấy thông tin liên quan.", "source": "system"}]
+            if use_advanced:
+                # Use advanced retriever with all features
+                results = self.advanced_retriever.retrieve(
+                    query=query,
+                    lesson_id=lesson_id,
+                    k=k,
+                    use_hybrid=True,
+                    use_rerank=True,
+                    use_mmr=True,
+                    expand_query=True
+                )
+                return results
+            else:
+                # Fallback to simple vector search
+                query_embedding = get_embedding(query)
+                results = search_similar_chunks(
+                    query_embedding=query_embedding,
+                    lesson_id=lesson_id,
+                    k=k
+                )
+                
+                formatted_results = []
+                for result in results:
+                    formatted_results.append({
+                        "content": result["text"],
+                        "source": f"Bài {result['lesson_id']} (chunk {result['chunk_index']})",
+                        "lesson_id": result["lesson_id"],
+                        "similarity": result["similarity"]
+                    })
+                
+                return formatted_results if formatted_results else [
+                    {"content": "Không tìm thấy thông tin liên quan.", "source": "system"}
+                ]
             
         except Exception as e:
             print(f"Lỗi khi truy vấn: {e}")
+            import traceback
+            traceback.print_exc()
             return [{"content": "Không thể truy vấn dữ liệu bài giảng.", "source": "error"}]
 
 def expand_query(query: str) -> List[str]:

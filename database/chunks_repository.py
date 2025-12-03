@@ -8,13 +8,19 @@ from pgvector.psycopg2 import register_vector
 
 def insert_chunks_batch(lesson_id: str, chunks_data: list):
     """
-    Batch insert chunks with embeddings
+    Batch insert chunks with embeddings and metadata
     
     Args:
         lesson_id: Lesson identifier
         chunks_data: [
-            {"chunk_index": 0, "text": "...", "embedding": [0.1, -0.2, ...]},
-            {"chunk_index": 1, "text": "...", "embedding": [0.3, 0.4, ...]},
+            {
+                "chunk_index": 0, 
+                "text": "...", 
+                "embedding": [0.1, -0.2, ...],
+                "context_before": "...",  # Optional
+                "context_after": "...",   # Optional
+                "metadata": {...}         # Optional
+            },
             ...
         ]
     """
@@ -27,18 +33,27 @@ def insert_chunks_batch(lesson_id: str, chunks_data: list):
         # Delete old chunks if re-indexing
         cursor.execute("DELETE FROM chunks WHERE lesson_id = %s;", (lesson_id,))
         
-        # Batch insert
-        query = """
-            INSERT INTO chunks (lesson_id, chunk_index, text, embedding)
-            VALUES (%s, %s, %s, %s);
-        """
+        # Batch insert with optional metadata
+        import json
         
         for chunk in chunks_data:
+            # Base query (always present)
+            query = """
+                INSERT INTO chunks (
+                    lesson_id, chunk_index, text, embedding, 
+                    context_before, context_after, metadata
+                )
+                VALUES (%s, %s, %s, %s, %s, %s, %s);
+            """
+            
             cursor.execute(query, (
                 lesson_id,
                 chunk["chunk_index"],
                 chunk["text"],
-                chunk["embedding"]  # pgvector auto-converts list to vector type
+                chunk["embedding"],
+                chunk.get("context_before", ""),
+                chunk.get("context_after", ""),
+                json.dumps(chunk.get("metadata", {}))
             ))
         
         cursor.close()
@@ -184,3 +199,36 @@ def get_chunks_count() -> int:
         cursor.close()
         
         return count
+
+
+def get_all_chunks(limit: int = 10000) -> list:
+    """
+    Get all chunks from database (for BM25 indexing)
+    
+    Args:
+        limit: Maximum number of chunks to return
+    """
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        
+        query = """
+            SELECT id, lesson_id, chunk_index, text
+            FROM chunks
+            ORDER BY lesson_id, chunk_index
+            LIMIT %s;
+        """
+        
+        cursor.execute(query, (limit,))
+        rows = cursor.fetchall()
+        cursor.close()
+        
+        chunks = []
+        for row in rows:
+            chunks.append({
+                "id": row[0],
+                "lesson_id": row[1],
+                "chunk_index": row[2],
+                "text": row[3]
+            })
+        
+        return chunks
