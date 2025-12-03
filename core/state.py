@@ -1,5 +1,5 @@
 """
-"""State definitions for LangGraph agent
+State definitions for LangGraph agent
 """
 from typing import TypedDict, Union, Optional
 from langgraph.graph import MessagesState
