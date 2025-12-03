@@ -434,170 +434,112 @@ async def get_lessons():
         )
 
 
-@app.post(
-    "/api/agent/chat",
-    response_model=ChatResponse,
-    responses={
-        200: {
-            "description": "Successful Response",
-            "content": {
-                "application/json": {
-                    "examples": {
-                        "short_answer": {
-                            "summary": "Câu trả lời ngắn (Normal Intent)",
-                            "description": "Response cho câu hỏi đơn giản không cần giải thích sâu",
-                            "value": {
-                                "status": "success",
-                                "data": {
-                                    "reply": "Số 12345 có 5 chữ số. Đây là số tự nhiên gồm: 1 chục nghìn, 2 nghìn, 3 trăm, 4 chục và 5 đơn vị.",
-                                    "intent": "normal"
-                                },
-                                "message": "Chat processed successfully",
-                                "createdAt": "2025-11-26T10:30:00.123Z"
-                            }
-                        },
-                        "deep_explanation": {
-                            "summary": "Giải thích sâu (Deep Intent) - Streaming",
-                            "description": "Response cho câu hỏi cần giải thích chi tiết (sẽ được stream qua SSE)",
-                            "value": {
-                                "status": "success",
-                                "data": {
-                                    "reply": "### Giải thích chi tiết về Phân số\n\n**1. Khái niệm cơ bản**\nPhân số là một cách biểu diễn các phần của một tổng thể. Ví dụ: nếu chia một cái bánh thành 4 phần bằng nhau và lấy 3 phần, ta có phân số 3/4.\n\n**2. Thành phần của phân số**\n- Tử số: Số phần ta lấy (số ở trên)\n- Mẫu số: Tổng số phần bằng nhau (số ở dưới)\n- Gạch ngang: Dấu chia\n\n**3. Ví dụ minh họa**\nCho 1 hình tròn chia thành 8 phần bằng nhau:\n- Nếu tô màu 3 phần → 3/8\n- Nếu tô màu 5 phần → 5/8\n\n**4. Lưu ý quan trọng**\n- Mẫu số không bao giờ bằng 0\n- Tử số có thể bằng 0 (nghĩa là không lấy phần nào)\n- Khi tử số = mẫu số → phân số = 1 (lấy hết)\n\n**5. Bài tập thực hành**\nHãy biểu diễn phân số sau bằng hình vẽ: 2/5",
-                                    "intent": "deep"
-                                },
-                                "message": "Deep explanation provided",
-                                "createdAt": "2025-11-26T10:35:15.456Z"
-                            }
-                        }
-                    }
-                },
-                "text/event-stream": {
-                    "schema": {
-                        "type": "string",
-                        "description": "Server-Sent Events stream for deep explanations"
-                    }
-                }
-            }
-        }
-    }
-)
+@app.post("/api/agent/chat")
 async def chat_endpoint(
     request: ChatRequest,
     user_id: str = Depends(get_optional_user)
 ):
     """
-    Unified chat endpoint - Tự động quyết định streaming hay non-streaming dựa vào intent
-    Requires JWT token in Authorization header
+    Chat endpoint - ALWAYS returns Server-Sent Events (SSE) streaming
     
     Args:
-        request: ChatRequest chứa user_message và id (lesson id)
+        request: ChatRequest chứa userMessage và lessonId
         user_id: User ID extracted from JWT token (auto-injected)
         
     Returns:
-        - ChatResponse (JSON) nếu intent = normal (câu trả lời ngắn)
-        - StreamingResponse (SSE) nếu intent = deep/explain (câu trả lời dài)
+        StreamingResponse (text/event-stream) với format:
+        - data: {"chunk": "text", "done": false, "intent": "normal|deep"}
+        - data: {"chunk": "", "done": true, "intent": "...", "userId": "..."}
+        - data: {"error": "error message"}
     """
-    try:
-        # Use user_id as thread_id
-        thread_id = user_id
-        
-        # Lấy session hiện tại
-        session = session_memory.get_session(thread_id)
-        
-        # Lưu user message vào session
-        session["messages"].append({
-            "role": "user",
-            "content": request.userMessage
-        })
-        
-        # Tạo input state (convert lessonId to string for compatibility)
-        input_state = {
-            "messages": [HumanMessage(content=request.userMessage)],
-            "lesson_id": str(request.lessonId) if request.lessonId else ""
-        }
-        
-        # Config để load history
-        config = {"configurable": {"thread_id": thread_id}}
-        
-        # Tối ưu: Summarize messages nếu cần
-        try:
-            current_state = compiled_graph.get_state(config)
-            if current_state and current_state.values.get("messages"):
-                all_messages = current_state.values["messages"] + [HumanMessage(content=request.user_message)]
-                if len(all_messages) > 6:
-                    summarized = summarize_old_messages(all_messages, keep_recent=4)
-                    input_state["messages"] = summarized
-        except:
-            pass
-        
-        # STEP 1: Invoke graph để lấy intent
-        result = compiled_graph.invoke(input_state, config)
-        intent = result.get("intent", "normal")
-        
-        # STEP 2: Quyết định streaming hay non-streaming dựa vào intent
-        if intent in ["deep", "explain"]:
-            # STREAMING: Câu trả lời dài, cần suy nghĩ chuyên sâu
-            async def generate_stream():
-                try:
-                    full_response = ""
-                    
-                    # Re-invoke với astream để lấy chunks
-                    async for event in compiled_graph.astream(input_state, config):
-                        if "messages" in event:
-                            for msg in event["messages"]:
-                                if hasattr(msg, 'content') and msg.content:
-                                    chunk = msg.content
-                                    full_response = chunk
-                                    yield f"data: {json.dumps({'chunk': chunk, 'done': False, 'intent': intent})}\n\n"
-                    
-                    # Lưu response vào session
-                    session["messages"].append({
-                        "role": "assistant",
-                        "content": full_response
-                    })
-                    session_memory.update_session(thread_id, session)
-                    
-                    # Send final event
-                    yield f"data: {json.dumps({'chunk': '', 'done': True, 'user_id': user_id, 'intent': intent})}\n\n"
-                    
-                except Exception as e:
-                    yield f"data: {json.dumps({'error': str(e)})}\n\n"
-            
-            return StreamingResponse(generate_stream(), media_type="text/event-stream")
-        
-        else:
-            # NON-STREAMING: Câu trả lời ngắn, trả về ngay
-            messages = result.get("messages", [])
-            if messages:
-                last_message = messages[-1]
-                reply = last_message.content if hasattr(last_message, 'content') else str(last_message)
-            else:
-                reply = "Xin lỗi, em không thể trả lời câu hỏi này."
-            
-            # Lưu response vào session
-            session["messages"].append({
-                "role": "assistant",
-                "content": reply
-            })
-            session_memory.update_session(thread_id, session)
-            
-            return ChatResponse(
-                status="success",
-                data=ChatData(
-                    reply=reply,
-                    intent=intent
-                ),
-                message="Chat processed successfully",
-                createdAt=datetime.now(timezone.utc).isoformat()
-            )
     
-    except Exception as e:
-        return ChatResponse(
-            status="error",
-            data=None,
-            message=f"Lỗi khi xử lý chat: {str(e)}",
-            createdAt=datetime.now(timezone.utc).isoformat()
-        )
+    async def generate_stream():
+        try:
+            # Use user_id as thread_id
+            thread_id = user_id
+            
+            # Lấy session hiện tại
+            session = session_memory.get_session(thread_id)
+            
+            # Lưu user message vào session
+            session["messages"].append({
+                "role": "user",
+                "content": request.userMessage
+            })
+            
+            # Tạo input state
+            input_state = {
+                "messages": [HumanMessage(content=request.userMessage)],
+                "lesson_id": str(request.lessonId) if request.lessonId else ""
+            }
+            
+            # Config để load history
+            config = {"configurable": {"thread_id": thread_id}}
+            
+            # Tối ưu: Summarize messages nếu cần
+            try:
+                current_state = compiled_graph.get_state(config)
+                if current_state and current_state.values.get("messages"):
+                    all_messages = current_state.values["messages"] + [HumanMessage(content=request.userMessage)]
+                    if len(all_messages) > 6:
+                        summarized = summarize_old_messages(all_messages, keep_recent=4)
+                        input_state["messages"] = summarized
+            except:
+                pass
+            
+            # STEP 1: Invoke graph một lần để lấy intent
+            result = compiled_graph.invoke(input_state, config)
+            intent = result.get("intent", "normal")
+            
+            # STEP 2: Stream response dựa trên intent
+            if intent in ["deep", "explain"]:
+                # Deep intent: Stream từng chunk khi LLM generate
+                full_response = ""
+                
+                async for event in compiled_graph.astream(input_state, config):
+                    if "messages" in event:
+                        for msg in event["messages"]:
+                            if hasattr(msg, 'content') and msg.content:
+                                chunk = msg.content
+                                full_response = chunk
+                                yield f"data: {json.dumps({'chunk': chunk, 'done': False, 'intent': intent})}\n\n"
+                
+                # Lưu response vào session
+                session["messages"].append({
+                    "role": "assistant",
+                    "content": full_response
+                })
+                session_memory.update_session(thread_id, session)
+                
+                # Send final event
+                yield f"data: {json.dumps({'chunk': '', 'done': True, 'userId': user_id, 'intent': intent})}\n\n"
+                
+            else:
+                # Normal intent: Lấy response từ result và stream luôn (không cần re-invoke)
+                messages = result.get("messages", [])
+                if messages:
+                    last_message = messages[-1]
+                    reply = last_message.content if hasattr(last_message, 'content') else str(last_message)
+                else:
+                    reply = "Xin lỗi, em không thể trả lời câu hỏi này."
+                
+                # Stream full response as one chunk (cho consistency)
+                yield f"data: {json.dumps({'chunk': reply, 'done': False, 'intent': intent})}\n\n"
+                
+                # Lưu response vào session
+                session["messages"].append({
+                    "role": "assistant",
+                    "content": reply
+                })
+                session_memory.update_session(thread_id, session)
+                
+                # Send final event
+                yield f"data: {json.dumps({'chunk': '', 'done': True, 'userId': user_id, 'intent': intent})}\n\n"
+                
+        except Exception as e:
+            yield f"data: {json.dumps({'error': str(e), 'done': True})}\n\n"
+    
+    return StreamingResponse(generate_stream(), media_type="text/event-stream")
 
 
 @app.post("/api/agent/analyzer", response_model=AnalyzerResponse)
