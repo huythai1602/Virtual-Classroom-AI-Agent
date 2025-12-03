@@ -1,18 +1,15 @@
 """
-Advanced Retrieval Pipeline with:
-- Hybrid Search (Vector + BM25)
-- Cross-Encoder Reranking
-- MMR (Maximal Marginal Relevance)
-- Query Expansion
+Advanced Retrieval with Token Optimization
 """
 
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple
 import numpy as np
 from rank_bm25 import BM25Okapi
 from sentence_transformers import CrossEncoder
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
+import tiktoken
 
 from database.chunks_repository import search_similar_chunks, get_chunks_by_lesson
 
@@ -21,19 +18,33 @@ client = OpenAI()
 
 
 class AdvancedRetriever:
-    """
-    Advanced RAG retriever with multiple techniques
-    """
+    """Advanced RAG retriever with token optimization"""
+    
+    # Token budgets
+    MAX_CONTEXT_TOKENS = 2700
     
     def __init__(self, rerank_model: str = "cross-encoder/ms-marco-MiniLM-L-6-v2"):
-        """
-        Initialize retriever with reranking model
-        
-        Args:
-            rerank_model: HuggingFace cross-encoder model for reranking
-        """
         self.reranker = CrossEncoder(rerank_model)
+        self.encoding = tiktoken.encoding_for_model("gpt-4")
         print(f"✅ Loaded reranker: {rerank_model}")
+    
+    def count_tokens(self, text: str) -> int:
+        """Count tokens in text"""
+        try:
+            return len(self.encoding.encode(text))
+        except:
+            return len(text) // 4
+    
+    def adaptive_k(self, query: str, intent: str = "normal") -> int:
+        """Auto k based on complexity"""
+        if intent == "normal":
+            return 2
+        query_len = len(query)
+        if query_len < 50:
+            return 3
+        elif query_len < 100:
+            return 4
+        return 5
     
     def get_embedding(self, text: str) -> List[float]:
         """Get OpenAI embedding"""
@@ -326,40 +337,31 @@ class AdvancedRetriever:
         4. Cross-Encoder Reranking
         5. MMR Diversification
         6. Token budget optimization
-        
         Args:
             query: User query
             lesson_id: Filter by lesson
-            k: Final number of results (auto if None)
-            use_hybrid: Use hybrid search (vs vector only)
-            use_rerank: Use cross-encoder reranking
-            use_mmr: Use MMR for diversity
-            expand_query: Expand query with related terms
-            intent: Query intent for adaptive k
+            k: Auto if None
+            intent: normal/deep for adaptive k
         """
-        # Import token optimizer
-        from agent.tools.token_optimizer import get_token_budget
-        budget = get_token_budget()
-        
-        # Step 1: Adaptive k selection
+        # Adaptive k
         if k is None:
-            k = budget.adaptive_k(query, intent)
+            k = self.adaptive_k(query, intent)
         
-        # Step 2: Query expansion (limited to avoid token waste)
+        # Query expansion (limited)
         queries = self.expand_query(query) if expand_query else [query]
         
-        # Step 3: Retrieve candidates (scaled with k)
+        # Retrieve candidates
         all_candidates = []
-        candidate_k = min(k * 4, 20)  # Scale candidates with k, max 20
+        candidate_k = min(k * 4, 20)
         
-        for q in queries[:2]:  # Reduced: 3→2 queries
+        for q in queries[:2]:
             if use_hybrid:
                 candidates = self.hybrid_search(q, lesson_id, k=candidate_k)
             else:
                 candidates = self.vector_search(q, lesson_id, k=candidate_k)
             all_candidates.extend(candidates)
         
-        # Remove duplicates by chunk_id
+        # Deduplicate
         seen = set()
         unique_candidates = []
         for chunk in all_candidates:
@@ -367,34 +369,44 @@ class AdvancedRetriever:
                 seen.add(chunk["chunk_id"])
                 unique_candidates.append(chunk)
         
-        # Step 4: Reranking
+        # Rerank
         if use_rerank and unique_candidates:
             unique_candidates = self.rerank(query, unique_candidates, k=min(k*2, 10))
         
-        # Step 5: MMR for diversity
+        # MMR
         if use_mmr and unique_candidates:
             results = self.mmr_selection(query, unique_candidates, k=k)
         else:
             results = unique_candidates[:k]
         
-        # Format for agent
+        # Format & optimize tokens
         formatted = []
-        for r in results:
-            formatted.append({
-                "content": r["text"],
-                "source": f"Bài {r['lesson_id']} (chunk {r['chunk_index']})",
-                "lesson_id": r["lesson_id"],
-                "scores": {
-                    "similarity": r.get("similarity", 0),
-                    "hybrid": r.get("hybrid_score", 0),
-                    "rerank": r.get("rerank_score", 0),
-                    "mmr_rank": r.get("mmr_rank", 0)
-                }
-            })
+        total_tokens = 0
         
-        # Step 6: Token budget optimization
-        formatted, total_tokens = budget.optimize_chunks(formatted)
-        formatted = budget.compress_context(formatted)
+        for r in results:
+            content = r["text"]
+            tokens = self.count_tokens(content)
+            
+            # Stop if exceeds budget
+            if total_tokens + tokens > self.MAX_CONTEXT_TOKENS:
+                if total_tokens < self.MAX_CONTEXT_TOKENS:
+                    # Truncate last chunk
+                    remaining = self.MAX_CONTEXT_TOKENS - total_tokens
+                    content = self.encoding.decode(self.encoding.encode(content)[:remaining])
+                    total_tokens = self.MAX_CONTEXT_TOKENS
+                else:
+                    break
+            else:
+                total_tokens += tokens
+            
+            formatted.append({
+                "content": content,
+                "source": f"Bài {r['lesson_id']} (chunk {r['chunk_index']})",
+                "lesson_id": r["lesson_id"]
+            })
+            
+            if total_tokens >= self.MAX_CONTEXT_TOKENS:
+                break
         
         return formatted if formatted else [
             {"content": "Không tìm thấy thông tin liên quan.", "source": "system"}

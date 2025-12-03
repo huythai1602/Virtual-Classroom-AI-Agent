@@ -1,57 +1,34 @@
-"""  
-FastAPI Backend cho hệ thống Agentic RAG
 """
-import json
+FastAPI Application - Clean Architecture
+Agentic RAG System for Grade 4 Math
+"""
+import asyncio
 from datetime import datetime, timezone
-from fastapi import FastAPI, HTTPException, Depends, Header, Security, Response
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import FastAPI, Depends, Header, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel, Field
-from typing import Optional, Dict, Any, List
-from dotenv import load_dotenv
-import os
-from pathlib import Path
-import asyncio
 from langchain_core.messages import HumanMessage
-from jose import JWTError, jwt
 
-from agent.graph import compiled_graph
-from agent.memory import session_memory
-from agent.tools.analyzer_tool import analyze_with_data
-from agent.tools.mindmap_tool import generate_mindmap_with_context
-from agent.tools.retriever_tool import get_context
-from agent.tools.summarizer_tool import summarize_old_messages
+from config.settings import settings
+from core.agent import agent
+from core.memory import session_memory
+from core.state import ChatContext
+from models import ChatRequest, MindmapRequest, AnalyzerRequest
+from tools import generate_mindmap_json, analyze_session, summarize_conversation
+from utils import get_optional_user, get_user_id
 
-# Load environment variables
-load_dotenv()
 
-# Kiểm tra API key
-if not os.getenv("OPENAI_API_KEY"):
-    print("CẢNH BÁO: OPENAI_API_KEY chưa được thiết lập!")
-
-# JWT configuration
-JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-secret-key-change-in-production")
-JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
-
-# Khởi tạo FastAPI app
+# Initialize app
 app = FastAPI(
-    title="Agentic RAG - Trợ giảng Toán lớp 4",
-    description="Hệ thống RAG với LangGraph cho việc trợ giảng Toán lớp 4",
-    version="1.0.0",
-    swagger_ui_parameters={
-        "persistAuthorization": True  # Lưu token khi refresh page
-    }
+    title=settings.APP_NAME,
+    version=settings.APP_VERSION,
+    swagger_ui_parameters={"persistAuthorization": True}
 )
 
-# CORS middleware - Allow specific origins for dev/prod
+# CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://localhost:5173",
-        "https://doan2025-production-f7c9.up.railway.app"
-    ],
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -59,743 +36,363 @@ app.add_middleware(
 )
 
 
-# Logging middleware for debugging
+# Logging middleware
 @app.middleware("http")
 async def log_requests(request, call_next):
-    print(f"[REQUEST] {request.method} {request.url.path} | Origin: {request.headers.get('origin', 'N/A')}")
+    print(f"[{request.method}] {request.url.path} | Origin: {request.headers.get('origin', 'N/A')}")
     response = await call_next(request)
-    print(f"[RESPONSE] {response.status_code} | Headers: {dict(response.headers)}")
     return response
 
-# Fallback OPTIONS handler for all paths (debugging preflight)
+
+# CORS preflight handler
 @app.options("/{rest_of_path:path}")
-async def catch_all_options(rest_of_path: str):
-    """Catch-all OPTIONS handler to ensure preflight always returns 200"""
-    print(f"[PREFLIGHT] Caught OPTIONS request for /{rest_of_path}")
+async def preflight_handler(rest_of_path: str):
     return Response(
         status_code=200,
         headers={
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "*",
             "Access-Control-Allow-Headers": "*",
-            "Access-Control-Max-Age": "3600",
         }
     )
 
-# Security scheme for Swagger UI
-security = HTTPBearer()
 
-
-# JWT Authentication Helper
-async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Security(security, scopes=[])
-) -> str:
-    """
-    Decode JWT token và trả về user_id
-    
-    Args:
-        credentials: HTTPAuthorizationCredentials from Security(HTTPBearer())
-        
-    Returns:
-        user_id: ID của user từ JWT payload
-        
-    Raises:
-        HTTPException 401: Nếu token invalid hoặc missing
-    """
-    try:
-        # Get token from credentials
-        token = credentials.credentials
-        
-        # Decode JWT
-        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-        
-        # Extract user_id (support multiple payload formats)
-        user_id = payload.get("sub") or payload.get("user_id") or payload.get("userId")
-        
-        if not user_id:
-            raise HTTPException(
-                status_code=401, 
-                detail="Token payload missing user identifier (sub/user_id/userId)"
-            )
-        
-        return str(user_id)
-        
-    except JWTError as e:
-        raise HTTPException(
-            status_code=401, 
-            detail=f"Invalid token: {str(e)}"
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=401, 
-            detail=f"Authentication error: {str(e)}"
-        )
-
-
-# Optional authentication - không raise exception nếu không có token
-async def get_optional_user(
-    authorization: str = Header(None)
-) -> str:
-    """
-    Optional JWT decode - không raise 401 nếu thiếu token
-    Dùng cho endpoints cần CORS preflight work
-    """
-    if not authorization:
-        return "anonymous"
-    
-    try:
-        # Remove "Bearer " prefix
-        token = authorization.replace("Bearer ", "")
-        
-        # Decode JWT
-        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-        
-        # Extract user_id
-        user_id = payload.get("sub") or payload.get("user_id") or payload.get("userId")
-        
-        return str(user_id) if user_id else "anonymous"
-        
-    except:
-        return "anonymous"
-
-
-# Standard API Response wrapper
-class APIResponse(BaseModel):
-    status: str  # "success" | "error"
-    data: Optional[Any] = None
-    message: str
-    createdAt: str = Field(..., alias="createdAt")
-    
-    model_config = {
-        "json_schema_extra": {
-            "examples": [
-                {
-                    "status": "success",
-                    "data": {"key": "value"},
-                    "message": "Operation completed successfully",
-                    "createdAt": "2025-11-26T10:30:00Z"
-                }
-            ]
-        }
-    }
-
-
-# Request/Response models
-class ChatRequest(BaseModel):
-    userMessage: str = Field(..., alias="userMessage")
-    lessonId: Optional[int] = Field(None, alias="lessonId")  # Lesson ID (numeric)
-    
-    model_config = {
-        "populate_by_name": True,
-        "json_schema_extra": {
-            "examples": [
-                {
-                    "userMessage": "Cho em hỏi số 12345 có mấy chữ số?",
-                    "lessonId": 1
-                },
-                {
-                    "userMessage": "Giải thích cho em hiểu về phân số với nhé cô",
-                    "lessonId": 2
-                }
-            ]
-        }
-    }
-
-
-class ChatData(BaseModel):
-    reply: str
-    intent: str
-
-
-class ChatResponse(APIResponse):
-    data: Optional[ChatData] = None
-
-
-class AnalyzerRequest(BaseModel):
-    lessonId: Optional[int] = Field(None, serialization_alias="lessonId")  # Lesson ID (numeric)
-    topic: Optional[str] = ""
-    
-    model_config = {
-        "json_schema_extra": {
-            "examples": [
-                {
-                    "lessonId": 1,
-                    "topic": "phân số"
-                }
-            ]
-        }
-    }
-
-
-class AnalyzerData(BaseModel):
-    analysis: str
-    level: str
-    levelReason: str = Field(..., serialization_alias="levelReason")
-
-
-class AnalyzerResponse(APIResponse):
-    data: Optional[AnalyzerData] = None
-    
-    model_config = {
-        "json_schema_extra": {
-            "examples": [
-                {
-                    "status": "success",
-                    "data": {
-                        "analysis": "Học sinh đã hiểu khái niệm cơ bản...",
-                        "level": "Intermediate",
-                        "levelReason": "Học sinh trả lời đúng 80% câu hỏi"
-                    },
-                    "message": "Analysis completed",
-                    "createdAt": "2025-11-26T10:30:00Z"
-                }
-            ]
-        }
-    }
-
-
-class MindmapRequest(BaseModel):
-    lessonId: int = Field(..., serialization_alias="lessonId")  # Lesson ID (numeric, required)
-    topic: Optional[str] = ""
-    
-    model_config = {
-        "json_schema_extra": {
-            "examples": [
-                {
-                    "lessonId": 1,
-                    "topic": "số tự nhiên"
-                }
-            ]
-        }
-    }
-
-
-class MindmapData(BaseModel):
-    mindmapData: Dict[str, Any] = Field(..., serialization_alias="mindmapData")
-    lessonId: int = Field(..., serialization_alias="lessonId")
-    title: str
-
-
-class MindmapResponse(APIResponse):
-    data: Optional[MindmapData] = None
-    
-    model_config = {
-        "json_schema_extra": {
-            "examples": [
-                {
-                    "status": "success",
-                    "data": {
-                        "mindmapData": {
-                            "nodes": [],
-                            "edges": []
-                        },
-                        "lessonId": 1,
-                        "title": "Ôn tập các số đến 100000"
-                    },
-                    "message": "Mindmap generated successfully",
-                    "createdAt": "2025-11-26T10:30:00Z"
-                }
-            ]
-        }
-    }
-
-
-class HealthResponse(APIResponse):
-    model_config = {
-        "json_schema_extra": {
-            "examples": [
-                {
-                    "status": "success",
-                    "data": None,
-                    "message": "Agentic RAG API đang hoạt động",
-                    "createdAt": "2025-11-26T10:30:00Z"
-                }
-            ]
-        }
-    }
-
-
-class LessonInfo(BaseModel):
-    lessonId: int = Field(..., serialization_alias="lessonId")
-    title: str
-
-
-class LessonsData(BaseModel):
-    lessons: List[LessonInfo]
-
-
-class LessonsResponse(APIResponse):
-    data: Optional[LessonsData] = None
-    
-    model_config = {
-        "json_schema_extra": {
-            "examples": [
-                {
-                    "status": "success",
-                    "data": {
-                        "lessons": [
-                            {
-                                "lessonId": 1,
-                                "title": "Ôn tập các số đến 100000"
-                            },
-                            {
-                                "lessonId": 2,
-                                "title": "Phân số"
-                            }
-                        ]
-                    },
-                    "message": "Lessons retrieved successfully",
-                    "createdAt": "2025-11-26T10:30:00Z"
-                }
-            ]
-        }
-    }
-
-
-class UserLevelData(BaseModel):
-    userId: str = Field(..., serialization_alias="userId")
-    level: str
-    levelReason: str = Field(..., serialization_alias="levelReason")
-    messagesCount: int = Field(..., serialization_alias="messagesCount")
-    hasConversation: bool = Field(..., serialization_alias="hasConversation")
-
-
-class UserLevelResponse(APIResponse):
-    data: Optional[UserLevelData] = None
-    
-    model_config = {
-        "json_schema_extra": {
-            "examples": [
-                {
-                    "status": "success",
-                    "data": {
-                        "userId": "user_123",
-                        "level": "Intermediate",
-                        "levelReason": "Đã hoàn thành 10 bài tập",
-                        "messagesCount": 15,
-                        "hasConversation": True
-                    },
-                    "message": "User level retrieved",
-                    "createdAt": "2025-11-26T10:30:00Z"
-                }
-            ]
-        }
-    }
-
-
-@app.get("/api/health", response_model=HealthResponse)
+# Health check
+@app.get("/")
 async def root():
-    """Health check endpoint"""
-    return HealthResponse(
-        status="success",
-        data=None,
-        message="Agentic RAG API đang hoạt động",
-        createdAt=datetime.now(timezone.utc).isoformat()
-    )
+    return {
+        "status": "online",
+        "app": settings.APP_NAME,
+        "version": settings.APP_VERSION
+    }
 
 
-@app.get("/api/lessons", response_model=LessonsResponse)
-async def get_lessons():
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy", "timestamp": datetime.now(timezone.utc).isoformat()}
+
+
+# ============================================================
+# LESSONS ENDPOINT
+# ============================================================
+
+@app.get("/api/lessons")
+async def get_lessons(
+    subject: str = None,
+    grade: int = None,
+    user_id: str = Depends(get_optional_user)
+):
     """
-    Lấy danh sách các bài giảng có sẵn từ database
+    Get Lessons - Retrieve all lessons with optional filters
     
-    Returns:
-        LessonsResponse với danh sách bài giảng (id và title)
+    Query params:
+    - subject: Filter by subject (e.g., "Toán")
+    - grade: Filter by grade (e.g., 4)
+    
+    Returns: List of lessons
     """
     try:
-        from database.db_connection import get_db_connection
+        from repositories.lessons import get_all_lessons
         
-        with get_db_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute("""
-                SELECT id, title 
-                FROM lessons 
-                WHERE status = 'indexed'
-                ORDER BY id;
-            """)
-            rows = cursor.fetchall()
-            cursor.close()
+        lessons = get_all_lessons(subject=subject, grade=grade)
         
-        lessons = [LessonInfo(lessonId=row[0], title=row[1]) for row in rows]
-        
-        return LessonsResponse(
-            status="success",
-            data=LessonsData(lessons=lessons),
-            message="Lessons retrieved successfully",
-            createdAt=datetime.now(timezone.utc).isoformat()
-        )
-    
+        return {
+            "status": "success",
+            "data": lessons,
+            "message": f"Retrieved {len(lessons)} lessons",
+            "createdAt": datetime.now(timezone.utc).isoformat()
+        }
     except Exception as e:
-        return LessonsResponse(
-            status="error",
-            data=None,
-            message=f"Lỗi khi lấy danh sách bài giảng: {str(e)}",
-            createdAt=datetime.now(timezone.utc).isoformat()
-        )
+        return {
+            "status": "error",
+            "data": [],
+            "message": f"Failed to retrieve lessons: {str(e)}",
+            "createdAt": datetime.now(timezone.utc).isoformat()
+        }
+
+
+# ============================================================
+# CHAT ENDPOINT (Streaming with Auto Intent Detection)
+# ============================================================
+
+async def stream_agent_response(thread_id: str, question: str, lesson_id: int = None):
+    """Stream agent response via SSE with automatic intent detection"""
+    try:
+        # Get or create session
+        session = session_memory.get_session(thread_id)
+        messages = session.get("messages", [])
+        
+        # Summarize old messages if needed
+        if len(messages) > 10:
+            messages = summarize_conversation(messages, keep_recent=6)
+            session_memory.update_session(thread_id, {"messages": messages})
+        
+        # Add user message
+        user_message = HumanMessage(content=question)
+        messages.append(user_message)
+        
+        # Prepare config
+        config = {
+            "configurable": {"thread_id": thread_id},
+            "recursion_limit": 50
+        }
+        
+        # Prepare input (convert lesson_id to string for agent)
+        input_data = {
+            "messages": messages,
+            "lesson_id": str(lesson_id) if lesson_id else ""
+        }
+        
+        # Stream response (agent auto-detects intent: normal or deep)
+        buffer = ""
+        async for event in agent.astream(input_data, config):
+            for value in event.values():
+                if "messages" in value:
+                    ai_message = value["messages"][-1]
+                    content = ai_message.content
+                    
+                    # Send word by word
+                    words = content.split()
+                    for word in words:
+                        buffer += word + " "
+                        yield f"data: {buffer.strip()}\n\n"
+                        await asyncio.sleep(0.05)
+        
+        # Update session
+        session["messages"] = messages
+        session_memory.update_session(thread_id, session)
+        
+        yield "data: [DONE]\n\n"
+        
+    except Exception as e:
+        error_msg = f"Lỗi: {str(e)}"
+        yield f"data: {error_msg}\n\n"
+        yield "data: [DONE]\n\n"
 
 
 @app.post("/api/agent/chat")
-async def chat_endpoint(
+async def agent_chat(
     request: ChatRequest,
-    user_id: str = Depends(get_optional_user)
+    user_id: str = Depends(get_user_id)
 ):
     """
-    Chat endpoint - ALWAYS returns Server-Sent Events (SSE) streaming
+    Chat Endpoint - Streaming response with auto intent detection
     
-    Args:
-        request: ChatRequest chứa userMessage và lessonId
-        user_id: User ID extracted from JWT token (auto-injected)
-        
-    Returns:
-        StreamingResponse (text/event-stream) với format:
-        - data: {"chunk": "text", "done": false, "intent": "normal|deep"}
-        - data: {"chunk": "", "done": true, "intent": "...", "userId": "..."}
-        - data: {"error": "error message"}
+    Request body:
+    {
+        "question": "Câu hỏi của học sinh",
+        "lesson_id": 1  // optional integer
+    }
+    
+    Headers:
+    {
+        "Authorization": "Bearer <JWT_TOKEN>"
+    }
+    
+    Returns: text/event-stream (SSE)
+    
+    Note: Agent automatically detects intent (normal/deep) based on question keywords
     """
+    # Auto-generate thread_id from user_id
+    thread_id = f"user_{user_id}_session"
     
-    async def generate_stream():
-        try:
-            # Use user_id as thread_id
-            thread_id = user_id
-            
-            # Lấy session hiện tại
-            session = session_memory.get_session(thread_id)
-            
-            # Lưu user message vào session
-            session["messages"].append({
-                "role": "user",
-                "content": request.userMessage
-            })
-            
-            # Tạo input state
-            input_state = {
-                "messages": [HumanMessage(content=request.userMessage)],
-                "lesson_id": str(request.lessonId) if request.lessonId else ""
-            }
-            
-            # Config để load history
-            config = {"configurable": {"thread_id": thread_id}}
-            
-            # Tối ưu: Summarize messages nếu cần
-            try:
-                current_state = compiled_graph.get_state(config)
-                if current_state and current_state.values.get("messages"):
-                    all_messages = current_state.values["messages"] + [HumanMessage(content=request.userMessage)]
-                    if len(all_messages) > 6:
-                        summarized = summarize_old_messages(all_messages, keep_recent=4)
-                        input_state["messages"] = summarized
-            except:
-                pass
-            
-            # STEP 1: Invoke graph một lần để lấy intent
-            result = compiled_graph.invoke(input_state, config)
-            intent = result.get("intent", "normal")
-            
-            # STEP 2: Stream response dựa trên intent
-            if intent in ["deep", "explain"]:
-                # Deep intent: Stream từng chunk khi LLM generate
-                full_response = ""
-                
-                async for event in compiled_graph.astream(input_state, config):
-                    if "messages" in event:
-                        for msg in event["messages"]:
-                            if hasattr(msg, 'content') and msg.content:
-                                chunk = msg.content
-                                full_response = chunk
-                                yield f"data: {json.dumps({'chunk': chunk, 'done': False, 'intent': intent})}\n\n"
-                
-                # Lưu response vào session
-                session["messages"].append({
-                    "role": "assistant",
-                    "content": full_response
-                })
-                session_memory.update_session(thread_id, session)
-                
-                # Send final event
-                yield f"data: {json.dumps({'chunk': '', 'done': True, 'userId': user_id, 'intent': intent})}\n\n"
-                
-            else:
-                # Normal intent: Lấy response từ result và stream luôn (không cần re-invoke)
-                messages = result.get("messages", [])
-                if messages:
-                    last_message = messages[-1]
-                    reply = last_message.content if hasattr(last_message, 'content') else str(last_message)
-                else:
-                    reply = "Xin lỗi, em không thể trả lời câu hỏi này."
-                
-                # Stream full response as one chunk (cho consistency)
-                yield f"data: {json.dumps({'chunk': reply, 'done': False, 'intent': intent})}\n\n"
-                
-                # Lưu response vào session
-                session["messages"].append({
-                    "role": "assistant",
-                    "content": reply
-                })
-                session_memory.update_session(thread_id, session)
-                
-                # Send final event
-                yield f"data: {json.dumps({'chunk': '', 'done': True, 'userId': user_id, 'intent': intent})}\n\n"
-                
-        except Exception as e:
-            yield f"data: {json.dumps({'error': str(e), 'done': True})}\n\n"
-    
-    return StreamingResponse(generate_stream(), media_type="text/event-stream")
+    return StreamingResponse(
+        stream_agent_response(thread_id, request.question, request.lesson_id),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no"
+        }
+    )
 
 
-@app.post("/api/agent/analyzer", response_model=AnalyzerResponse)
-async def analyzer_endpoint(
-    request: AnalyzerRequest,
-    user_id: str = Depends(get_optional_user)
+# ============================================================
+# MINDMAP ENDPOINT
+# ============================================================
+
+@app.post("/api/lessons/mindmap")
+async def create_mindmap(
+    request: MindmapRequest,
+    user_id: str = Depends(get_user_id)
 ):
     """
-    Endpoint phân tích buổi học
-    Requires JWT token in Authorization header
+    Generate mindmap JSON for React Flow (JWT Required)
     
-    Args:
-        request: AnalyzerRequest chứa id (lesson id) và topic (optional)
-        user_id: User ID extracted from JWT token (auto-injected)
-        
+    Request body:
+    {
+        "topic": "Phân số",
+        "lesson_id": 1  // optional integer
+    }
+    
     Returns:
-        AnalyzerResponse với kết quả phân tích
+    {
+        "status": "success",
+        "data": {
+            "mindmap": {...},
+            "topic": "Phân số"
+        },
+        "message": "Mindmap created",
+        "createdAt": "2025-12-03T..."
+    }
     """
     try:
-        # Use user_id as thread_id
-        thread_id = user_id
+        # Convert lesson_id to string for internal functions
+        lesson_id_str = str(request.lesson_id) if request.lesson_id else None
+        mindmap_data = generate_mindmap_json(request.topic, lesson_id_str)
         
-        # Lấy conversation history từ session
+        return {
+            "status": "success",
+            "data": {
+                "mindmap": mindmap_data,
+                "topic": request.topic
+            },
+            "message": "Mindmap created successfully",
+            "createdAt": datetime.now(timezone.utc).isoformat()
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "data": None,
+            "message": f"Failed to create mindmap: {str(e)}",
+            "createdAt": datetime.now(timezone.utc).isoformat()
+        }
+
+
+# ============================================================
+# ANALYZER ENDPOINT
+# ============================================================
+
+@app.post("/api/agent/analyzer")
+async def analyze(
+    request: AnalyzerRequest,
+    user_id: str = Depends(get_user_id)
+):
+    """
+    Analyze learning session (JWT Required)
+    
+    Request body:
+    {
+        "lesson_id": 1  // optional integer
+    }
+    
+    Returns:
+    {
+        "status": "success",
+        "data": {
+            "analysis": "...",
+            "level": "Tốt",
+            "level_reason": "..."
+        },
+        "message": "Analysis completed",
+        "createdAt": "..."
+    }
+    """
+    try:
+        # Auto-generate thread_id from user_id
+        thread_id = f"user_{user_id}_session"
+        
+        # Get conversation history
         conversation_history = session_memory.get_conversation_history(thread_id)
         
         if not conversation_history:
-            raise HTTPException(
-                status_code=404,
-                detail=f"Không tìm thấy lịch sử hội thoại cho user_id: {user_id}"
-            )
-        
-        # Lấy transcript (Tối ưu: k=10→5 để giảm tokens cho analyzer)
-        topic = request.topic if request.topic else "Toán lớp 4"
-        lesson_id = str(request.lessonId) if request.lessonId else None
-        transcript = get_context(topic, k=5, lesson_id=lesson_id)
-        
-        # Phân tích (bao gồm đánh giá level)
-        result = analyze_with_data(conversation_history, transcript)
-        
-        # Lưu level vào session
-        session = session_memory.get_session(thread_id)
-        session["latest_level"] = result["level"]
-        session["level_reason"] = result["level_reason"]
-        session_memory.update_session(thread_id, session)
-        
-        return AnalyzerResponse(
-            status="success",
-            data=AnalyzerData(
-                analysis=result["analysis"],
-                level=result["level"],
-                levelReason=result["level_reason"]
-            ),
-            message="Analysis completed successfully",
-            createdAt=datetime.now(timezone.utc).isoformat()
-        )
-    
-    except HTTPException as he:
-        return AnalyzerResponse(
-            status="error",
-            data=None,
-            message=he.detail,
-            createdAt=datetime.now(timezone.utc).isoformat()
-        )
-    except Exception as e:
-        return AnalyzerResponse(
-            status="error",
-            data=None,
-            message=f"Lỗi khi phân tích: {str(e)}",
-            createdAt=datetime.now(timezone.utc).isoformat()
-        )
-
-
-@app.post("/api/lessons/mindmap", response_model=MindmapResponse)
-async def mindmap_endpoint(request: MindmapRequest):
-    """
-    Endpoint tạo sơ đồ tư duy cho bài học
-    
-    Args:
-        request: MindmapRequest chứa id (lesson id) và topic (optional)
-        
-    Returns:
-        MindmapResponse với mindmap JSON cho React Flow
-    """
-    try:
-        # Get lesson info
-        from database.lessons_repository import get_lesson
-        lesson = get_lesson(str(request.lessonId))
-        if not lesson:
-            raise HTTPException(
-                status_code=404,
-                detail=f"Không tìm thấy bài học với id: {request.lessonId}"
-            )
-        
-        # Lấy context từ bài học (Tối ưu: k=10→7 để giảm tokens)
-        topic = request.topic if request.topic else "toàn bộ bài học"
-        context = get_context(topic, k=7, lesson_id=str(request.lessonId))
-        
-        # Tạo mindmap
-        mindmap_json_str = generate_mindmap_with_context(topic, context)
-        
-        # Parse JSON
-        try:
-            mindmap_data = json.loads(mindmap_json_str)
-        except json.JSONDecodeError:
-            # Fallback nếu không parse được
-            mindmap_data = {
-                "error": "Không thể tạo sơ đồ tư duy cho bài học này."
+            return {
+                "status": "error",
+                "data": None,
+                "message": "No conversation found for this user",
+                "createdAt": datetime.now(timezone.utc).isoformat()
             }
         
-        return MindmapResponse(
-            status="success",
-            data=MindmapData(
-                mindmapData=mindmap_data,
-                lessonId=request.lessonId,
-                title=lesson["title"]
-            ),
-            message="Mindmap generated successfully",
-            createdAt=datetime.now(timezone.utc).isoformat()
-        )
-    
+        # Analyze (convert lesson_id to string)
+        lesson_id_str = str(request.lesson_id) if request.lesson_id else None
+        result = analyze_session(conversation_history, lesson_id_str)
+        
+        return {
+            "status": "success",
+            "data": result,
+            "message": "Analysis completed",
+            "createdAt": datetime.now(timezone.utc).isoformat()
+        }
     except Exception as e:
-        return MindmapResponse(
-            status="error",
-            data=None,
-            message=f"Lỗi khi tạo mindmap: {str(e)}",
-            createdAt=datetime.now(timezone.utc).isoformat()
-        )
+        return {
+            "status": "error",
+            "data": None,
+            "message": f"Analysis failed: {str(e)}",
+            "createdAt": datetime.now(timezone.utc).isoformat()
+        }
+
+
+# ============================================================
+# SESSION MANAGEMENT
+# ============================================================
+
+@app.get("/api/session")
+async def get_session_info(
+    user_id: str = Depends(get_user_id)
+):
+    """
+    Get Session Info - Retrieve current session status
+    
+    Returns session metadata (message count, conversation status)
+    """
+    thread_id = f"user_{user_id}_session"
+    conversation_history = session_memory.get_conversation_history(thread_id)
+    
+    return {
+        "status": "success",
+        "data": {
+            "has_conversation": bool(conversation_history),
+            "message_count": conversation_history.count("\n") if conversation_history else 0
+        },
+        "message": "Session info retrieved",
+        "createdAt": datetime.now(timezone.utc).isoformat()
+    }
 
 
 @app.delete("/api/session")
-async def clear_session(user_id: str = Depends(get_optional_user)):
+async def clear_session(
+    user_id: str = Depends(get_user_id)
+):
     """
-    Xóa session của user hiện tại
-    Requires JWT token in Authorization header
+    Clear Session - Delete user's conversation history
     
-    Args:
-        user_id: User ID extracted from JWT token (auto-injected)
+    Removes all messages from current session
     """
-    try:
-        session_memory.clear_session(user_id)
-        return APIResponse(
-            status="success",
-            data=None,
-            message=f"Đã xóa session của user {user_id}",
-            createdAt=datetime.now(timezone.utc).isoformat()
-        )
-    except Exception as e:
-        return APIResponse(
-            status="error",
-            data=None,
-            message=f"Lỗi khi xóa session: {str(e)}",
-            createdAt=datetime.now(timezone.utc).isoformat()
-        )
-
-
-@app.get("/api/session")
-async def get_session_info(user_id: str = Depends(get_optional_user)):
-    """
-    Lấy thông tin session của user hiện tại
-    Requires JWT token in Authorization header
+    thread_id = f"user_{user_id}_session"
+    session_memory.clear_session(thread_id)
     
-    Args:
-        user_id: User ID extracted from JWT token (auto-injected)
-    """
-    try:
-        session = session_memory.get_session(user_id)
-        return APIResponse(
-            status="success",
-            data={
-                "userId": user_id,
-                "messagesCount": len(session.get("messages", [])),
-                "conversationHistory": session_memory.get_conversation_history(user_id)
-            },
-            message="Session retrieved successfully",
-            createdAt=datetime.now(timezone.utc).isoformat()
-        )
-    except Exception as e:
-        return APIResponse(
-            status="error",
-            data=None,
-            message=f"Lỗi khi lấy session: {str(e)}",
-            createdAt=datetime.now(timezone.utc).isoformat()
-        )
+    return {
+        "status": "success",
+        "data": {"cleared": True},
+        "message": "Session cleared",
+        "createdAt": datetime.now(timezone.utc).isoformat()
+    }
 
 
-@app.get("/api/user/level", response_model=UserLevelResponse)
-async def get_user_level(user_id: str = Depends(get_optional_user)):
+# ============================================================
+# USER LEVEL ENDPOINT (Placeholder)
+# ============================================================
+
+@app.get("/api/user/level")
+async def get_user_level(
+    user_id: str = Depends(get_user_id)
+):
     """
-    Lấy level của user hiện tại
-    Requires JWT token in Authorization header
+    Get User Level - Retrieve user's learning level assessment
     
-    Args:
-        user_id: User ID extracted from JWT token (auto-injected)
-        
-    Returns:
-        UserLevelResponse với level, lý do, và thống kê conversation
+    Returns user performance metrics and level
     """
-    try:
-        session = session_memory.get_session(user_id)
-        messages = session.get("messages", [])
-        
-        # Kiểm tra có conversation chưa
-        if not messages:
-            return UserLevelResponse(
-                status="success",
-                data=UserLevelData(
-                    userId=user_id,
-                    level="Beginner",
-                    levelReason="Chưa có cuộc hội thoại nào",
-                    messagesCount=0,
-                    hasConversation=False
-                ),
-                message="User level retrieved",
-                createdAt=datetime.now(timezone.utc).isoformat()
-            )
-        
-        # Lấy level đã được lưu (từ analyzer)
-        latest_level = session.get("latest_level")
-        level_reason = session.get("level_reason")
-        
-        # Nếu chưa có level (chưa gọi analyzer), trả về Beginner
-        if not latest_level:
-            return UserLevelResponse(
-                status="success",
-                data=UserLevelData(
-                    userId=user_id,
-                    level="Beginner",
-                    levelReason="Chưa được đánh giá. Vui lòng gọi /analyzer trước.",
-                    messagesCount=len(messages),
-                    hasConversation=True
-                ),
-                message="User level retrieved",
-                createdAt=datetime.now(timezone.utc).isoformat()
-            )
-        
-        return UserLevelResponse(
-            status="success",
-            data=UserLevelData(
-                userId=user_id,
-                level=latest_level,
-                levelReason=level_reason or "",
-                messagesCount=len(messages),
-                hasConversation=True
-            ),
-            message="User level retrieved successfully",
-            createdAt=datetime.now(timezone.utc).isoformat()
-        )
-    
-    except Exception as e:
-        return UserLevelResponse(
-            status="error",
-            data=None,
-            message=f"Lỗi khi lấy level: {str(e)}",
-            createdAt=datetime.now(timezone.utc).isoformat()
-        )
-
+    # TODO: Implement user level tracking in database
+    return {
+        "status": "success",
+        "data": {
+            "user_id": user_id,
+            "level": "Chưa đánh giá",
+            "message": "Chưa có đủ dữ liệu để đánh giá"
+        },
+        "message": "User level retrieved",
+        "createdAt": datetime.now(timezone.utc).isoformat()
+    }
 
 if __name__ == "__main__":
     import uvicorn

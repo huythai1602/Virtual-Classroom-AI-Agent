@@ -1,20 +1,21 @@
 """
-Quản lý memory và checkpointer cho LangGraph
+Session memory management
 """
 from langgraph.checkpoint.memory import MemorySaver
 from typing import Dict, Any
 
-# Khởi tạo MemorySaver cho việc lưu trữ state
+# Global memory saver for LangGraph
 memory_saver = MemorySaver()
 
+
 class SessionMemory:
-    """Quản lý memory cho từng session/thread"""
+    """Manage session data per thread"""
     
     def __init__(self):
         self.sessions: Dict[str, Dict[str, Any]] = {}
     
     def get_session(self, thread_id: str) -> Dict[str, Any]:
-        """Lấy thông tin session theo thread_id"""
+        """Get session by thread ID"""
         if thread_id not in self.sessions:
             self.sessions[thread_id] = {
                 "messages": [],
@@ -24,18 +25,18 @@ class SessionMemory:
         return self.sessions[thread_id]
     
     def update_session(self, thread_id: str, data: Dict[str, Any]):
-        """Cập nhật thông tin session"""
+        """Update session data"""
         if thread_id not in self.sessions:
             self.sessions[thread_id] = {}
         self.sessions[thread_id].update(data)
     
     def clear_session(self, thread_id: str):
-        """Xóa session"""
+        """Clear session"""
         if thread_id in self.sessions:
             del self.sessions[thread_id]
     
     def get_conversation_history(self, thread_id: str) -> str:
-        """Lấy lịch sử hội thoại dưới dạng text"""
+        """Get conversation history as text"""
         session = self.get_session(thread_id)
         messages = session.get("messages", [])
         
@@ -50,5 +51,6 @@ class SessionMemory:
         
         return "\n".join(history)
 
-# Global session memory instance
+
+# Global instance
 session_memory = SessionMemory()
