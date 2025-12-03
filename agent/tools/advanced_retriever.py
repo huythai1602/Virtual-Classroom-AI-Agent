@@ -309,40 +309,54 @@ class AdvancedRetriever:
         self,
         query: str,
         lesson_id: Optional[str] = None,
-        k: int = 5,
+        k: int = None,  # Auto-determine if None
         use_hybrid: bool = True,
         use_rerank: bool = True,
         use_mmr: bool = True,
-        expand_query: bool = True
+        expand_query: bool = True,
+        intent: str = "normal"
     ) -> List[Dict]:
         """
-        Complete retrieval pipeline
+        Complete retrieval pipeline with token optimization
         
         Pipeline:
-        1. Query Expansion (optional)
-        2. Hybrid Search (Vector + BM25) or Vector only
-        3. Cross-Encoder Reranking
-        4. MMR Diversification
+        1. Adaptive k selection
+        2. Query Expansion (optional)
+        3. Hybrid Search (Vector + BM25) or Vector only
+        4. Cross-Encoder Reranking
+        5. MMR Diversification
+        6. Token budget optimization
         
         Args:
             query: User query
             lesson_id: Filter by lesson
-            k: Final number of results
+            k: Final number of results (auto if None)
             use_hybrid: Use hybrid search (vs vector only)
             use_rerank: Use cross-encoder reranking
             use_mmr: Use MMR for diversity
             expand_query: Expand query with related terms
+            intent: Query intent for adaptive k
         """
-        # Step 1: Query expansion
+        # Import token optimizer
+        from agent.tools.token_optimizer import get_token_budget
+        budget = get_token_budget()
+        
+        # Step 1: Adaptive k selection
+        if k is None:
+            k = budget.adaptive_k(query, intent)
+        
+        # Step 2: Query expansion (limited to avoid token waste)
         queries = self.expand_query(query) if expand_query else [query]
         
-        # Step 2: Retrieve candidates (more than k for reranking)
+        # Step 3: Retrieve candidates (scaled with k)
         all_candidates = []
-        for q in queries[:3]:  # Limit to avoid too many queries
+        candidate_k = min(k * 4, 20)  # Scale candidates with k, max 20
+        
+        for q in queries[:2]:  # Reduced: 3→2 queries
             if use_hybrid:
-                candidates = self.hybrid_search(q, lesson_id, k=20)
+                candidates = self.hybrid_search(q, lesson_id, k=candidate_k)
             else:
-                candidates = self.vector_search(q, lesson_id, k=20)
+                candidates = self.vector_search(q, lesson_id, k=candidate_k)
             all_candidates.extend(candidates)
         
         # Remove duplicates by chunk_id
@@ -353,11 +367,11 @@ class AdvancedRetriever:
                 seen.add(chunk["chunk_id"])
                 unique_candidates.append(chunk)
         
-        # Step 3: Reranking
+        # Step 4: Reranking
         if use_rerank and unique_candidates:
-            unique_candidates = self.rerank(query, unique_candidates, k=k*2)
+            unique_candidates = self.rerank(query, unique_candidates, k=min(k*2, 10))
         
-        # Step 4: MMR for diversity
+        # Step 5: MMR for diversity
         if use_mmr and unique_candidates:
             results = self.mmr_selection(query, unique_candidates, k=k)
         else:
@@ -377,6 +391,10 @@ class AdvancedRetriever:
                     "mmr_rank": r.get("mmr_rank", 0)
                 }
             })
+        
+        # Step 6: Token budget optimization
+        formatted, total_tokens = budget.optimize_chunks(formatted)
+        formatted = budget.compress_context(formatted)
         
         return formatted if formatted else [
             {"content": "Không tìm thấy thông tin liên quan.", "source": "system"}

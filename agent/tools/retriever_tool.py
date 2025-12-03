@@ -65,33 +65,36 @@ class RetrieverTool:
     def retrieve(
         self, 
         query: str, 
-        k: int = 3, 
+        k: int = None,  # Auto-determine if None
         lesson_id: str = None,
-        use_advanced: bool = True
+        use_advanced: bool = True,
+        intent: str = "normal"
     ) -> List[Dict]:
         """
-        Retrieve relevant chunks using advanced RAG pipeline
+        Retrieve relevant chunks with token optimization
         
         Args:
             query: User query
-            k: Number of results
+            k: Number of results (auto if None)
             lesson_id: Filter by lesson
-            use_advanced: Use advanced retriever (hybrid+rerank+mmr)
+            use_advanced: Use advanced retriever
+            intent: Query intent (normal/deep)
             
         Returns:
-            List of relevant chunks with metadata
+            List of relevant chunks optimized for tokens
         """
         try:
             if use_advanced:
-                # Use advanced retriever with all features
+                # Use advanced retriever with token optimization
                 results = self.advanced_retriever.retrieve(
                     query=query,
                     lesson_id=lesson_id,
-                    k=k,
+                    k=k,  # Will auto-determine if None
                     use_hybrid=True,
                     use_rerank=True,
                     use_mmr=True,
-                    expand_query=True
+                    expand_query=True,
+                    intent=intent
                 )
                 return results
             else:
@@ -214,18 +217,20 @@ def get_context_smart(query: str, k: int = 10, lesson_id: str = None) -> str:
 _retriever = RetrieverTool()
 
 @tool
-def retrieve_context(query: str, lesson_id: str = None) -> str:
+def retrieve_context(query: str, lesson_id: str = None, intent: str = "normal") -> str:
     """
-    Truy vấn ngữ cảnh từ transcript bài giảng Toán lớp 4 với trích dẫn nguồn.
+    Truy vấn ngữ cảnh với token optimization
     
     Args:
         query: Câu hỏi hoặc chủ đề cần tìm thông tin
         lesson_id: ID của bài giảng (tùy chọn)
+        intent: Intent (normal/deep) để adaptive k
         
     Returns:
-        Nội dung liên quan từ bài giảng kèm nguồn trích dẫn
+        Nội dung liên quan đã optimize tokens
     """
-    results = _retriever.retrieve(query, k=3, lesson_id=lesson_id)
+    # Auto k based on intent
+    results = _retriever.retrieve(query, k=None, lesson_id=lesson_id, intent=intent)
     
     # Format với trích dẫn nguồn
     formatted_results = []
