@@ -1,4 +1,3 @@
-"""
 """Mindmap generation tool
 Consolidated from agent/tools/mindmap_tool.py
 """
