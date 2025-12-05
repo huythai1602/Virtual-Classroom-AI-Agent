@@ -10,9 +10,26 @@ from openai import OpenAI
 from rank_bm25 import BM25Okapi
 from config.settings import settings
 
-# Initialize clients (singleton-like for this module)
-client = OpenAI()
-encoding = tiktoken.encoding_for_model("gpt-4")
+# Lazy initialization
+_client = None
+_encoding = None
+
+def get_client():
+    global _client
+    if _client is None:
+        _client = OpenAI(api_key=settings.OPENAI_API_KEY)
+    return _client
+
+def get_encoding():
+    global _encoding
+    if _encoding is None:
+        try:
+            # Use model from settings, fallback to standard encoding
+            model = settings.OPENAI_MODEL
+            _encoding = tiktoken.encoding_for_model(model)
+        except KeyError:
+            _encoding = tiktoken.get_encoding("cl100k_base")
+    return _encoding
 
 class TextProcessor:
     """
@@ -26,6 +43,7 @@ class TextProcessor:
     def count_tokens(text: str) -> int:
         """Count tokens using tiktoken"""
         try:
+            encoding = get_encoding()
             return len(encoding.encode(text))
         except:
             return len(text) // 4
@@ -35,6 +53,7 @@ class TextProcessor:
         """Get OpenAI embedding"""
         text = text.replace("\n", " ")
         try:
+            client = get_client()
             response = client.embeddings.create(
                 model=model,
                 input=text
