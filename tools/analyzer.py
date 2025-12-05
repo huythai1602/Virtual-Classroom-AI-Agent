@@ -1,4 +1,3 @@
-"""
 """Session analyzer tool
 Consolidated from agent/tools/analyzer_tool.py
 """
