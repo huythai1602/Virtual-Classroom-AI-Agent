@@ -59,3 +59,15 @@ def get_connection():
     finally:
         if conn:
             pool.putconn(conn)
+
+
+def test_connection() -> bool:
+    """Test database connection"""
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT 1")
+        return True
+    except Exception as e:
+        print(f"Connection test failed: {e}")
+        return False

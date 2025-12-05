@@ -16,7 +16,7 @@ from core.agent import agent
 from core.memory import session_memory
 from core.state import ChatContext
 from models import ChatRequest, MindmapRequest, AnalyzerRequest
-from models.responses import StandardResponse, MindmapData, AnalyzerData, LessonsData, SessionData, UserLevelData, LessonItem
+from models.responses import StandardResponse, MindmapData, AnalyzerData, LessonsData, SessionData, UserLevelData, LessonItem, ChatData
 from tools import generate_mindmap_json, analyze_session, summarize_conversation
 from utils import get_optional_user, get_user_id
 
@@ -173,114 +173,32 @@ async def get_lessons(
 # CHAT ENDPOINT (Streaming with Auto Intent Detection)
 # ============================================================
 
-async def stream_agent_response(thread_id: str, question: str, lesson_id: Optional[int] = None, user_id: str = None):
-    """Stream agent response via SSE with automatic intent detection"""
-    try:
-        # Get or create session (with persistence)
-        session = session_memory.get_session(thread_id, user_id=user_id)
-        messages = session.get("messages", [])
-        
-        # Summarize old messages if needed
-        if len(messages) > 10:
-            messages = summarize_conversation(messages, keep_recent=6)
-            session_memory.update_session(thread_id, {"messages": messages})
-        
-        # Add user message
-        user_message = HumanMessage(content=question)
-        messages.append(user_message)
-        
-        # Prepare config
-        config = {
-            "configurable": {"thread_id": thread_id},
-            "recursion_limit": 50
-        }
-        
-        # Prepare input (lesson_id supports both int and str)
-        input_data = {
-            "messages": messages,
-            "lesson_id": lesson_id,
-            "thread_id": thread_id  # Pass thread_id for conversation context
-        }
-        
-        # Run agent and get response
-        # Note: Agent uses llm.invoke() so response comes all at once
-        # We simulate streaming by sending the full response as chunks
-        full_response = ""
-        
-        try:
-            # Run agent
-            result = await agent.ainvoke(input_data, config)
-            
-            # Extract AI message
-            if "messages" in result:
-                ai_messages = result["messages"]
-                # Find last AI message
-                for msg in reversed(ai_messages):
-                    if hasattr(msg, 'type') and msg.type == 'ai':
-                        full_response = msg.content
-                        break
-                    elif hasattr(msg, 'content') and not hasattr(msg, 'type'):
-                        # Fallback for AIMessage without type attribute
-                        from langchain_core.messages import AIMessage
-                        if isinstance(msg, AIMessage):
-                            full_response = msg.content
-                            break
-            
-            # If we got a response, send it as chunks for smooth UI
-            if full_response:
-                # Split response into words for streaming effect
-                words = full_response.split()
-                accumulated = ""
-                
-                for word in words:
-                    accumulated += word + " "
-                    chunk_data = {
-                        "type": "content",
-                        "chunk": word + " ",
-                        "fullText": accumulated.strip()
-                    }
-                    yield f"data: {json.dumps(chunk_data, ensure_ascii=False)}\n\n"
-                    await asyncio.sleep(0.03)  # Small delay for streaming effect
-            else:
-                # No response - send error
-                raise Exception("Agent returned empty response")
-        
-            # Add AI response to messages
-            from langchain_core.messages import AIMessage
-            messages.append(AIMessage(content=full_response))
-            
-        except Exception as agent_error:
-            # Agent execution failed
-            error_msg = f"Agent error: {str(agent_error)}"
-            print(f"❌ {error_msg}")
-            raise
-        
-        # Update session with persistence
-        session["messages"] = messages
-        session_memory.update_session(thread_id, session, persist=True)
-        
-        # Send done signal
-        done_data = {"type": "done", "fullText": full_response}
-        yield f"data: {json.dumps(done_data, ensure_ascii=False)}\n\n"
-        
-    except Exception as e:
-        # Top-level error handler
-        import traceback
-        traceback.print_exc()
-        error_data = {"type": "error", "message": f"Lỗi: {str(e)}"}
-        yield f"data: {json.dumps(error_data, ensure_ascii=False)}\n\n"
+from models.responses import StandardResponse, MindmapData, AnalyzerData, LessonsData, SessionData, UserLevelData, LessonItem, ChatData
 
+# ... (Previous imports are fine, just make sure ChatData is available if not adding it here - wait, I can't easily add it to the import line without knowing the exact line. Let's assume the user handles imports or I do another pass. Actually, I can replace the import line separately or just use fully qualified if needed, let's try to update the imports at the top first or just rewrite the endpoint and let Python resolve if I imported it. 
+# Wait, I see "from models.responses import ..." at line 19. I should update that too.
+# Let's do the endpoint replacement first, assuming I will fix imports.)
 
 @app.post(
     "/api/agent/chat",
+    response_model=StandardResponse[ChatData],
     summary="Chat with AI Agent",
-    description="Stream AI responses with automatic intent detection (normal/deep mode)",
+    description="Get AI response with automatic intent detection (normal/deep mode)",
     responses={
         200: {
-            "description": "Streaming response (Server-Sent Events)",
+            "description": "Successful response",
             "content": {
-                "text/event-stream": {
-                    "example": "data: Phân số là số biểu diễn một phần của tổng thể...\n\ndata: [DONE]\n\n"
+                "application/json": {
+                    "example": {
+                        "status": "success",
+                        "data": {
+                            "response": "Phân số là...",
+                            "intent": "normal",
+                            "threadId": "user_123_session"
+                        },
+                        "message": "Response generated",
+                        "createdAt": "2025-12-03T18:30:00Z"
+                    }
                 }
             }
         }
@@ -292,7 +210,7 @@ async def agent_chat(
     user_id: str = Depends(get_user_id)
 ):
     """
-    **Chat Endpoint** - Streaming AI response
+    **Chat Endpoint** - Get AI response
     
     **Authentication:** Bearer token in Authorization header
     
@@ -303,26 +221,80 @@ async def agent_chat(
         "lessonId": 2
     }
     ```
-    
-    **Returns:** Server-Sent Events (text/event-stream)
-    
-    **Features:**
-    - Automatic intent detection (normal/deep)
-    - Conversation history awareness
-    - Context from lesson materials
     """
-    # Auto-generate thread_id from user_id
-    thread_id = f"user_{user_id}_session"
-    
-    return StreamingResponse(
-        stream_agent_response(thread_id, request.userMessage, request.lessonId, user_id),
-        media_type="text/event-stream",
-        headers={
-            "Cache-Control": "no-cache",
-            "Connection": "keep-alive",
-            "X-Accel-Buffering": "no"
+    try:
+        # Auto-generate thread_id from user_id
+        thread_id = f"user_{user_id}_session"
+        
+        # Get or create session (with persistence)
+        session = session_memory.get_session(thread_id, user_id=user_id)
+        messages = session.get("messages", [])
+        
+        # Summarize old messages if needed
+        if len(messages) > 10:
+            messages = summarize_conversation(messages, keep_recent=6)
+            session_memory.update_session(thread_id, {"messages": messages})
+        
+        # Add user message
+        messages.append(HumanMessage(content=request.userMessage))
+        
+        # Prepare input
+        input_data = {
+            "messages": messages,
+            "lesson_id": request.lessonId,
+            "thread_id": thread_id
         }
-    )
+        
+        config = {
+            "configurable": {"thread_id": thread_id},
+            "recursion_limit": 50
+        }
+        
+        # Run agent
+        result = await agent.ainvoke(input_data, config)
+        
+        # Extract response
+        full_response = ""
+        intent = "normal"
+        
+        if "messages" in result:
+             # Find last AI message
+            for msg in reversed(result["messages"]):
+                if hasattr(msg, 'type') and msg.type == 'ai':
+                    full_response = msg.content
+                    break
+        
+        # Rough intent detection from result state if available, or just default
+        # The agent state has 'intent', let's try to get it if we can access the state.
+        # ainvoke returns the final state.
+        if "intent" in result:
+            intent = result["intent"]
+            
+        # Update session
+        messages.append(AIMessage(content=full_response))
+        session["messages"] = messages
+        session_memory.update_session(thread_id, session, persist=True)
+        
+        return StandardResponse(
+            status="success",
+            data=ChatData(
+                response=full_response,
+                intent=intent,
+                threadId=thread_id
+            ),
+            message="Response generated successfully",
+            createdAt=datetime.now(timezone.utc).isoformat()
+        )
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return StandardResponse(
+            status="error",
+            data=None,
+            message=f"Agent failed: {str(e)}",
+            createdAt=datetime.now(timezone.utc).isoformat()
+        )
 
 
 # ============================================================

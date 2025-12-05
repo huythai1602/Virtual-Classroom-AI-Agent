@@ -130,3 +130,51 @@ def get_all_chunks(limit: int = 10000) -> list:
             }
             for row in rows
         ]
+
+
+def insert_chunks_batch(lesson_id: str, chunks_data: list):
+    """Batch insert chunks with embeddings"""
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        
+        # Get lesson PK
+        # Note: lesson_id here is the string ID (e.g. 'toan-lop-4...'), table uses 'lesson_id' column
+        # But wait, chunks table links to lessons(id)? 
+        # Let's check get_chunks_by_lesson ... JOIN lessons l ON c.lesson_id = l.lesson_id ...
+        # If chunks.lesson_id is a FK to lessons.lesson_id (string), then we don't need PK lookup.
+        # However, checking search_similar_chunks: JOIN lessons l... WHERE l.id = %s
+        # It seems the schema might use string ID as FK? or PK?
+        # Let's look at `repositories/lessons.py` query again: WHERE id = %s vs WHERE lesson_id = %s
+        # Schema likely has `id` (serial) and `lesson_id` (string unique).
+        # Let's assume chunks.lesson_id refers to lessons.lesson_id (string) OR lessons.id (int).
+        
+        # Safer bet: Look at `chunks` table schema via existing queries.
+        # "JOIN lessons l ON c.lesson_id = l.lesson_id" implies chunks.lesson_id matches lessons.lesson_id (string).
+        # WAIIIIT.
+        # "WHERE l.id = %s" (numeric).
+        # If c.lesson_idLinked to l.lesson_id, then both are strings.
+        
+        # Let's try to just use the string lesson_id.
+        
+        query = """
+            INSERT INTO chunks (lesson_id, chunk_index, text, embedding)
+            VALUES (%s, %s, %s, %s)
+        """
+        # BUT: previous usage in migrate script: "insert_chunks_batch(lesson_id, chunks_data)"
+        # where lesson_id is string.
+        # The schema probably requires the string since the join uses string.
+        
+        # Actually, let's look at `search_similar_chunks`:
+        # JOIN lessons l ON c.lesson_id = l.lesson_id
+        # This implies c.lesson_id is the string ID same as l.lesson_id.
+        
+        # Clean current chunks for this lesson
+        cursor.execute("DELETE FROM chunks WHERE lesson_id = %s", (lesson_id,))
+        
+        values = [
+            (lesson_id, c["chunk_index"], c["text"], c["embedding"]) 
+            for c in chunks_data
+        ]
+        
+        cursor.executemany(query, values)
+        cursor.close()

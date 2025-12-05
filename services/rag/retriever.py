@@ -1,95 +1,23 @@
 """
 RAG Retrieval Service
 Consolidated from agent/tools/advanced_retriever.py
+Refactored to use core.text_processing
 """
 from typing import List, Dict, Optional, Union
 import numpy as np
 from rank_bm25 import BM25Okapi
 from sentence_transformers import CrossEncoder
-from openai import OpenAI
-import tiktoken
-import re
 
 from config.settings import settings
-
-client = OpenAI()
-
+from core.text_processing import TextProcessor
 
 class RAGRetriever:
     """Advanced RAG retriever with hybrid search, reranking, and semantic chunking"""
     
     def __init__(self):
         self.reranker = CrossEncoder(settings.RERANK_MODEL)
-        self.encoding = tiktoken.encoding_for_model("gpt-4")
-        print(f"✅ RAG Retriever initialized with semantic chunking")
-    
-    def count_tokens(self, text: str) -> int:
-        """Count tokens"""
-        try:
-            return len(self.encoding.encode(text))
-        except:
-            return len(text) // 4
-    
-    def semantic_chunk(self, text: str, max_chunk_size: int = 500) -> List[str]:
-        """
-        Split text into semantically coherent chunks using embedding similarity
-        
-        Args:
-            text: Input text to chunk
-            max_chunk_size: Maximum words per chunk
-            
-        Returns:
-            List of semantically coherent text chunks
-        """
-        # Split into sentences
-        sentences = re.split(r'(?<=[.!?])\s+', text)
-        if len(sentences) <= 1:
-            return [text]
-        
-        # Get embeddings for each sentence
-        embeddings = []
-        for sent in sentences:
-            if sent.strip():
-                try:
-                    embeddings.append(self.get_embedding(sent))
-                except:
-                    embeddings.append([0] * 1536)
-        
-        if len(embeddings) <= 1:
-            return [text]
-        
-        # Calculate similarity between consecutive sentences
-        embeddings_array = np.array(embeddings)
-        similarities = []
-        for i in range(len(embeddings_array) - 1):
-            sim = np.dot(embeddings_array[i], embeddings_array[i + 1])
-            similarities.append(sim)
-        
-        # Find split points where similarity < threshold
-        threshold = settings.SEMANTIC_THRESHOLD
-        split_indices = [0]
-        current_chunk_size = 0
-        
-        for i, sim in enumerate(similarities):
-            current_chunk_size += len(sentences[i].split())
-            
-            # Split if: low semantic similarity OR chunk too large
-            if sim < threshold or current_chunk_size >= max_chunk_size:
-                split_indices.append(i + 1)
-                current_chunk_size = 0
-        
-        split_indices.append(len(sentences))
-        
-        # Build chunks
-        chunks = []
-        for i in range(len(split_indices) - 1):
-            start = split_indices[i]
-            end = split_indices[i + 1]
-            chunk_text = ' '.join(sentences[start:end])
-            if chunk_text.strip():
-                chunks.append(chunk_text.strip())
-        
-        return chunks if chunks else [text]
+        self.processor = TextProcessor()
+        print(f"✅ RAG Retriever initialized")
     
     def adaptive_k(self, query: str, intent: str = "normal") -> int:
         """Adaptive k based on intent and query complexity"""
@@ -101,14 +29,6 @@ class RAGRetriever:
             return 3
         return settings.DEFAULT_TOP_K
     
-    def get_embedding(self, text: str) -> List[float]:
-        """Get OpenAI embedding"""
-        response = client.embeddings.create(
-            model=settings.OPENAI_EMBEDDING_MODEL,
-            input=text
-        )
-        return response.data[0].embedding
-    
     def vector_search(
         self,
         query: str,
@@ -118,7 +38,7 @@ class RAGRetriever:
         """Vector similarity search"""
         from repositories.chunks import search_similar_chunks
         
-        query_embedding = self.get_embedding(query)
+        query_embedding = self.processor.get_embedding(query)
         results = search_similar_chunks(
             query_embedding=query_embedding,
             lesson_id=lesson_id,
@@ -245,9 +165,9 @@ class RAGRetriever:
         if not candidates or len(candidates) <= k:
             return candidates
         
-        query_embedding = np.array(self.get_embedding(query))
+        query_embedding = np.array(self.processor.get_embedding(query))
         candidate_embeddings = np.array([
-            self.get_embedding(chunk["text"]) for chunk in candidates
+            self.processor.get_embedding(chunk["text"]) for chunk in candidates
         ])
         
         selected_indices = []
@@ -303,10 +223,11 @@ class RAGRetriever:
         results = self.mmr_selection(query, candidates, k=k)
         
         # Apply semantic chunking to results if enabled
+        # Note: We re-chunk the retrieved chunks to find the exact best snippet
         if use_semantic_chunking:
             refined_results = []
             for r in results:
-                semantic_chunks = self.semantic_chunk(r["text"])
+                semantic_chunks = self.processor.semantic_chunk(r["text"])
                 
                 # Re-evaluate each semantic chunk against query
                 for chunk_text in semantic_chunks:
@@ -327,12 +248,13 @@ class RAGRetriever:
         
         for r in results:
             content = r["text"]
-            tokens = self.count_tokens(content)
+            tokens = self.processor.count_tokens(content)
             
             if total_tokens + tokens > settings.MAX_CONTEXT_TOKENS:
                 if total_tokens < settings.MAX_CONTEXT_TOKENS:
                     remaining = settings.MAX_CONTEXT_TOKENS - total_tokens
-                    content = self.encoding.decode(self.encoding.encode(content)[:remaining])
+                    # Crude truncation to fit
+                    content = content[:remaining * 4] 
                     total_tokens = settings.MAX_CONTEXT_TOKENS
                 else:
                     break
@@ -357,7 +279,6 @@ class RAGRetriever:
         
         return "\n\n".join(context_parts)
 
-
 # Global instance
 _retriever = None
 
@@ -367,7 +288,6 @@ def get_retriever() -> RAGRetriever:
     if _retriever is None:
         _retriever = RAGRetriever()
     return _retriever
-
 
 def get_context(
     query: str,

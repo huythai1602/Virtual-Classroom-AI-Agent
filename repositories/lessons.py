@@ -2,6 +2,8 @@
 Lessons repository - Consolidated from database/lessons_repository.py
 """
 from typing import Union
+from typing import Union
+import json
 from .db import get_connection
 
 
@@ -80,3 +82,47 @@ def get_all_lessons(subject: str = None, grade: int = None) -> list:
             }
             for row in rows
         ]
+
+
+def insert_lesson(lesson_data: dict):
+    """Insert or update lesson"""
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        query = """
+            INSERT INTO lessons (lesson_id, title, subject, grade, transcript, metadata, status)
+            VALUES (%s, %s, %s, %s, %s, %s, 'pending')
+            ON CONFLICT (lesson_id) DO UPDATE SET
+                title = EXCLUDED.title,
+                subject = EXCLUDED.subject,
+                grade = EXCLUDED.grade,
+                transcript = EXCLUDED.transcript,
+                metadata = EXCLUDED.metadata,
+                status = 'pending';
+        """
+        # Ensure metadata is JSON string if it's a dict
+        meta = lesson_data.get("metadata", {})
+        if isinstance(meta, dict):
+            meta = json.dumps(meta)
+
+        cursor.execute(query, (
+            lesson_data["lesson_id"],
+            lesson_data.get("title"),
+            lesson_data.get("subject"),
+            lesson_data.get("grade"),
+            lesson_data.get("transcript"),
+            meta
+        ))
+        cursor.close()
+
+
+def update_lesson_status(lesson_id: str, status: str, total_chunks: int = 0):
+    """Update lesson status"""
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        query = """
+            UPDATE lessons 
+            SET status = %s, total_chunks = %s
+            WHERE lesson_id = %s;
+        """
+        cursor.execute(query, (status, total_chunks, lesson_id))
+        cursor.close()

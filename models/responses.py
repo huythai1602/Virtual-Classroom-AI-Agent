@@ -17,6 +17,16 @@ class StandardResponse(BaseModel, Generic[T]):
         populate_by_name = True
 
 
+class ChatData(BaseModel):
+    """Chat response data structure"""
+    response: str = Field(..., description="The AI's full response")
+    intent: str = Field("normal", description="Detected intent (normal/deep)")
+    threadId: str = Field(..., description="Session Thread ID", alias="threadId")
+    
+    class Config:
+        populate_by_name = True
+
+
 class MindmapData(BaseModel):
     """Mindmap data structure"""
     mindmap: Dict[str, Any] = Field(..., description="React Flow compatible mindmap JSON")
