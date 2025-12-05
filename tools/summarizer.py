@@ -6,8 +6,14 @@ from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from typing import List
 
-# Use GPT-3.5 for cost optimization
-llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
+# Lazy init
+_llm = None
+
+def get_llm():
+    global _llm
+    if _llm is None:
+        _llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
+    return _llm
 
 SUMMARIZE_PROMPT = """Tóm tắt cuộc hội thoại sau thành 2-3 câu ngắn gọn, giữ lại thông tin quan trọng:
 
@@ -44,6 +50,7 @@ def summarize_conversation(messages: List, keep_recent: int = 4) -> List:
     # Summarize
     try:
         prompt = SUMMARIZE_PROMPT.format(conversation=conversation_text)
+        llm = get_llm()
         summary = llm.invoke([HumanMessage(content=prompt)])
         
         summary_message = SystemMessage(

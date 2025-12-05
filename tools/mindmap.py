@@ -11,12 +11,18 @@ from config.prompts import SYSTEM_PROMPTS, format_prompt, DEFAULT_METADATA
 from services.rag import get_context
 from repositories.lessons import get_lesson
 
-# LLM with JSON mode
-llm = ChatOpenAI(
-    model="gpt-4o",
-    temperature=0,
-    model_kwargs={"response_format": {"type": "json_object"}}
-)
+# Lazy init
+_llm = None
+
+def get_llm():
+    global _llm
+    if _llm is None:
+        _llm = ChatOpenAI(
+            model="gpt-4o",
+            temperature=0,
+            model_kwargs={"response_format": {"type": "json_object"}}
+        )
+    return _llm
 
 
 def generate_mindmap_json(topic: str, lesson_id: Union[str, int] = None) -> dict:
@@ -52,6 +58,7 @@ def generate_mindmap_json(topic: str, lesson_id: Union[str, int] = None) -> dict
     )
     
     # Generate
+    llm = get_llm()
     response = llm.invoke([HumanMessage(content=prompt)])
     
     # Parse JSON

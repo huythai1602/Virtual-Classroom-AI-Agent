@@ -9,8 +9,15 @@ from config.prompts import SYSTEM_PROMPTS, format_prompt, DEFAULT_METADATA
 from services.rag import get_context
 from repositories.lessons import get_lesson
 
-# Use GPT-3.5 for cost optimization
-llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
+# Lazy init
+_llm = None
+
+def get_llm():
+    global _llm
+    if _llm is None:
+        _llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
+    return _llm
+
 
 
 def analyze_session(
@@ -53,6 +60,7 @@ def analyze_session(
     )
     
     # Generate analysis
+    llm = get_llm()
     response = llm.invoke([HumanMessage(content=prompt)])
     analysis = response.content
     
