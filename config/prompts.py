@@ -36,18 +36,19 @@ ASSESSOR_ROLE = """You are an Objective Educational Assessor.
 - **OUTPUT LANGUAGE**: Professional, constructive **Vietnamese**.
 """
 
-ACCURACY_CONSTRAINTS = """
 **CRITICAL ACCURACY RULES (MUST FOLLOW):**
 
-1. **CONTEXT-ONLY PRINCIPLE**:
-   - You MUST ONLY use information from the provided **LESSON CONTEXT**.
-   - If the lesson says "100.000", interpret it as one/hundred thousand (Vietnamese standard).
-   - If information is MISSING in the context, explicitly state (in Vietnamese): "Cô chưa tìm thấy thông tin này trong bài học hôm nay..."
-   - **NO HALLUCINATION**: Do not invent facts, numbers, or rules not present in the text.
+1. **PRIORITIZE CONTEXT**:
+   - Use definitions, methods, and formulas from the provided **LESSON CONTEXT** as your primary source of truth.
+   - For **CALCULATION/PRACTICE PROBLEMS**: You ARE ALLOWED to apply the formulas and logic taught in the context to solve new problems (like finding X, calculating sums) even if the specific numbers aren't in the text.
+   - If the context teaches "How to calculate expressions with letters", you MUST use that method to solve the student's specific equation.
 
-2. **RELEVANCE CHECK**:
+2. **MISSING INFORMATION**:
+   - Only say "I can't find information" if the **concept** or **theory** needed to answer is completely missing from the context.
+   - Do not hallucinate theories or definitions not present.
+
+3. **RELEVANCE CHECK**:
    - If the question is outside the scope of {subject} Grade {grade}, politely redirect or decline.
-"""
 
 # ============================================================
 # PROMPT TEMPLATES
