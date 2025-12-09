@@ -50,6 +50,33 @@ def get_connection():
     
     try:
         conn = pool.getconn()
+        
+        # Liveness check
+        try:
+            with conn.cursor() as cur:
+                cur.execute("SELECT 1")
+        except (psycopg2.OperationalError, psycopg2.InterfaceError):
+            # Connection is dead, remove it and create a new one
+            print("⚠️ Connection dead, resetting...")
+            # Ideally we'd remove it from pool, but SimpleConnectionPool is limited.
+            # We can try to close it and let the pool eventually realize or just replace it?
+            # SimpleConnectionPool doesn't natively support "replace this specific connection".
+            # Hack: Put it back closed/bad, then get a new one?
+            # Better: The pool creates connections on demand up to maxconn. 
+            # If we don't put it back, the pool eventually runs out?
+            # Actually psycopg2 pool putconn has 'close' param:
+            # "If close is True, the connection is closed and discarded from the pool." 
+            # (Wait, actually putconn(conn, key=None, close=False))
+            # If close=True, the connection is closed *by the pool*? 
+            # Checking source: putconn just adds it back to list. If close=True, it calls conn.close().
+            # So we should put it back with close=True, effectively shrinking the pool size? 
+            # Then getconn will create a NEW one if pool is below min?
+            # SimpleConnectionPool behavior: 
+            # If we discard one, the pool count decreases. Next getconn should create one if needed or get another available.
+            
+            pool.putconn(conn, close=True) # Discard dead connection
+            conn = pool.getconn() # Get a fresh one
+            
         yield conn
         conn.commit()
     except Exception as e:
@@ -62,7 +89,11 @@ def get_connection():
     finally:
         if conn:
             try:
-                pool.putconn(conn)
+                # Only put back if it's still usable (open)
+                # If we detected it was closed/dead in the block, we might want to discard it?
+                # But for simplicity, put it back. If it broke during use, next check will kill it.
+                is_closed = conn.closed
+                pool.putconn(conn, close=bool(is_closed)) 
             except Exception:
                 pass
 
