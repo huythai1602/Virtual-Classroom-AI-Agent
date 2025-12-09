@@ -203,50 +203,50 @@ class RAGRetriever:
         lesson_id: Optional[Union[str, int]] = None,
         k: Optional[int] = None,
         intent: str = "normal",
-        use_semantic_chunking: bool = True
+        use_semantic_chunking: bool = False # Deprecated, kept for signature comp
     ) -> str:
         """
-        Complete retrieval pipeline with semantic chunking
-        Returns formatted context string
+        Complete retrieval pipeline with Parent-Document Retrieval (Small-to-Big)
+        1. Search for small child chunks (high precision)
+        2. Map to large parent chunks (high context)
+        3. Rerank parent chunks
+        4. Return top context
         """
         # Adaptive k
         if k is None:
             k = self.adaptive_k(query, intent)
         
-        # Hybrid search
-        candidates = self.hybrid_search(query, lesson_id, k=k*4)
+        # 1. Hybrid search (Child Chunks)
+        # Fetch more candidates because we will dedup by parent
+        candidates = self.hybrid_search(query, lesson_id, k=k*5)
         
-        # Rerank
-        candidates = self.rerank(query, candidates, k=k*2)
+        # 2. Map to Parent Chunks & Dedup
+        parent_map = {} # parent_content -> {chunk info}
+        unique_parents = []
         
-        # MMR for diversity
-        results = self.mmr_selection(query, candidates, k=k)
-        
-        # Apply semantic chunking to results if enabled
-        # Note: We re-chunk the retrieved chunks to find the exact best snippet
-        if use_semantic_chunking:
-            refined_results = []
-            for r in results:
-                semantic_chunks = self.processor.semantic_chunk(r["text"])
-                
-                # Re-evaluate each semantic chunk against query
-                for chunk_text in semantic_chunks:
-                    refined_results.append({
-                        **r,
-                        "text": chunk_text,
-                        "original_text": r["text"],
-                        "is_semantic_chunk": True
-                    })
+        for r in candidates:
+            # Fallback to text if parent_content is missing (legacy chunks)
+            parent_text = r.get("parent_content") or r["text"]
             
-            # Re-rank semantic chunks
-            if refined_results:
-                results = self.rerank(query, refined_results, k=k*2)[:k]
+            if parent_text not in parent_map:
+                parent_map[parent_text] = True
+                # Create a parent object for reranking
+                unique_parents.append({
+                    "text": parent_text, # Rerank the PARENT text
+                    "source": f"Bài {r['lesson_id']}",
+                    "id": r.get("chunk_id"), # Just for reference
+                    "child_score": r.get("hybrid_score", 0)
+                })
         
-        # Format with token budget
+        # 3. Rerank Parent Chunks
+        # We rerank the PARENT content to ensure it answers the query
+        reranked_parents = self.rerank(query, unique_parents, k=k)
+        
+        # 4. Format with token budget
         formatted_chunks = []
         total_tokens = 0
         
-        for r in results:
+        for r in reranked_parents:
             content = r["text"]
             tokens = self.processor.count_tokens(content)
             
@@ -263,7 +263,7 @@ class RAGRetriever:
             
             formatted_chunks.append({
                 "content": content,
-                "source": f"Bài {r['lesson_id']} (chunk {r['chunk_index']})"
+                "source": r["source"]
             })
             
             if total_tokens >= settings.MAX_CONTEXT_TOKENS:

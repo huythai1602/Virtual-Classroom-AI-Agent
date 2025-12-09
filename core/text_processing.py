@@ -200,5 +200,36 @@ class TextProcessor:
             sentences = re.split(r'(?<=[.!?])\s+(?=[A-ZĐ0-9])', text)
             return [s.strip() for s in sentences if s.strip()]
         except:
-             # Fallback
-             return re.split(r'(?<=[.!?])\s+', text)
+            # Fallback
+            return re.split(r'(?<=[.!?])\s+', text)
+
+    @classmethod
+    def split_by_tokens(cls, text: str, chunk_size: int = 512, overlap: int = 64) -> List[str]:
+        """
+        Split text into strictly sized chunks with overlap (for child chunks).
+        Uses token count for accuracy.
+        """
+        if not text:
+            return []
+            
+        encoding = get_encoding()
+        tokens = encoding.encode(text)
+        
+        if len(tokens) <= chunk_size:
+            return [text]
+            
+        chunks = []
+        start = 0
+        
+        while start < len(tokens):
+            end = min(start + chunk_size, len(tokens))
+            chunk_tokens = tokens[start:end]
+            chunk_text = encoding.decode(chunk_tokens)
+            chunks.append(chunk_text)
+            
+            if end == len(tokens):
+                break
+                
+            start += (chunk_size - overlap)
+            
+        return chunks

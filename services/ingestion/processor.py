@@ -161,72 +161,64 @@ class IngestionService:
         insert_lesson(lesson_data)
         metrics["timings"]["db_insert_lesson_ms"] = (time.time() - insert_start) * 1000
         
-        # 4. Semantic Chunking
-        print(f"   🧠 Semantic chunking...")
+        # 4. Semantic Chunking (PARENT CHUNKS)
+        print(f"   🧠 Semantic chunking (creating Parent Chunks)...")
         chunk_start = time.time()
-        chunks = self.processor.semantic_chunk(content)
+        # Semantic chunking now creates PARENT chunks (large context contexts)
+        parent_chunks = self.processor.semantic_chunk(content, max_chunk_size=2000, min_chunk_size=200) 
         metrics["timings"]["chunking_ms"] = (time.time() - chunk_start) * 1000
-        metrics["stats"]["chunk_count"] = len(chunks)
-        metrics["stats"]["avg_chunk_size_chars"] = sum(len(c) for c in chunks) / len(chunks) if chunks else 0
+        metrics["stats"]["parent_chunk_count"] = len(parent_chunks)
         
-        print(f"   Created {len(chunks)} chunks")
+        print(f"   Created {len(parent_chunks)} parent chunks. Generating child chunks...")
         
-        # 5. Embedding & Preparation
+        # 5. Child Chunk Generation & Embedding
         embed_start = time.time()
         chunks_data = []
         chunks_metadata_list = []
         
-        current_ts_estimate = 0 # Placeholder for timestamp estimation if needed
+        total_child_chunks = 0
         
-        for i, chunk_text in enumerate(chunks):
-            embedding = self.processor.get_embedding(chunk_text)
+        for p_idx, parent_text in enumerate(parent_chunks):
+            # Create Child Chunks (fixed size for precision search)
+            child_texts = self.processor.split_by_tokens(parent_text, chunk_size=512, overlap=100)
             
-            # Create deterministic or random ID
-            chunk_id = f"{lesson_id}_chunk_{i:04d}"
-            
-            # Chunk Metadata Record
-            chunk_meta = {
-                "chunk_id": chunk_id,
-                "lesson_id": lesson_id,
-                "chunk_index": i,
-                "start_ts": None, # Not available in plain txt
-                "end_ts": None,
-                "speaker": "Unknown", # Default
-                "raw_text": chunk_text, # Assuming raw = canonical for now
-                "canonical_text": chunk_text,
-                "summary": None, # Would need another LLM call
-                "key_concepts": [], # Would need another LLM call
-                "qa_pairs": [],
-                "tokens_count": self.processor.count_tokens(chunk_text),
-                "chars_count": len(chunk_text),
-                "embedding_exists": True,
-                "embedding_id": f"vec_{chunk_id}",
-                "confidence_score": 1.0, # Human provided text assumed high confidence
-                "source_reference": f"{filename} chunk {i}",
-                "created_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
-                "created_by": "ingestion_pipeline_v1"
-            }
-            
-            chunks_data.append({
-                "chunk_index": i,
-                "text": chunk_text,
-                "embedding": embedding,
-                # Store some core metadata in the JSON blob in DB if schema supports it, 
-                # but currently 'insert_chunks_batch' might only take text/embedding.
-                # If DB schema has a metadata column for chunks, we should use it.
-                # Assuming standard schema might not support all these fields directly in columns,
-                # but we are saving the full rich metadata to JSON file as primary evidence.
-            })
-            
-            chunks_metadata_list.append(chunk_meta)
+            for c_idx, child_text in enumerate(child_texts):
+                embedding = self.processor.get_embedding(child_text)
+                
+                # Logic ID
+                chunk_id = f"{lesson_id}_p{p_idx}_c{c_idx}"
+                
+                # Chunk Metadata Record
+                chunk_meta = {
+                    "chunk_id": chunk_id,
+                    "lesson_id": lesson_id,
+                    "parent_index": p_idx,
+                    "child_index": c_idx,
+                    "text": child_text,
+                    # We don't save full parent text in JSON metadata to save space if needed, 
+                    # but we DO save it in DB.
+                    "tokens_count": self.processor.count_tokens(child_text),
+                    "created_at": time.strftime("%Y-%m-%dT%H:%M:%S")
+                }
+                
+                chunks_data.append({
+                    "chunk_index": total_child_chunks, # Global index for the lesson
+                    "text": child_text,
+                    "embedding": embedding,
+                    "parent_content": parent_text 
+                })
+                
+                chunks_metadata_list.append(chunk_meta)
+                total_child_chunks += 1
             
         metrics["chunks_metadata"] = chunks_metadata_list
         metrics["timings"]["embedding_ms"] = (time.time() - embed_start) * 1000
-            
+        metrics["stats"]["total_child_chunks"] = total_child_chunks
+
         # 6. Insert Chunks
         chunk_insert_start = time.time()
         insert_chunks_batch(lesson_id, chunks_data)
-        update_lesson_status(lesson_id, "indexed", len(chunks))
+        update_lesson_status(lesson_id, "indexed", total_child_chunks)
         metrics["timings"]["db_insert_chunks_ms"] = (time.time() - chunk_insert_start) * 1000
         
         metrics["timings"]["total_process_ms"] = (time.time() - start_time) * 1000

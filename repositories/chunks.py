@@ -22,7 +22,7 @@ def search_similar_chunks(query_embedding: list, lesson_id: Union[str, int] = No
                 numeric_id = int(lesson_id)
                 query = """
                     SELECT 
-                        c.id, c.lesson_id, c.chunk_index, c.text,
+                        c.id, c.lesson_id, c.chunk_index, c.text, c.parent_content,
                         1 - (c.embedding <=> %s::vector) AS similarity
                     FROM chunks c
                     JOIN lessons l ON c.lesson_id = l.lesson_id
@@ -34,7 +34,7 @@ def search_similar_chunks(query_embedding: list, lesson_id: Union[str, int] = No
             except ValueError:
                 query = """
                     SELECT 
-                        id, lesson_id, chunk_index, text,
+                        id, lesson_id, chunk_index, text, parent_content,
                         1 - (embedding <=> %s::vector) AS similarity
                     FROM chunks
                     WHERE lesson_id = %s
@@ -45,7 +45,7 @@ def search_similar_chunks(query_embedding: list, lesson_id: Union[str, int] = No
         else:
             query = """
                 SELECT 
-                    id, lesson_id, chunk_index, text,
+                    id, lesson_id, chunk_index, text, parent_content,
                     1 - (embedding <=> %s::vector) AS similarity
                 FROM chunks
                 ORDER BY embedding <=> %s::vector
@@ -62,7 +62,8 @@ def search_similar_chunks(query_embedding: list, lesson_id: Union[str, int] = No
                 "lesson_id": row[1],
                 "chunk_index": row[2],
                 "text": row[3],
-                "similarity": float(row[4])
+                "parent_content": row[4] if len(row) > 4 else None,
+                "similarity": float(row[5])
             }
             for row in rows
         ]
@@ -157,8 +158,8 @@ def insert_chunks_batch(lesson_id: str, chunks_data: list):
         # Let's try to just use the string lesson_id.
         
         query = """
-            INSERT INTO chunks (lesson_id, chunk_index, text, embedding)
-            VALUES (%s, %s, %s, %s)
+            INSERT INTO chunks (lesson_id, chunk_index, text, embedding, parent_content)
+            VALUES (%s, %s, %s, %s, %s)
         """
         # BUT: previous usage in migrate script: "insert_chunks_batch(lesson_id, chunks_data)"
         # where lesson_id is string.
@@ -172,7 +173,7 @@ def insert_chunks_batch(lesson_id: str, chunks_data: list):
         cursor.execute("DELETE FROM chunks WHERE lesson_id = %s", (lesson_id,))
         
         values = [
-            (lesson_id, c["chunk_index"], c["text"], c["embedding"]) 
+            (lesson_id, c["chunk_index"], c["text"], c["embedding"], c.get("parent_content", None)) 
             for c in chunks_data
         ]
         
