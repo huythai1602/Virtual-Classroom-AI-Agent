@@ -37,7 +37,7 @@ class Settings(BaseSettings):
     MAX_CONTEXT_TOKENS: int = 2700
     DEFAULT_TOP_K: int = 3
     HYBRID_ALPHA: float = 0.7  # 70% vector, 30% BM25
-    RERANK_MODEL: str = "cross-encoder/ms-marco-MiniLM-L-6-v2"
+    RERANK_MODEL: str = "cross-encoder/ms-marco-MiniLM-L-2-v2"
     SEMANTIC_THRESHOLD: float = 0.85
     CHUNK_SIZE: int = 800
     CHUNK_OVERLAP: int = 150

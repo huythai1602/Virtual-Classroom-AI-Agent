@@ -13,6 +13,9 @@ WORKDIR /app
 # Copy requirements trước để tận dụng Docker layer caching
 COPY requirements.txt /app/
 
+# Install CPU-only torch first to save space/time (prevents downloading huge GPU version)
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
+
 # Cài đặt dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 

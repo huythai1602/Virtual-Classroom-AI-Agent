@@ -87,3 +87,15 @@ temp/
 # Coverage
 .coverage
 htmlcov/
+
+# Backup files
+*.backup
+*.bak
+
+# Tools & Debug
+*.postman_collection.json
+debug_profile.py
+
+# Large Data (keep metadata, exclude raw transcripts if not needed, but keeping for now as they are small)
+# Exclude test data
+data/test_transcripts/

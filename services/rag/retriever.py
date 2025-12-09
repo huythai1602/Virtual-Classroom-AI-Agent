@@ -142,17 +142,46 @@ class RAGRetriever:
         candidates: List[Dict],
         k: int = 5
     ) -> List[Dict]:
-        """Cross-encoder reranking"""
+        """Cross-encoder reranking with memory optimization"""
         if not candidates:
             return []
+            
+        import gc
+        import torch
         
+        # Prepare pairs
         pairs = [[query, chunk["text"]] for chunk in candidates]
-        rerank_scores = self.reranker.predict(pairs)
         
-        for chunk, score in zip(candidates, rerank_scores):
-            chunk["rerank_score"] = float(score)
-        
-        return sorted(candidates, key=lambda x: x["rerank_score"], reverse=True)[:k]
+        try:
+            # Predict with low memory overhead
+            rerank_scores = self.reranker.predict(
+                pairs,
+                batch_size=8,               # Small batch size for free tier
+                convert_to_tensor=False,    # Return numpy array, saves torch overhead
+                show_progress_bar=False,
+                apply_softmax=False
+            )
+            
+            for chunk, score in zip(candidates, rerank_scores):
+                chunk["rerank_score"] = float(score)
+                
+            # Sort and slice
+            results = sorted(candidates, key=lambda x: x["rerank_score"], reverse=True)[:k]
+            
+            return results
+            
+        except Exception as e:
+            print(f"⚠️ Rerank failed (likely OOM), falling back to original order: {e}")
+            return candidates[:k]
+            
+        finally:
+            # Aggressive cleanup
+            del pairs
+            if 'rerank_scores' in locals():
+                del rerank_scores
+            gc.collect()
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
     
     def mmr_selection(
         self,
