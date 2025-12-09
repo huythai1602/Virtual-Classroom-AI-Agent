@@ -30,7 +30,8 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD", "")
     
     # JWT Authentication
-    JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY", "your-secret-key-change-in-production")
+    # Support both JWT_SECRET (common) and JWT_SECRET_KEY
+    JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY") or os.getenv("JWT_SECRET") or "your-secret-key-change-in-production"
     JWT_ALGORITHM: str = "HS256"
     
     # RAG Configuration
