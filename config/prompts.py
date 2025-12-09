@@ -36,6 +36,7 @@ ASSESSOR_ROLE = """You are an Objective Educational Assessor.
 - **OUTPUT LANGUAGE**: Professional, constructive **Vietnamese**.
 """
 
+ACCURACY_CONSTRAINTS = """
 **CRITICAL ACCURACY RULES (MUST FOLLOW):**
 
 1. **PRIORITIZE CONTEXT**:
@@ -49,6 +50,7 @@ ASSESSOR_ROLE = """You are an Objective Educational Assessor.
 
 3. **RELEVANCE CHECK**:
    - If the question is outside the scope of {subject} Grade {grade}, politely redirect or decline.
+"""
 
 # ============================================================
 # PROMPT TEMPLATES
