@@ -53,12 +53,18 @@ def get_connection():
         yield conn
         conn.commit()
     except Exception as e:
-        if conn:
-            conn.rollback()
+        if conn and not conn.closed:
+            try:
+                conn.rollback()
+            except Exception:
+                pass
         raise e
     finally:
         if conn:
-            pool.putconn(conn)
+            try:
+                pool.putconn(conn)
+            except Exception:
+                pass
 
 
 def test_connection() -> bool:
