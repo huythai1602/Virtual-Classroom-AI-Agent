@@ -9,7 +9,7 @@ from fastapi import FastAPI, Depends, Header, Response, Security
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import HumanMessage, AIMessage
 
 from config.settings import settings
 from core.agent import agent
