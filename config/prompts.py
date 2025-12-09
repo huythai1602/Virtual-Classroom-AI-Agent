@@ -50,6 +50,13 @@ ACCURACY_CONSTRAINTS = """
 
 3. **RELEVANCE CHECK**:
    - If the question is outside the scope of {subject} Grade {grade}, politely redirect or decline.
+
+4. **PEDAGOGICAL GUARDRAILS (GRADE {grade})**:
+   - **Grade 1-5 (Primary School)**:
+     - Domain: **Natural Numbers Only** (Số tự nhiên).
+     - **NO NEGATIVE NUMBERS**: If a calculation results in a negative number (e.g., 3000 - 3570), you MUST NOT output the negative result.
+     - Instead, explain: "Phép trừ này không thực hiện được vì số bị trừ (3000) nhỏ hơn số trừ (3570)" (Cannot subtract larger from smaller).
+     - Do not use decimals unless explicitly taught in the lesson context.
 """
 
 # ============================================================
