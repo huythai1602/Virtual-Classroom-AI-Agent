@@ -1,0 +1,48 @@
+{
+  "lesson_id": "test_lesson_metadata",
+  "filename": "test_lesson_metadata.txt",
+  "file_size_bytes": 118,
+  "file_checksum": "f7813136f9b98956031a6784e84a8a87f9338568c95d007222b397c60c45e5f7",
+  "version": "1.0",
+  "source_type": "transcript",
+  "timestamp": "2025-12-06T13:15:43",
+  "provenance": {
+    "asr_engine": "unknown",
+    "human_reviewed": false
+  },
+  "timings": {
+    "read_file_ms": 0.0,
+    "db_insert_lesson_ms": 1101.1664867401123,
+    "chunking_ms": 8822.302341461182,
+    "embedding_ms": 371.9515800476074,
+    "db_insert_chunks_ms": 905.9531688690186,
+    "total_process_ms": 11215.404033660889
+  },
+  "stats": {
+    "chunk_count": 1,
+    "avg_chunk_size_chars": 89.0
+  },
+  "chunks_metadata": [
+    {
+      "chunk_id": "test_lesson_metadata_chunk_0000",
+      "lesson_id": "test_lesson_metadata",
+      "chunk_index": 0,
+      "start_ts": null,
+      "end_ts": null,
+      "speaker": "Unknown",
+      "raw_text": "Toán lớp 5 Bài 1. Đây là nội dung bài học thử nghiệm. Chúng ta sẽ học về các số tự nhiên.",
+      "canonical_text": "Toán lớp 5 Bài 1. Đây là nội dung bài học thử nghiệm. Chúng ta sẽ học về các số tự nhiên.",
+      "summary": null,
+      "key_concepts": [],
+      "qa_pairs": [],
+      "tokens_count": 30,
+      "chars_count": 89,
+      "embedding_exists": true,
+      "embedding_id": "vec_test_lesson_metadata_chunk_0000",
+      "confidence_score": 1.0,
+      "source_reference": "test_lesson_metadata.txt chunk 0",
+      "created_at": "2025-12-06T13:15:53",
+      "created_by": "ingestion_pipeline_v1"
+    }
+  ]
+}

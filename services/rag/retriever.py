@@ -61,11 +61,11 @@ class RAGRetriever:
         
         # Build BM25 index
         corpus = [chunk["text"] for chunk in chunks]
-        tokenized_corpus = [doc.split() for doc in corpus]
+        tokenized_corpus = [self.processor.tokenize(doc) for doc in corpus]
         bm25 = BM25Okapi(tokenized_corpus)
         
         # Search
-        tokenized_query = query.split()
+        tokenized_query = self.processor.tokenize(query)
         scores = bm25.get_scores(tokenized_query)
         
         # Top-k

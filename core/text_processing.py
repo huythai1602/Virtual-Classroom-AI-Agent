@@ -8,6 +8,11 @@ import tiktoken
 from typing import List, Union, Optional
 from openai import OpenAI
 from rank_bm25 import BM25Okapi
+try:
+    from pyvi import ViTokenizer
+except ImportError:
+    ViTokenizer = None
+
 from config.settings import settings
 
 # Lazy initialization
@@ -47,6 +52,15 @@ class TextProcessor:
             return len(encoding.encode(text))
         except:
             return len(text) // 4
+            
+    @staticmethod
+    def tokenize(text: str) -> List[str]:
+        """Tokenize text for BM25 (words/syllables)"""
+        if ViTokenizer:
+            # PyVi returns string with underscores for compounds, we split by space
+            return ViTokenizer.tokenize(text).split()
+        return text.lower().split()
+
 
     @staticmethod
     def get_embedding(text: str, model: str = settings.OPENAI_EMBEDDING_MODEL) -> List[float]:
@@ -66,38 +80,21 @@ class TextProcessor:
             return [0.0] * 1536
 
     @classmethod
-    def semantic_chunk(cls, text: str, max_chunk_size: int = 500, threshold: float = None) -> List[str]:
+    def semantic_chunk(cls, text: str, max_chunk_size: int = 300, min_chunk_size: int = 50, threshold: float = None) -> List[str]:
         """
         Split text into semantically coherent chunks using embedding similarity.
         
         Args:
             text: Input text
-            max_chunk_size: Max words approx per chunk
+            max_chunk_size: Max tokens approx per chunk (target 250-400)
+            min_chunk_size: Min tokens to avoid tiny chunks
             threshold: Similarity threshold to split (defaults to settings.SEMANTIC_THRESHOLD)
         """
         if threshold is None:
             threshold = settings.SEMANTIC_THRESHOLD
 
-        if threshold is None:
-            threshold = settings.SEMANTIC_THRESHOLD
-
         # Normalize and split into sentences
         sentences = cls.split_sentences_vn(text)
-        if len(sentences) <= 1:
-            return [text]
-        
-        # Get embeddings for each sentence to calculate similarity
-        embeddings = []
-        valid_sentences = []
-        for sent in sentences:
-            if sent.strip():
-                valid_sentences.append(sent)
-                embeddings.append(cls.get_embedding(sent))
-        
-        sentences = valid_sentences
-        if len(embeddings) <= 1:
-            return [text]
-        
         if len(sentences) <= 1:
             return [text]
         
@@ -124,15 +121,27 @@ class TextProcessor:
         
         # Find split points
         split_indices = [0]
-        current_chunk_size = 0
+        current_chunk_tokens = 0
         
         for i, sim in enumerate(similarities):
-            current_chunk_size += len(sentences[i].split())
+            # Estimate tokens roughly or use count_tokens (slower but accurate)
+            # For speed in loop, we can estimate: words * 1.3 or just use count_tokens if cached/fast.
+            # Let's use count_tokens for accuracy as requested.
+            sent_tokens = cls.count_tokens(sentences[i])
+            current_chunk_tokens += sent_tokens
             
-            # Split if similarity is low OR chunk is getting too big
-            if sim < threshold or current_chunk_size >= max_chunk_size:
+            # Logic:
+            # 1. Force split if chunk gets too big (> max)
+            # 2. Split if similarity is low AND we have enough content (> min)
+            # 3. Otherwise keep accumulating
+            
+            is_max_reached = current_chunk_tokens >= max_chunk_size
+            is_sim_low = sim < threshold
+            is_min_satisfied = current_chunk_tokens >= min_chunk_size
+
+            if is_max_reached or (is_sim_low and is_min_satisfied):
                 split_indices.append(i + 1)
-                current_chunk_size = 0
+                current_chunk_tokens = 0
         
         split_indices.append(len(sentences))
         
@@ -142,6 +151,11 @@ class TextProcessor:
             start = split_indices[i]
             end = split_indices[i + 1]
             chunk_text = ' '.join(sentences[start:end])
+            
+            # Post-processing: Check if chunk is too small and merge with previous if possible
+            # (Simple heuristic: if chunk < min_size/2, maybe it's orphan. 
+            # But let's stick to the generated splits for now to preserve semantic breaks)
+            
             if chunk_text.strip():
                 chunks.append(chunk_text.strip())
         
