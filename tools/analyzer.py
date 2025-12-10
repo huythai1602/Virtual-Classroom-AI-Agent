@@ -62,13 +62,21 @@ def analyze_session(
     
     # Simple level assessment based on message count
     messages_count = conversation_history.count("\n") // 2
+    
+    # If the history is empty/short but analyzer is called, we assume 90% video completion (Passive Learner)
+    # The Prompt will handle the textual feedback, but we need to force the "Level" tag.
     if messages_count >= 10:
         level = "Tốt"
         level_reason = "Học sinh tương tác tích cực với nhiều câu hỏi"
     elif messages_count >= 5:
         level = "Trung bình"
         level_reason = "Học sinh có tham gia nhưng chưa nhiều"
-    else:
+    elif messages_count < 5:
+        # Changed logic for Passive Learners
+        level = "Cơ bản" # "Basic" instead of "Needs Improvement"
+        level_reason = "Học sinh tập trung xem video (Passive Learner), đã nắm kiến thức nền"
+    else: 
+        # Fallback (unlikely to reach here given logic above covers all ints)
         level = "Cần cải thiện"
         level_reason = "Học sinh chưa tương tác đủ để đánh giá"
     
