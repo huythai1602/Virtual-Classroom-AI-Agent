@@ -14,7 +14,7 @@ WORKDIR /app
 COPY requirements.txt /app/
 
 # Install CPU-only torch first to save space/time (prevents downloading huge GPU version)
-RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu --extra-index-url https://pypi.org/simple
 
 # Cài đặt dependencies
 RUN pip install --no-cache-dir -r requirements.txt
