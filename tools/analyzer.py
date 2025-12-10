@@ -22,16 +22,14 @@ def get_llm():
 
 def analyze_session(
     conversation_history: str,
-    lesson_id: Union[str, int] = None,
-    topic: str = ""
+    lesson_id: Union[str, int]
 ) -> dict:
     """
     Analyze learning session
     
     Args:
         conversation_history: Full conversation text
-        lesson_id: Optional lesson ID
-        topic: Optional topic
+        lesson_id: Lesson ID
         
     Returns:
         dict with analysis and level assessment
@@ -43,9 +41,7 @@ def analyze_session(
         if lesson:
             metadata["subject"] = lesson.get("subject", "Toán")
             metadata["grade"] = lesson.get("grade", 4)
-            metadata["topic"] = lesson.get("title", topic or "Bài học")
-    elif topic:
-        metadata["topic"] = topic
+            metadata["topic"] = lesson.get("title", "Bài học")
     
     # Get transcript
     transcript = get_context(metadata["topic"], k=10, lesson_id=lesson_id)

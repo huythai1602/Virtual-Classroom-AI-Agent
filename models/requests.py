@@ -20,14 +20,12 @@ class ChatRequest(BaseModel):
 
 class MindmapRequest(BaseModel):
     """Mindmap generation request"""
-    topic: str = Field(..., description="Topic for mindmap", min_length=1)
-    lessonId: Optional[int] = Field(None, description="Lesson ID (integer)", alias="lessonId")
+    lessonId: int = Field(..., description="Lesson ID (integer)", alias="lessonId")
     
     class Config:
         populate_by_name = True
         json_schema_extra = {
             "example": {
-                "topic": "Phân số",
                 "lessonId": 2
             }
         }
@@ -35,14 +33,12 @@ class MindmapRequest(BaseModel):
 
 class AnalyzerRequest(BaseModel):
     """Session analysis request"""
-    topic: str = Field(..., description="Topic to analyze", min_length=1)
-    lessonId: Optional[int] = Field(None, description="Lesson ID (integer)", alias="lessonId")
+    lessonId: int = Field(..., description="Lesson ID (integer)", alias="lessonId")
     
     class Config:
         populate_by_name = True
         json_schema_extra = {
             "example": {
-                "topic": "Phân số",
                 "lessonId": 2
             }
         }

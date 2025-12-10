@@ -349,13 +349,14 @@ async def create_mindmap(
     """
     try:
         # Generate mindmap (lessonId supports both int and str)
-        mindmap_data = generate_mindmap_json(request.topic, request.lessonId)
+        # Topic is now auto-extracted inside the function based on lessonId
+        mindmap_data = generate_mindmap_json(request.lessonId)
         
         return StandardResponse(
             status="success",
             data=MindmapData(
                 mindmap=mindmap_data,
-                topic=request.topic
+                topic=mindmap_data.get("topic", "")
             ),
             message="Mindmap created successfully",
             createdAt=datetime.now(timezone.utc).isoformat()
@@ -439,8 +440,8 @@ async def analyzer(
                 createdAt=datetime.now(timezone.utc).isoformat()
             )
         
-        # Analyze session with topic (lessonId supports both int and str)
-        analysis_result = analyze_session(messages, request.lessonId, topic=request.topic)
+        # Analyze session (topic is auto-detected inside based on lessonId)
+        analysis_result = analyze_session(messages, request.lessonId)
         
         return StandardResponse(
             status="success",
