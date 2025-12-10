@@ -18,14 +18,20 @@ def init_connection_pool():
     
     if connection_pool is None:
         try:
-            connection_pool = psycopg2.pool.SimpleConnectionPool(
+            # Use ThreadedConnectionPool for better compatibility with FastAPI's potential threading
+            connection_pool = psycopg2.pool.ThreadedConnectionPool(
                 minconn=1,
                 maxconn=10,
                 host=settings.POSTGRES_HOST,
                 port=settings.POSTGRES_PORT,
                 database=settings.POSTGRES_DB,
                 user=settings.POSTGRES_USER,
-                password=settings.POSTGRES_PASSWORD
+                password=settings.POSTGRES_PASSWORD,
+                # Keepalives to prevent idle connection drops
+                keepalives=1,
+                keepalives_idle=30,
+                keepalives_interval=10,
+                keepalives_count=5
             )
             print("✅ PostgreSQL connection pool initialized")
         except Exception as e:
