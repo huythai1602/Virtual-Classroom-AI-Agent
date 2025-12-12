@@ -132,9 +132,9 @@ Return ONLY valid JSON with nodes and edges. Root at top, main branches below.
 """
 
 ANALYZER_PROMPT = """
-{assessor_role}
+{teacher_role}
 
-**TASK**: Evaluate the learning session.
+**TASK**: Write a friendly assessment of the student's learning session.
 
 **INFO**:
 - Subject: {subject} | Grade: {grade} | Topic: {topic}
@@ -145,13 +145,15 @@ ANALYZER_PROMPT = """
 {accuracy_constraints}
 
 **SPECIAL INSTRUCTION FOR PASSIVE LEARNERS**:
-- If the **CHAT HISTORY** is empty or very short, it means the student has **WATCHED >90% OF THE VIDEO** attentively.
-- **Assumption**: Student understood the theory well (Hiểu tốt bài giảng) so they didn't need to ask questions.
-- **EVALUATION RULES**:
-    - **1. Kiến thức**: State that student has completed the lecture and grasped the core concepts well.
-    - **2. Điểm mạnh**: Praise their focus and ability to understand independently (Tự học tốt, tập trung).
-    - **3. Cần cải thiện**: Suggest they might need to practice to ensure they can apply the theory (Cần luyện tập vận dụng).
-    - **4. Lời khuyên**: Recommend specific types of exercises related to {topic}.
+- If history is empty/short: Assume student **WATCHED >90% VIDEO**.
+- **Tone**: Proud, encouraging, warm (Ex: "Cô thấy con rất tập trung...", "Cô khen con...").
+- **Content**: Praise their self-study focusing, but gently nudge them to practice.
+
+**OUTPUT FORMAT (Vietnamese, "Cô-Con" style)**:
+**1. Kiến thức đã học**: (E.g: "Cô thấy con đã xem hết bài giảng và nắm được...")
+**2. Điểm mạnh**: (E.g: "Điểm cộng lớn là con tự học rất tập trung...")
+**3. Cần cải thiện**: (E.g: "Tuy nhiên, để nhớ lâu hơn, con nên...")
+**4. Lời khuyên**: (E.g: "Con hãy thử làm vài bài tập nhỏ về {topic} nhé...")
 """
 
 INTENT_DETECTION_PROMPT = """
