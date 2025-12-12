@@ -131,9 +131,10 @@ TOPIC: {topic}
 STRUCTURE RULES:
 1. **Root Node**: Topic Name.
 2. **Level 1 (Main Branches)**: Key Concepts / Sections from the lesson.
-3. **Level 2 (Details)**: Break down Level 1 concepts into specific rules, definition parts, or steps.
-    - Example: Logic for "5-digit numbers" -> Breakdown: "Ten Thousands", "Thousands", "Hundreds", "Tens", "Units".
-4. **Level 3 (Concrete Examples)**: Real numbers or specific examples from the lesson attached to Level 2.
+3. **Level 2 (Methodology/Steps)**: Explain **HOW** to apply the theory or perform the calculation.
+    - **MUST** be actionable steps.
+    - Example: Node "Addition" -> Child Node "Step 1: Align digits", Child Node "Step 2: Add from right to left", Child Node "Step 3: Remember carry-over".
+4. **Level 3 (Concrete Examples)**: Real numbers/cases demonstrating the method in Level 2.
     - Example: Node "Predecessor" -> Child Node "99999" is NOT enough. Must be "Predecessor of 100000 is 99999".
 
 REQUIREMENTS:

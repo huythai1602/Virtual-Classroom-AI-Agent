@@ -303,8 +303,8 @@ async def agent_chat(
 # MINDMAP ENDPOINT
 # ============================================================
 
-@app.post(
-    "/api/agent/mindmap",
+@app.get(
+    "/api/agent/mindmap/{lesson_id}",
     response_model=StandardResponse[MindmapData],
     summary="Generate Mindmap",
     description="Generate React Flow compatible mindmap JSON from topic",
@@ -333,7 +333,7 @@ async def agent_chat(
     }
 )
 async def create_mindmap(
-    request: MindmapRequest,
+    lesson_id: str,
     credentials: HTTPAuthorizationCredentials = Security(security),
     user_id: str = Depends(get_user_id)
 ):
@@ -341,19 +341,11 @@ async def create_mindmap(
     **Generate Mindmap** - Create React Flow compatible mindmap
     
     **Authentication:** Bearer token in Authorization header
-    
-    **Request Body:**
-    ```json
-    {
-        "topic": "Phân số",
-        "lessonId": 2
-    }
-    ```
+    **Path Param:** `lesson_id` (e.g. 2, "bai_2_phan_so")
     """
     try:
-        # Generate mindmap (lessonId supports both int and str)
-        # Topic is now auto-extracted inside the function based on lessonId
-        mindmap_data = generate_mindmap_json(request.lessonId)
+        # Generate mindmap
+        mindmap_data = generate_mindmap_json(lesson_id)
         
         return StandardResponse(
             status="success",
