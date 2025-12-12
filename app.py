@@ -436,13 +436,13 @@ async def analyzer(
         session = session_memory.get_session(thread_id, user_id=user_id)
         messages = session.get("messages", [])
         
-        if not messages:
-            return StandardResponse(
-                status="error",
-                data=None,
-                message="No conversation history found",
-                createdAt=datetime.now(timezone.utc).isoformat()
-            )
+        # if not messages:
+        #     return StandardResponse(
+        #         status="error",
+        #         data=None,
+        #         message="No conversation history found",
+        #         createdAt=datetime.now(timezone.utc).isoformat()
+        #     )
         
         # Analyze session (topic is auto-detected inside based on lessonId)
         analysis_result = analyze_session(messages, request.lessonId)

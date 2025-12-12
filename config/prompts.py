@@ -145,17 +145,13 @@ ANALYZER_PROMPT = """
 {accuracy_constraints}
 
 **SPECIAL INSTRUCTION FOR PASSIVE LEARNERS**:
-- If the **CHAT HISTORY** is empty or very short (just greetings), it means the student has **WATCHED >90% OF THE VIDEO** but did not ask questions.
-- In this case:
-    - **DO NOT** say "student didn't interact" or "needs improvement".
-    - **MUST** evaluate as: "Student has grasped the basic concepts from the video" (Đã nắm vững kiến thức cơ bản qua bài giảng).
-    - **Advice**: Suggest applying the theory to specific exercises.
-
-**OUTPUT FORMAT (Vietnamese, max 150 words)**:
-**1. Kiến thức đã học**: (What did the student ask/learn? OR "Student watched video passively")
-**2. Điểm mạnh**: (Specific praise. For passive learners: "Tập trung xem bài giảng")
-**3. Cần cải thiện**: (Constructive feedback. For passive learners: "Nên thực hành thêm để nhớ lâu")
-**4. Lời khuyên**: (Actionable next steps)
+- If the **CHAT HISTORY** is empty or very short, it means the student has **WATCHED >90% OF THE VIDEO** attentively.
+- **Assumption**: Student understood the theory well (Hiểu tốt bài giảng) so they didn't need to ask questions.
+- **EVALUATION RULES**:
+    - **1. Kiến thức**: State that student has completed the lecture and grasped the core concepts well.
+    - **2. Điểm mạnh**: Praise their focus and ability to understand independently (Tự học tốt, tập trung).
+    - **3. Cần cải thiện**: Suggest they might need to practice to ensure they can apply the theory (Cần luyện tập vận dụng).
+    - **4. Lời khuyên**: Recommend specific types of exercises related to {topic}.
 """
 
 INTENT_DETECTION_PROMPT = """
