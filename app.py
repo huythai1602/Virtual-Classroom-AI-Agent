@@ -226,7 +226,8 @@ async def agent_chat(
     """
     try:
         # Auto-generate thread_id from user_id
-        thread_id = f"user_{user_id}_session"
+        # Unique thread_id per user AND lesson
+        thread_id = f"user_{user_id}_lesson_{request.lessonId}"
         
         # Get or create session (with persistence)
         session = session_memory.get_session(thread_id, user_id=user_id)
@@ -428,7 +429,8 @@ async def analyzer(
     """
     try:
         # Auto-generate thread_id from user_id
-        thread_id = f"user_{user_id}_session"
+        # Unique thread_id per user AND lesson
+        thread_id = f"user_{user_id}_lesson_{request.lessonId}"
         
         # Get session
         session = session_memory.get_session(thread_id, user_id=user_id)
@@ -495,6 +497,7 @@ async def analyzer(
     }
 )
 async def get_session_info(
+    lesson_id: str = "general",
     credentials: HTTPAuthorizationCredentials = Security(security),
     user_id: str = Depends(get_user_id)
 ):
@@ -502,9 +505,10 @@ async def get_session_info(
     **Get Session Info** - Retrieve current session data
     
     **Authentication:** Bearer token in Authorization header
+    **Query Param:** `lesson_id` (default: "general")
     """
     try:
-        thread_id = f"user_{user_id}_session"
+        thread_id = f"user_{user_id}_lesson_{lesson_id}"
         session = session_memory.get_session(thread_id, user_id=user_id)
         messages = session.get("messages", [])
         
@@ -549,16 +553,18 @@ async def get_session_info(
     }
 )
 async def clear_session(
+    lesson_id: str = "general",
     credentials: HTTPAuthorizationCredentials = Security(security),
     user_id: str = Depends(get_user_id)
 ):
     """
-    **Clear Session** - Delete all conversation history
+    **Clear Session** - Delete all conversation history for a specific lesson
     
     **Authentication:** Bearer token in Authorization header
+    **Query Param:** `lesson_id` (default: "general")
     """
     try:
-        thread_id = f"user_{user_id}_session"
+        thread_id = f"user_{user_id}_lesson_{lesson_id}"
         session_memory.clear_session(thread_id)
         
         return StandardResponse(
