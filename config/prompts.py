@@ -121,14 +121,27 @@ Before generating the response, think about:
 """
 
 MINDMAP_PROMPT = """
-TASK: Generate React Flow mindmap JSON.
+TASK: Generate a DETAILED React Flow mindmap JSON.
 
 LESSON CONTEXT:
 {context}
 
 TOPIC: {topic}
 
-Return ONLY valid JSON with nodes and edges. Root at top, main branches below.
+STRUCTURE RULES:
+1. **Root Node**: Topic Name.
+2. **Level 1 (Main Branches)**: Key Concepts / Sections from the lesson.
+3. **Level 2 (Details)**: Break down Level 1 concepts into specific rules, definition parts, or steps.
+    - Example: Logic for "5-digit numbers" -> Breakdown: "Ten Thousands", "Thousands", "Hundreds", "Tens", "Units".
+4. **Level 3 (Concrete Examples)**: Real numbers or specific examples from the lesson attached to Level 2.
+    - Example: Node "Predecessor" -> Child Node "99999" is NOT enough. Must be "Predecessor of 100000 is 99999".
+
+REQUIREMENTS:
+- **Maximize Granularity**: Do not put long text in one node. Split it into multiple child nodes.
+- **Rich Content**: Ensure the mindmap fully covers the lesson theory.
+- **Visual Hierarchy**: Use depth to show relationships.
+
+Return ONLY valid JSON with nodes and edges.
 """
 
 ANALYZER_PROMPT = """
