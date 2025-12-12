@@ -138,6 +138,7 @@ STRUCTURE RULES:
     - Example: Node "Predecessor" -> Child Node "99999" is NOT enough. Must be "Predecessor of 100000 is 99999".
 
 REQUIREMENTS:
+- **LANGUAGE**: ALL CONTENT MUST BE IN **VIETNAMESE**.
 - **Maximize Granularity**: Do not put long text in one node. Split it into multiple child nodes.
 - **Rich Content**: Ensure the mindmap fully covers the lesson theory.
 - **Visual Hierarchy**: Use depth to show relationships.
