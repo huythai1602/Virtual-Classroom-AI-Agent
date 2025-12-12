@@ -304,7 +304,7 @@ async def agent_chat(
 # ============================================================
 
 @app.post(
-    "/api/lessons/mindmap",
+    "/api/agent/mindmap",
     response_model=StandardResponse[MindmapData],
     summary="Generate Mindmap",
     description="Generate React Flow compatible mindmap JSON from topic",
