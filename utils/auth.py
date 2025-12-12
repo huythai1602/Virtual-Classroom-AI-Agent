@@ -23,6 +23,9 @@ def verify_token(authorization: str) -> dict:
         )
         return payload
     except JWTError as e:
+        # Debug logging
+        print(f"❌ JWT Verification Failed: {str(e)}")
+        print(f"ℹ️  Current Secret Encoded: {settings.JWT_SECRET_KEY[:4]}... (First 4 chars)")
         raise HTTPException(status_code=401, detail=f"Invalid token: {str(e)}")
 
 

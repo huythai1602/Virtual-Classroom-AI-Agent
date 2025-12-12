@@ -51,7 +51,9 @@ app.add_middleware(
 # Logging middleware
 @app.middleware("http")
 async def log_requests(request, call_next):
-    print(f"[{request.method}] {request.url.path} | Origin: {request.headers.get('origin', 'N/A')}")
+    auth_header = request.headers.get('authorization')
+    auth_status = f"Auth: {'PRESENT (' + str(len(auth_header)) + ' chars)' if auth_header else 'MISSING'}"
+    print(f"[{request.method}] {request.url.path} | Origin: {request.headers.get('origin', 'N/A')} | {auth_status}")
     response = await call_next(request)
     return response
 
