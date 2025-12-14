@@ -21,6 +21,7 @@ class ChatData(BaseModel):
     """Chat response data structure"""
     reply: str = Field(..., description="The AI's full response")
     intent: str = Field("normal", description="Detected intent (normal/deep)")
+    createdAt: str = Field(..., description="Response timestamp", alias="createdAt")
     # threadId removed as per user request
     
     class Config:

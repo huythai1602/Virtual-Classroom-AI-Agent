@@ -282,7 +282,8 @@ async def agent_chat(
             status="success",
             data=ChatData(
                 reply=full_response,
-                intent=intent
+                intent=intent,
+                createdAt=datetime.now(timezone.utc).isoformat()
             ),
             message="Response generated successfully",
             createdAt=datetime.now(timezone.utc).isoformat()
