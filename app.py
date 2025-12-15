@@ -105,33 +105,8 @@ async def health_check():
     response_model=StandardResponse[LessonsData],
     summary="Get All Lessons",
     description="Retrieve all lessons with optional filters",
-    responses={
-        200: {
-            "description": "Successful response",
-            "content": {
-                "application/json": {
-                    "example": {
-                        "status": "success",
-                        "data": {
-                            "lessons": [
-                                {
-                                    "lessonId": "bai_2_phan_so",
-                                    "title": "Phân số",
-                                    "subject": "Toán",
-                                    "grade": 4,
-                                    "totalChunks": 32,
-                                    "status": "active"
-                                }
-                            ],
-                            "total": 1
-                        },
-                        "message": "Retrieved 1 lessons",
-                        "createdAt": "2025-12-03T18:30:00Z"
-                    }
-                }
-            }
-        }
-    }
+    description="Retrieve all lessons with optional filters"
+)
 )
 async def get_lessons(
     subject: str = None,
@@ -186,25 +161,8 @@ from models.responses import StandardResponse, MindmapData, AnalyzerData, Lesson
     response_model=StandardResponse[ChatData],
     summary="Chat with AI Agent",
     description="Get AI response with automatic intent detection (normal/deep mode)",
-    responses={
-        200: {
-            "description": "Successful response",
-            "content": {
-                "application/json": {
-                    "example": {
-                        "status": "success",
-                        "data": {
-                            "response": "Phân số là...",
-                            "intent": "normal",
-                            "threadId": "user_123_session"
-                        },
-                        "message": "Response generated",
-                        "createdAt": "2025-12-03T18:30:00Z"
-                    }
-                }
-            }
-        }
-    }
+    description="Get AI response with automatic intent detection (normal/deep mode)"
+)
 )
 async def agent_chat(
     request: ChatRequest,
@@ -309,29 +267,8 @@ async def agent_chat(
     response_model=StandardResponse[MindmapData],
     summary="Generate Mindmap",
     description="Generate React Flow compatible mindmap JSON from topic",
-    responses={
-        200: {
-            "description": "Successful response",
-            "content": {
-                "application/json": {
-                    "example": {
-                        "status": "success",
-                        "data": {
-                            "mindmap": {
-                                "nodes": [
-                                    {"id": "1", "data": {"label": "Phân số"}, "position": {"x": 0, "y": 0}}
-                                ],
-                                "edges": []
-                            },
-                            "topic": "Phân số"
-                        },
-                        "message": "Mindmap created successfully",
-                        "createdAt": "2025-12-03T18:30:00Z"
-                    }
-                }
-            }
-        }
-    }
+    description="Generate React Flow compatible mindmap JSON from topic"
+)
 )
 async def create_mindmap(
     lesson_id: str,
@@ -375,26 +312,8 @@ async def create_mindmap(
     response_model=StandardResponse[AnalyzerData],
     summary="Analyze Student Session",
     description="Get AI-powered analysis of student's understanding and performance",
-    responses={
-        200: {
-            "description": "Successful response",
-            "content": {
-                "application/json": {
-                    "example": {
-                        "status": "success",
-                        "data": {
-                            "analysis": "Học sinh đã nắm vững khái niệm phân số cơ bản, có thể nhận biết và đọc phân số chính xác. Tuy nhiên, cần luyện tập thêm về so sánh phân số.",
-                            "level": "Khá",
-                            "levelReason": "Trả lời đúng 75% câu hỏi, hiểu rõ khái niệm cơ bản nhưng chưa thạo về ứng dụng",
-                            "threadId": "user_123_session"
-                        },
-                        "message": "Analysis completed successfully",
-                        "createdAt": "2025-12-03T18:30:00Z"
-                    }
-                }
-            }
-        }
-    }
+    description="Get AI-powered analysis of student's understanding and performance"
+)
 )
 async def analyzer(
     request: AnalyzerRequest,
@@ -469,25 +388,8 @@ async def analyzer(
     response_model=StandardResponse[SessionData],
     summary="Get Session Info",
     description="Retrieve current session information",
-    responses={
-        200: {
-            "description": "Successful response",
-            "content": {
-                "application/json": {
-                    "example": {
-                        "status": "success",
-                        "data": {
-                            "threadId": "user_123_session",
-                            "messageCount": 10,
-                            "lastActivity": "2025-12-03T18:30:00Z"
-                        },
-                        "message": "Session info retrieved",
-                        "createdAt": "2025-12-03T18:30:00Z"
-                    }
-                }
-            }
-        }
-    }
+    description="Retrieve current session information"
+)
 )
 async def get_session_info(
     lesson_id: str = "general",
@@ -529,21 +431,8 @@ async def get_session_info(
     response_model=StandardResponse[dict],
     summary="Clear Session",
     description="Delete conversation history and reset session",
-    responses={
-        200: {
-            "description": "Successful response",
-            "content": {
-                "application/json": {
-                    "example": {
-                        "status": "success",
-                        "data": {"cleared": True},
-                        "message": "Session cleared successfully",
-                        "createdAt": "2025-12-03T18:30:00Z"
-                    }
-                }
-            }
-        }
-    }
+    description="Delete conversation history and reset session"
+)
 )
 async def clear_session(
     lesson_id: str = "general",
@@ -584,25 +473,8 @@ async def clear_session(
     response_model=StandardResponse[UserLevelData],
     summary="Get User Level",
     description="Retrieve user's proficiency level and progress",
-    responses={
-        200: {
-            "description": "Successful response",
-            "content": {
-                "application/json": {
-                    "example": {
-                        "status": "success",
-                        "data": {
-                            "level": "Intermediate",
-                            "score": 850,
-                            "progress": 75.5
-                        },
-                        "message": "User level retrieved",
-                        "createdAt": "2025-12-03T18:30:00Z"
-                    }
-                }
-            }
-        }
-    }
+    description="Retrieve user's proficiency level and progress"
+)
 )
 async def get_user_level(
     credentials: HTTPAuthorizationCredentials = Security(security),
