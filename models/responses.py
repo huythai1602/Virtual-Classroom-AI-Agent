@@ -15,14 +15,8 @@ class StandardResponse(BaseModel, Generic[T]):
     
     class Config:
         populate_by_name = True
-        json_schema_extra = {
-            "example": {
-                "status": "success",
-                "message": "Operation completed successfully",
-                "data": {},
-                "createdAt": "2025-12-15T12:00:00Z"
-            }
-        }
+    class Config:
+        populate_by_name = True
 
 
 class ChatData(BaseModel):
