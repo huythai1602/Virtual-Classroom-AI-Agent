@@ -104,9 +104,7 @@ async def health_check():
     "/api/lessons",
     response_model=StandardResponse[LessonsData],
     summary="Get All Lessons",
-    description="Retrieve all lessons with optional filters",
     description="Retrieve all lessons with optional filters"
-)
 )
 async def get_lessons(
     subject: str = None,
@@ -160,9 +158,7 @@ from models.responses import StandardResponse, MindmapData, AnalyzerData, Lesson
     "/api/agent/chat",
     response_model=StandardResponse[ChatData],
     summary="Chat with AI Agent",
-    description="Get AI response with automatic intent detection (normal/deep mode)",
     description="Get AI response with automatic intent detection (normal/deep mode)"
-)
 )
 async def agent_chat(
     request: ChatRequest,
@@ -266,9 +262,7 @@ async def agent_chat(
     "/api/agent/mindmap/{lesson_id}",
     response_model=StandardResponse[MindmapData],
     summary="Generate Mindmap",
-    description="Generate React Flow compatible mindmap JSON from topic",
     description="Generate React Flow compatible mindmap JSON from topic"
-)
 )
 async def create_mindmap(
     lesson_id: str,
@@ -311,9 +305,7 @@ async def create_mindmap(
     "/api/agent/analyzer",
     response_model=StandardResponse[AnalyzerData],
     summary="Analyze Student Session",
-    description="Get AI-powered analysis of student's understanding and performance",
     description="Get AI-powered analysis of student's understanding and performance"
-)
 )
 async def analyzer(
     request: AnalyzerRequest,
@@ -387,9 +379,7 @@ async def analyzer(
     "/api/session",
     response_model=StandardResponse[SessionData],
     summary="Get Session Info",
-    description="Retrieve current session information",
     description="Retrieve current session information"
-)
 )
 async def get_session_info(
     lesson_id: str = "general",
@@ -430,9 +420,7 @@ async def get_session_info(
     "/api/session",
     response_model=StandardResponse[dict],
     summary="Clear Session",
-    description="Delete conversation history and reset session",
     description="Delete conversation history and reset session"
-)
 )
 async def clear_session(
     lesson_id: str = "general",
@@ -472,9 +460,7 @@ async def clear_session(
     "/api/user/level",
     response_model=StandardResponse[UserLevelData],
     summary="Get User Level",
-    description="Retrieve user's proficiency level and progress",
     description="Retrieve user's proficiency level and progress"
-)
 )
 async def get_user_level(
     credentials: HTTPAuthorizationCredentials = Security(security),
