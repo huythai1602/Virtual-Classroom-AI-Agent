@@ -29,6 +29,13 @@ class Settings(BaseSettings):
     POSTGRES_USER: str = os.getenv("POSTGRES_USER", "agent_user")
     POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD", "")
     
+    # Shared Database (Supabase)
+    SHARED_POSTGRES_HOST: str = os.getenv("SHARED_POSTGRES_HOST", "")
+    SHARED_POSTGRES_PORT: int = int(os.getenv("SHARED_POSTGRES_PORT", 5432))
+    SHARED_POSTGRES_DB: str = os.getenv("SHARED_POSTGRES_DB", "postgres")
+    SHARED_POSTGRES_USER: str = os.getenv("SHARED_POSTGRES_USER", "postgres")
+    SHARED_POSTGRES_PASSWORD: str = os.getenv("SHARED_POSTGRES_PASSWORD", "")
+    
     # JWT Authentication
     # Support both JWT_SECRET (common) and JWT_SECRET_KEY
     JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY") or os.getenv("JWT_SECRET") or "your-secret-key-change-in-production"

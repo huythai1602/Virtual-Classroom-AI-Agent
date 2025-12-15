@@ -15,6 +15,14 @@ class StandardResponse(BaseModel, Generic[T]):
     
     class Config:
         populate_by_name = True
+        json_schema_extra = {
+            "example": {
+                "status": "success",
+                "message": "Operation completed successfully",
+                "data": {},
+                "createdAt": "2025-12-15T12:00:00Z"
+            }
+        }
 
 
 class ChatData(BaseModel):
@@ -26,6 +34,13 @@ class ChatData(BaseModel):
     
     class Config:
         populate_by_name = True
+        json_schema_extra = {
+            "example": {
+                "reply": "Chào em, hôm nay chúng ta sẽ ôn tập về các số đến 100000 nhé! Em đã sẵn sàng chưa?",
+                "intent": "normal",
+                "createdAt": "2025-12-15T12:00:00Z"
+            }
+        }
 
 
 class MindmapData(BaseModel):
@@ -56,10 +71,10 @@ class AnalyzerData(BaseModel):
         populate_by_name = True
         json_schema_extra = {
             "example": {
-                "analysis": "Học sinh đã nắm vững khái niệm phân số...",
+                "analysis": "Học sinh đã nắm vững khái niệm phân số. Tuy nhiên, cần rèn luyện thêm về kỹ năng quy đồng mẫu số. Thông qua các câu trả lời, em cho thấy khả năng tư duy logic tốt nhưng còn vội vàng.",
                 "level": "Khá",
-                "levelReason": "Trả lời đúng 80% câu hỏi, hiểu được khái niệm cơ bản",
-                "threadId": "user_123_session"
+                "levelReason": "Trả lời đúng 80% câu hỏi về lý thuyết, nhưng sai ở bài tập vận dụng cao.",
+                "threadId": "user_123_session_abc"
             }
         }
 
@@ -110,9 +125,9 @@ class SessionData(BaseModel):
         populate_by_name = True
         json_schema_extra = {
             "example": {
-                "threadId": "user_123_session",
+                "threadId": "user_123_session_abc",
                 "messageCount": 10,
-                "lastActivity": "2025-12-03T18:30:00Z"
+                "lastActivity": "2025-12-15T18:30:00Z"
             }
         }
 
