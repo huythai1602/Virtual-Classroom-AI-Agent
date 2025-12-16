@@ -1,7 +1,7 @@
 """
 Sessions repository - PostgreSQL persistent conversation storage
 """
-from repositories.db import get_connection, get_shared_connection
+from repositories.db import get_connection
 from typing import Dict, Any, Optional, List
 import json
 from datetime import datetime
@@ -72,84 +72,14 @@ def create_or_update_session(
             conn.commit()
             cursor.close()
             
-            # Sync to shared database if configured
-            # Extract last message
-            if messages:
-                last_msg = messages[-1]
-                # Only sync detailed messages (skip system or simple acks if needed, but syncing all is safer)
-                msg_content = last_msg.get("content", "")
-                msg_role = last_msg.get("role", "user")
-                
-                # Simple Logic: Only sync if content exists
-                if msg_content:
-                    # Get Lesson ID from metadata if available
-                    lesson_id = metadata.get("lesson_id") if metadata else None
-                    if not lesson_id:
-                        # Try to find in context string if we parsed it? Unlikely reliable.
-                        # For now send None or Default.
-                        pass
-                        
-                    sync_message_to_shared_db(
-                        thread_id=thread_id,
-                        role=msg_role,
-                        content=msg_content,
-                        user_id=user_id, # String ID, will be mapped in sync func
-                        lesson_id=lesson_id
-                    )
-
+            conn.commit()
+            cursor.close()
+            
             return True
         except Exception as e:
             print(f"❌ Error saving session: {e}")
             cursor.close()
             return False
-
-
-def sync_message_to_shared_db(thread_id: str, role: str, content: str, user_id: str, lesson_id: Any = None):
-    """
-    Adapter function to sync messages to shared Supabase table.
-    Table: lesson_chat_messages(id, created_at, updated_at, user_id, value, lesson_id, role)
-    """
-    # 1. Map Role (LangGraph -> Supabase Enum/String)
-    # Supabase roles: likely 'user' and 'bot' or 'assistant'
-    db_role = role
-    if role == "assistant":
-        db_role = "bot" # Assumption based on common schemas, or keep 'assistant' if enum allows
-    
-    # 2. Map User ID (String -> Int)
-    # This is the tricky part. For now, we use a fixed ID for the Agent/Shared user if not provided.
-    # If the user_id string looks like an integer, use it. Otherwise default.
-    db_user_id = 0 # Default/System user
-    try:
-        if user_id and str(user_id).isdigit():
-            db_user_id = int(user_id)
-        # Else: keep 0
-    except:
-        pass
-        
-    # 3. Lesson ID
-    db_lesson_id = None
-    if lesson_id:
-        try:
-            db_lesson_id = int(lesson_id)
-        except:
-            pass
-
-    try:
-        with get_shared_connection() as conn:
-            if conn is None:
-                # Shared DB not configured or failed
-                return
-
-            with conn.cursor() as cur:
-                query = """
-                    INSERT INTO lesson_chat_messages (created_at, updated_at, user_id, value, lesson_id, role)
-                    VALUES (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, %s, %s, %s, %s);
-                """
-                cur.execute(query, (db_user_id, content, db_lesson_id, db_role))
-            # Commit handled by context manager
-    except Exception as e:
-        print(f"⚠️ Failed to sync to shared DB: {e}") 
-        # Non-blocking error, we don't return False here as local save succeeded
 
 
 def delete_session(thread_id: str) -> bool:
