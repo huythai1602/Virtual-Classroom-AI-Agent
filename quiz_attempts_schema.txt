@@ -1,0 +1,6 @@
+Columns in quiz_attempts:
+- id: integer
+- quiz_id: integer
+- user_id: bigint
+- score: integer
+- attempted_at: timestamp without time zone

@@ -103,17 +103,17 @@ def get_quiz_stats(user_id: str, lesson_id: str) -> Optional[Dict[str, Any]]:
             """
             
             try:
-                # Handle potential non-int lesson_id if needed, but for now try direct
-                # If lesson_id comes as string "2", psycopg2 handles it.
+                # Validation: Shared DB uses BigInt for user_id. 
+                # If user_id is a string like "huythai", it will crash.
+                if isinstance(user_id, str) and not user_id.isdigit():
+                    print(f"⚠️ Quiz stats skipped: User ID '{user_id}' is not numeric, but DB expects BigInt.")
+                    return None
+                    
                 cur.execute(find_attempt_query, (lesson_id, user_id))
-            except Exception:
-                # Retry or fail? If user_id is 'user_123' (string) and DB is bigint, this will crash.
-                # Project `utils.get_user_id` returns a string.
-                # If auth creates "user_123", and DB expects 123...
-                # Let's check `get_user_id`. It just gets 'sub' from token.
-                # Ideally we should strict cast safely.
-                # For now, let's assume it works or we catch error.
-                print(f"⚠️ Query failed for quiz stats (Lesson: {lesson_id}, User: {user_id})")
+            except Exception as e:
+                print(f"⚠️ Query failed for quiz stats (Lesson: {lesson_id}, User: {user_id}): {e}")
+                import traceback
+                traceback.print_exc()
                 return None
                 
             row = cur.fetchone()
