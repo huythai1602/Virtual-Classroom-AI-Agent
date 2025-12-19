@@ -370,8 +370,8 @@ async def create_mindmap(
 # ANALYZER ENDPOINT
 # ============================================================
 
-@app.post(
-    "/api/agent/analyzer",
+@app.get(
+    "/api/agent/analyzer/{lesson_id}",
     response_model=StandardResponse[AnalyzerData],
     summary="Analyze Student Session",
     description="Get AI-powered analysis of student's understanding and performance",
@@ -386,6 +386,11 @@ async def create_mindmap(
                             "analysis": "Học sinh đã nắm vững khái niệm phân số. Tuy nhiên, cần rèn luyện thêm về kỹ năng quy đồng mẫu số...",
                             "level": "Khá",
                             "levelReason": "Trả lời đúng 80% câu hỏi về lý thuyết, nhưng sai ở bài tập vận dụng cao.",
+                            "quizStats": {
+                                "total_questions": 10,
+                                "correct_count": 8,
+                                "score_percentage": 80.0
+                            },
                             "threadId": "user_123_session_abc"
                         },
                         "message": "Analysis completed successfully",
@@ -397,7 +402,7 @@ async def create_mindmap(
     }
 )
 async def analyzer(
-    request: AnalyzerRequest,
+    lesson_id: str,
     credentials: HTTPAuthorizationCredentials = Security(security),
     user_id: str = Depends(get_user_id)
 ):
@@ -405,49 +410,37 @@ async def analyzer(
     **Session Analyzer** - AI analysis of student understanding
     
     **Authentication:** Bearer token in Authorization header
-    
-    **Request Body:**
-    ```json
-    {
-        "topic": "Phân số",
-        "lessonId": 2
-    }
-    ```
+    **Path Param:** `lesson_id` (e.g. 2, "bai_2_phan_so")
     
     **Analysis includes:**
     - Detailed understanding assessment
-    - Proficiency level (Xuất sắc/Giỏi/Khá/Trung bình)
-    - Reasoning for the level
+    - Proficiency level
+    - Quiz performance (if available)
     - Specific recommendations
     """
     try:
         # Auto-generate thread_id from user_id
-        # Unique thread_id per user AND lesson
-        thread_id = f"user_{user_id}_lesson_{request.lessonId}"
+        thread_id = f"user_{user_id}_lesson_{lesson_id}"
         
         # Get session
         session = session_memory.get_session(thread_id, user_id=user_id)
         messages = session.get("messages", [])
         
-        # if not messages:
-        #     return StandardResponse(
-        #         status="error",
-        #         data=None,
-        #         message="No conversation history found",
-        #         createdAt=datetime.now(timezone.utc).isoformat()
-        #     )
+        # Analyze session with user_id for quiz stats
+        analysis_result = analyze_session(messages, lesson_id, user_id=user_id)
         
-        # Analyze session (topic is auto-detected inside based on lessonId)
-        analysis_result = analyze_session(messages, request.lessonId)
+        # Build response
+        response_data = AnalyzerData(
+            analysis=analysis_result["analysis"],
+            level=analysis_result["level"],
+            levelReason=analysis_result["level_reason"],
+            threadId=thread_id,
+            quizStats=analysis_result.get("quiz_stats")
+        )
         
         return StandardResponse(
             status="success",
-            data=AnalyzerData(
-                analysis=analysis_result["analysis"],
-                level=analysis_result["level"],
-                levelReason=analysis_result["level_reason"],
-                threadId=thread_id
-            ),
+            data=response_data,
             message="Analysis completed successfully",
             createdAt=datetime.now(timezone.utc).isoformat()
         )

@@ -59,6 +59,7 @@ class AnalyzerData(BaseModel):
     analysis: str = Field(..., description="Detailed analysis of student's understanding")
     level: str = Field(..., description="Student's proficiency level")
     levelReason: str = Field(..., description="Reason for the assessed level", alias="levelReason")
+    quizStats: Optional[Dict[str, Any]] = Field(None, description="Detailed quiz statistics", alias="quizStats")
     threadId: str = Field(..., description="Session thread ID", alias="threadId")
     
     class Config:

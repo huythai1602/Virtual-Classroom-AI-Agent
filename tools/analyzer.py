@@ -22,7 +22,8 @@ def get_llm():
 
 def analyze_session(
     conversation_history: str,
-    lesson_id: Union[str, int]
+    lesson_id: Union[str, int],
+    user_id: str = None
 ) -> dict:
     """
     Analyze learning session
@@ -46,6 +47,22 @@ def analyze_session(
     # Get transcript
     transcript = get_context(metadata["topic"], k=10, lesson_id=lesson_id)
     
+    # Get quiz stats
+    from repositories.quiz import get_quiz_stats
+    quiz_stats = get_quiz_stats(user_id=user_id, lesson_id=lesson_id) if user_id else None
+    
+    quiz_context = ""
+    if quiz_stats:
+        quiz_context = f"""
+QUIZ RESULTS:
+- Score: {quiz_stats['correct_count']}/{quiz_stats['total_questions']} ({quiz_stats['score_percentage']:.1f}%)
+- Incorrect Answers (Concept Gaps):
+"""
+        for inc in quiz_stats.get('incorrect_details', []):
+            quiz_context += f"  * Question: {inc['question']}\n    Student Answer: {inc['user_answer']}\n    Correct Answer: {inc['correct_answer']}\n"
+    
+        quiz_context += "\nUse these quiz results to identify specific knowledge gaps.\n"
+
     # Format prompt
     prompt = format_prompt(
         SYSTEM_PROMPTS["analyzer"],
@@ -54,6 +71,10 @@ def analyze_session(
         grade=metadata["grade"],
         topic=metadata["topic"]
     )
+    
+    # Inject quiz context into prompt
+    if quiz_context:
+        prompt += f"\n\n{quiz_context}"
     
     # Generate analysis
     llm = get_llm()
@@ -84,5 +105,6 @@ def analyze_session(
     return {
         "analysis": analysis,
         "level": level,
-        "level_reason": level_reason
+        "level_reason": level_reason,
+        "quiz_stats": quiz_stats
     }
