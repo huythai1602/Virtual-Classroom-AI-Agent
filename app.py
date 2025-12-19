@@ -16,7 +16,7 @@ from core.agent import agent
 from core.memory import session_memory
 from core.state import ChatContext
 from models import ChatRequest, MindmapRequest, AnalyzerRequest
-from models.responses import StandardResponse, MindmapData, AnalyzerData, LessonsData, SessionData, UserLevelData, LessonItem, ChatData
+from models.responses import StandardResponse, MindmapData, AnalyzerData, LessonsData, SessionData, LessonItem, ChatData
 from tools import generate_mindmap_json, analyze_session, summarize_conversation
 from utils import get_optional_user, get_user_id
 
@@ -568,56 +568,7 @@ async def clear_session(
         )
 
 
-# ============================================================
-# USER LEVEL ENDPOINT (Placeholder)
-# ============================================================
 
-@app.get(
-    "/api/user/level",
-    response_model=StandardResponse[UserLevelData],
-    summary="Get User Level",
-    description="Retrieve user's proficiency level and progress",
-    responses={
-        200: {
-            "description": "Successful response",
-            "content": {
-                "application/json": {
-                    "example": {
-                        "status": "success",
-                        "data": {
-                            "level": "Intermediate",
-                            "score": 850,
-                            "progress": 75.5
-                        },
-                        "message": "User level retrieved",
-                        "createdAt": "2025-12-15T18:30:00Z"
-                    }
-                }
-            }
-        }
-    }
-)
-async def get_user_level(
-    credentials: HTTPAuthorizationCredentials = Security(security),
-    user_id: str = Depends(get_user_id)
-):
-    """
-    **Get User Level** - Retrieve proficiency level and progress
-    
-    **Authentication:** Bearer token in Authorization header
-    
-    **Note:** Placeholder endpoint - implement with actual level calculation logic
-    """
-    return StandardResponse(
-        status="success",
-        data=UserLevelData(
-            level="Beginner",
-            score=0,
-            progress=0.0
-        ),
-        message="User level retrieved (placeholder)",
-        createdAt=datetime.now(timezone.utc).isoformat()
-    )
 
 if __name__ == "__main__":
     import uvicorn

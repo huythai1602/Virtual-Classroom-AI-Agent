@@ -6,8 +6,7 @@ from .responses import (
     AnalyzerData,
     LessonsData,
     LessonItem,
-    SessionData,
-    UserLevelData
+    SessionData
 )
 
 __all__ = [
@@ -19,6 +18,5 @@ __all__ = [
     "AnalyzerData",
     "LessonsData",
     "LessonItem",
-    "SessionData",
-    "UserLevelData"
+    "SessionData"
 ]

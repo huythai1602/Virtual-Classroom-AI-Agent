@@ -127,17 +127,4 @@ class SessionData(BaseModel):
         }
 
 
-class UserLevelData(BaseModel):
-    """User level data structure"""
-    level: str
-    score: int
-    progress: float
-    
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "level": "Intermediate",
-                "score": 850,
-                "progress": 75.5
-            }
-        }
+
