@@ -1,0 +1,124 @@
+{
+  "lesson_id": "math-4-5",
+  "title": "Giai bai toan 3 buoc tinh",
+  "timestamp": "2025-12-18T18:32:48",
+  "timings": {
+    "db_insert_lesson_ms": 287.10079193115234,
+    "chunking_ms": 3860.6715202331543,
+    "embedding_ms": 4939.158916473389,
+    "db_insert_chunks_ms": 1531.801462173462,
+    "total_process_ms": 10888.010740280151
+  },
+  "stats": {
+    "parent_chunk_count": 3,
+    "total_child_chunks": 11
+  },
+  "source_metadata": {
+    "source": "shared_db",
+    "db_id": 5,
+    "lesson_order": 5,
+    "course_title": "Math 4",
+    "content_checksum": "1c817c2f434dcaba381da11a4200b00f23a3f0ab2f7fb57bdbc3f85b54cdd8d2"
+  },
+  "chunks_metadata": [
+    {
+      "chunk_id": "math-4-5_p0_c0",
+      "lesson_id": "math-4-5",
+      "parent_index": 0,
+      "child_index": 0,
+      "text": "Áp về giách Hỏi 3 địa chỉ Trả lời thức thị Hòa thư Việt Nam Tài nghe áp về giách Cô xin chào tất cả các con học sinh thân mến Chào mừng các con đã đến với khóa học bài giảng toán lớp 4 Bộ sách mang tên Kết nối tri thức Ừ, buổi học hôm trước thì chúng mình đã cùng nhau đi tìm hiểu về số chẵn và số lẻ rồi đúng không nhỉ? Đến bài học ngày hôm nay, chúng mình lại cùng nhau đi học một bài học mang tên Biểu thức chứa chữ Vậy, biểu thức chứa chữ là gì? Các con có thắc mắc không nhỉ? À, để giải quyết được những thắc mắc của chúng ta thì cô và con sẽ cùng nhau đi tìm hiểu xem thế nào là biểu thức chứa chữ nhé Trước tiên, để đi tìm hiểu về biểu thức chứa chữ thì chúng mình sẽ cùng nhau đi nêu yêu cầu cần đạt của bài học ngày hôm nay Buổi học ngày hôm nay thì chúng mình sẽ cùng nhau đi nhận biết được biểu thức có chứa một chữ, hai chữ và ba chữ Tiếp theo, chúng ta sẽ cùng nhau đi tính được giá trị của biểu thức chứa chữ với các giá trị cụ thể của mỗi chữ trong biểu thức đó Và cuối cùng là vận dụng vào tính chu vi diện tích cao hình theo các công thức có chứa chữ Vậy chúng mình sẽ cùng nhau đi khởi động về ôn tập trò chơi ai nhanh hơn để nhằm ôn tập lại các dạng toán các bài học hôm trước chúng ta đã cùng nhau được học nhé Đầu tiên, bạn ông có một câu hỏi là 6000 cộng 2000 chứ 4000 bằng bao nhiêu?",
+      "tokens_count": 361,
+      "created_at": "2025-12-18T18:32:53"
+    },
+    {
+      "chunk_id": "math-4-5_p1_c0",
+      "lesson_id": "math-4-5",
+      "parent_index": 1,
+      "child_index": 0,
+      "text": "Chúng ta có 5 giây suy nghĩ À, 6000 cộng 2000 chứ 4000 Chúng ta chỉ cần thực hiện lần lượt từ trái sang phải cho cô Ta lấy 6000 cộng 2000 bằng 8000 8000 chữ đi 4000 ta được kết quả là 4000 đúng không nhỉ? Tiếp theo, chúng mình sẽ đến với câu số 2 9000 chữ đi 4000 x 2 bằng bao nhiêu? Vậy để làm được bài tập được câu hỏi này thì chúng mình sẽ phải lưu ý điều gì nhỉ? À, chúng mình sẽ phải lưu ý thực hiện khép tính nhân trước rồi mới thực hiện khép tính trừ đúng không nhỉ? Như vậy, với 9000 chữ đi 4000 x 2 chúng ta sẽ thực hiện khép tính nhân trước Ta lấy 4000 x 2 bằng 8000 Vậy 9000 chữ đi 8000 ta được kết quả là 1000 đúng không nhỉ?",
+      "tokens_count": 215,
+      "created_at": "2025-12-18T18:32:54"
+    },
+    {
+      "chunk_id": "math-4-5_p2_c0",
+      "lesson_id": "math-4-5",
+      "parent_index": 2,
+      "child_index": 0,
+      "text": "Câu số 3 Tìm các số chia hết cho 2 trong các số sau 71, 106, 8, 4085, 619, 2734 Vậy để tìm được các số chia hết cho 2 trong các số này thì chúng mình sẽ phải nhớ điều gì cho cô nhỉ? À, để tìm được các số chia hết cho 2 trong các số này thì các con sẽ phải nhớ cho cô đó là dấu hiệu chia hết cho 2 Ở ngày hôm trước thì chúng mình đã cùng nhau đi tìm hiểu về số chẳng và số lẻ rồi Chúng mình đã nhắc đó là số chẳng là số mà chia hết cho 2 Vậy những số chia hết cho 2 là số có tận cùng là 0, 2, 4, 6 và 8 đúng không nhỉ? Vậy chúng mình chỉ cần đi tìm các số mà có chữ số tận cùng là 0, 2, 4, 6 và 8 thôi Vậy số 71 có chữ số tận cùng là 1, đây là số lẻ, như vậy số này không chia hết cho 2 Số 106 có chữ số tận cùng là 6, như vậy số này là số chia hết cho 2 Số 8 cũng chia hết cho 2 Số 4085 có chữ số tận cùng là 5, như vậy số này là số lẻ và không chia hết cho 2 Số 619 có chữ số tận cùng là 9, số này là số lẻ, như vậy không chia hết cho 2 Và cuối cùng là số 2734, số này có chữ số tận cùng là 4, như vậy đây là số chẳng và chia hết cho 2 Từ đó thì chúng mình sẽ dễ dàng trả lời được các số chia hết cho 2 trong các số này là số 106, 8 và 2734 Vừa rồi thì chúng mình đã cùng nhau hoàn thành xong một trò chơi mang tên Ai Nhanh Hơn rồi Bây giờ cô và con sẽ cùng nhau đi khám phá xem cái thắc mắc ban đầu của chúng ta Biểu thức chứa chữ là biểu thức gì nhé Ở đây cô có một bức tranh, bao gồm có 3 bạn và 1 bạn robot, ở đây có 4 bạn Bạn đầu tiên thì nói là tớ gấp được 4 cái thuyền Bạn thứ 2 thì nói là tớ gấp được 2 cái thuyền",
+      "tokens_count": 512,
+      "created_at": "2025-12-18T18:32:54"
+    },
+    {
+      "chunk_id": "math-4-5_p2_c1",
+      "lesson_id": "math-4-5",
+      "parent_index": 2,
+      "child_index": 1,
+      "text": "hanh Hơn rồi Bây giờ cô và con sẽ cùng nhau đi khám phá xem cái thắc mắc ban đầu của chúng ta Biểu thức chứa chữ là biểu thức gì nhé Ở đây cô có một bức tranh, bao gồm có 3 bạn và 1 bạn robot, ở đây có 4 bạn Bạn đầu tiên thì nói là tớ gấp được 4 cái thuyền Bạn thứ 2 thì nói là tớ gấp được 2 cái thuyền, tớ và Việt gấp được 2 cộng 4 cái thuyền Vậy bạn Việt thì nói là Nam và Mai gấp được bao nhiêu cái nhỉ Bạn Mai thì nói là tớ chưa đếm, có vẻ như tớ gấp cũng được nhiều đấy Bây giờ bạn robot nói là coi số thuyền gấp được của Mai là A Vậy Nam và Mai gấp được 2 cộng A cái thuyền Vậy tại sao robot lại nói như vậy nhỉ À, bởi vì ở đây chúng ta đã biết được số thuyền mà Nam gấp được là 2 cái Và số thuyền mà Việt gấp được là 4 cái Mai thì Mai chưa đếm và Mai chỉ ước chừng là cũng nhiều đấy, đúng không nhỉ Vậy thì bạn robot đã nói là coi số thuyền gấp được của bạn Mai là một số chưa biết Ta coi là biểu là chữ A Như vậy, để trả lời cho câu hỏi của bạn Việt thì bạn robot đã nói là Nam và Mai gấp được 2 cộng A cái thuyền Vậy để tìm hiểu kỹ hơn về câu nói của bạn robot thì chúng mình sẽ cùng nhau đi phân tích như sao Đầu tiên là số thuyền mà bạn Nam và bạn Việt gấp là 2 cộng 4 chiếc thuyền Được gọi là biểu thức, đúng không nhỉ Ta gọi biểu thức 2 cộng 4 Tiếp theo, 2 cộng A là số thuyền mà bạn Nam và Mai gấp được Cũng được gọi là biểu thức, nhưng ở đây chúng ta quan sát 2 biểu thức này có gì khác nhau À, 2 biểu thức này, biểu thức đầu tiên là biểu thức có chứa các số thôi Còn biểu thức số 2 là biểu thức có chứa chữ, đó là chữ A đúng không nhỉ Vậy thì chúng mình sẽ cùng nhau đi giải đáp thông bác xem Biểu thức này thì có gì khác biệt so với",
+      "tokens_count": 512,
+      "created_at": "2025-12-18T18:32:55"
+    },
+    {
+      "chunk_id": "math-4-5_p2_c2",
+      "lesson_id": "math-4-5",
+      "parent_index": 2,
+      "child_index": 2,
+      "text": "ền mà bạn Nam và Mai gấp được Cũng được gọi là biểu thức, nhưng ở đây chúng ta quan sát 2 biểu thức này có gì khác nhau À, 2 biểu thức này, biểu thức đầu tiên là biểu thức có chứa các số thôi Còn biểu thức số 2 là biểu thức có chứa chữ, đó là chữ A đúng không nhỉ Vậy thì chúng mình sẽ cùng nhau đi giải đáp thông bác xem Biểu thức này thì có gì khác biệt so với biểu thức 2 cộng 4 nhé Bạn Nam thì nói là Biểu thức 2 cộng A có gì khác với biểu thức 2 cộng 4 À, bạn robot đã trả lời cho bạn Nam Đó là biểu thức 2 cộng A khác với biểu thức 2 cộng 4 Bởi vì biểu thức 2 cộng A có chứa một chữ Chữ đó là A, đúng không nhỉ Như vậy chúng ta có thể kết luận là 2 cộng A là biểu thức chứa chữ Từ đó thì chúng mình sẽ cùng nhau đi lấy ví dụ về biểu thức có chứa một chữ cho cô nào Các con có thể viết vào trong nhát cho cô trong vòng 5 giây Sau thời gian 5 giây chúng mình sẽ cùng nhau đi nêu một số ví dụ về biểu thức có chứa một chữ nhé Bạn Việt đã trả lời được những biểu thức có chứa một chữ như sau A cộng 6, 7 x B, 21 chữ M 2345 chưa cho ca, vân vân vân là những biểu thức có chứa một chữ Như vậy chúng mình sẽ cùng nhau quan sát Ở biểu thức A cộng 6 thì đây là biểu thức có chứa chữ A Biểu thức 7 x B đây là biểu thức có chứa chữ B Biểu thức 21 chữ M là biểu thức có chứa chữ M Ở biểu thức 2345 chưa cho ca là biểu thức có chứa chữ ca đúng không nhỉ Tiếp theo bạn Mai đã nói Lấy ví dụ như sau 6 cộng với 3 x 9 Tiếp theo này A B C D Tiếp theo 2 M B C Bạn Mai nói là đây không phải là biểu thức chứa chữ Tại sao lại như vậy? À Bạn robot đã trả lời Đó là biểu thức có chứa một chữ Thì bao gồm phép tính Và có thành phần phép tính là một chữ thôi Như vậy Ở các ví dụ của bạn Mai 6 cộng với tích của 3 x 9 Không có chữ nào đúng không nh",
+      "tokens_count": 512,
+      "created_at": "2025-12-18T18:32:55"
+    },
+    {
+      "chunk_id": "math-4-5_p2_c3",
+      "lesson_id": "math-4-5",
+      "parent_index": 2,
+      "child_index": 3,
+      "text": " 3 x 9 Tiếp theo này A B C D Tiếp theo 2 M B C Bạn Mai nói là đây không phải là biểu thức chứa chữ Tại sao lại như vậy? À Bạn robot đã trả lời Đó là biểu thức có chứa một chữ Thì bao gồm phép tính Và có thành phần phép tính là một chữ thôi Như vậy Ở các ví dụ của bạn Mai 6 cộng với tích của 3 x 9 Không có chữ nào đúng không nhỉ Và tiếp theo này A B C D Đây là một độ dài Có thể là độ dài của Đây có thể là một tên gọi của hình chữ nhật Hoặc là độ dài của đường gấp khúc Như vậy cũng không phải là biểu thức chứa chữ Và biểu thức 2 M B C Có chứa tới tận 3 chữ đúng không nhỉ Như vậy thì đây cũng không phải là biểu thức có chứa một chữ Như vậy Chúng mình sẽ cùng nhau Đi kết luận như sau Bạn Nam nói là Coi A là một số bất kỳ Bạn Mai thì nói Nếu thay A bằng một số bất kỳ Thì ta được một kết quả tương ứng Vậy Bạn Robert đã kết luận đó là Kết quả đó được coi là một giá trị của biểu thức 2 A Vậy Cô có ví dụ Nếu A bằng 4 Thì 2 A sẽ bằng bao nhiêu À chúng ta chỉ cần thay A bằng 4 vào ta được 2 A sẽ bằng 2 4 và bằng 6 Ta gọi 6 là một giá trị của biểu thức 2 A Tiếp theo Nếu A bằng 12 Thì 2 A ta chỉ cần thay A bằng 12 Ta được 2 cộng với 12 bằng 14 Và 14 là một giá trị của biểu thức 2 A Từ đó Chúng mình sẽ cùng nhau viết tiêu đề Biểu thức chứa chữ cho cô Tiếp theo Chúng mình sẽ cùng nhau đi tìm hiểu Về tính giá trị của biểu thức chứa chữ 40 chữ B với B bằng 15 Ở ý A thì chúng mình đã cùng nhau đi tìm hiểu Về biểu thức có chứa một chữ rồi Như vậy Biểu thức 40 chữ B Chính là một biểu thức có chứa một chữ Bây giờ chúng ta sẽ đi tính giá trị Của biểu thức này với B bằng 15 Nếu mà thay B bằng 15 Thì kết vào biểu thức 40 chữ B Thì ta được một kết quả là bao nhiêu À như vậy Chúng ta",
+      "tokens_count": 512,
+      "created_at": "2025-12-18T18:32:56"
+    },
+    {
+      "chunk_id": "math-4-5_p2_c4",
+      "lesson_id": "math-4-5",
+      "parent_index": 2,
+      "child_index": 4,
+      "text": " B bằng 15 Ở ý A thì chúng mình đã cùng nhau đi tìm hiểu Về biểu thức có chứa một chữ rồi Như vậy Biểu thức 40 chữ B Chính là một biểu thức có chứa một chữ Bây giờ chúng ta sẽ đi tính giá trị Của biểu thức này với B bằng 15 Nếu mà thay B bằng 15 Thì kết vào biểu thức 40 chữ B Thì ta được một kết quả là bao nhiêu À như vậy Chúng ta sẽ cùng nhau đi trả lời như sau Nếu B bằng 15 Thì 40 chữ B sẽ bằng Ta thay B bằng 15 ta được 40 chữ 15 bằng 25 Và 25 là một giá trị của biểu thức 40 chữ B Sau khi tính được giá trị của biểu thức 40 chữ B Với B bằng 15 Chúng ta đã cùng nhau đi kết luận như sau 40 chữ B với B bằng 15 Sẽ bằng 40 chữ B 15 Và bằng 25 Sau khi chúng mình đã đi tìm hiểu Về biểu thức 2 cộng A Đây là biểu thức có chứa chữ Chúng mình sẽ cùng nhau đi Tính giá trị của biểu thức 2 cộng A Với A bằng 4 Thì ta được kết quả là bao nhiêu nhở À nếu A bằng 4 Thì 2 cộng A Ta chỉ cần thay A bằng 4 ta được 2 cộng 4 và bằng 6 Vậy ta có thể nói là 6 là một giá trị của biểu thức 2 cộng A Tiếp theo Nếu A bằng 12 Thì 2 cộng A sẽ bằng 2 cộng với Thay A bằng 12 vào ta được 2 cộng 12 và bằng 14 Vậy ta nói là 14 là một giá trị của biểu thức 2 cộng A Từ đó chúng ta có kết luận như sau Mỗi lần thay chữ A bằng một số Ta tính được một giá trị của biểu thức 2 cộng A Bây giờ các con sẽ cùng nhau đi làm YB cho cô Để bài người ta yêu cầu con tính giá trị Của biểu thức 40 chữ B Với B bằng 15 Chúng mình sẽ cùng nhau đi làm vào trong vở cho cô nhé Sau khi chúng ta đã làm vào trong vở Thì bây giờ cô và con sẽ cùng nhau Đi chữ YB này nhé Với B bằng 15 Thì biểu thức 40 chữ B sẽ bằng 40 chữ đi 15 Và ta được kết quả là 25 Vừa rồi",
+      "tokens_count": 512,
+      "created_at": "2025-12-18T18:32:56"
+    },
+    {
+      "chunk_id": "math-4-5_p2_c5",
+      "lesson_id": "math-4-5",
+      "parent_index": 2,
+      "child_index": 5,
+      "text": " cô Để bài người ta yêu cầu con tính giá trị Của biểu thức 40 chữ B Với B bằng 15 Chúng mình sẽ cùng nhau đi làm vào trong vở cho cô nhé Sau khi chúng ta đã làm vào trong vở Thì bây giờ cô và con sẽ cùng nhau Đi chữ YB này nhé Với B bằng 15 Thì biểu thức 40 chữ B sẽ bằng 40 chữ đi 15 Và ta được kết quả là 25 Vừa rồi thì chúng mình đã cùng nhau đi khám phá xem Biểu thức có chứa một chữ là biểu thức như thế nào Và đã đi tìm hiểu về cách tính giá trị của biểu thức Khi mà ta biết giá trị của chữ là bao nhiêu Đân vị đối ngặt Bây giờ chúng ta sẽ cùng nhau bước sang phần hoạt động Bài tập số 1 Để bài người ta yêu cầu con tính giá trị của biểu thức Ở đây người ta cho con 2 ý Là ý A và ý B Ý A, 125 chia cho M Với M bằng 5 Ý B, tổng của B cộng 4 tất cả nhân với 3 Với B bằng 27 Vậy bây giờ chúng ta sẽ cùng nhau Đi tính giá trị của biểu thức cho cô nhé Các con hãy làm vào trong vở nào Các con sẽ dừng video để Làm bài tập số 1 vào trong vở nhé Bây giờ thì cô và con sẽ cùng nhau Ý chữa bài tập 1 số 1 này nào Để tính được giá trị của biểu thức 125 chia cho M Thì ta sẽ phải làm như thế nào nhỉ À, ta sẽ thay số vào chữ M Rồi thực hiện tính Mỗi lần thay số vào chữ Ta sẽ tính được gì À, ta sẽ trả lời là Mỗi lần thay số vào chữ Ta tính được 1 giá trị của biểu thức 125 chia cho M, đúng không nhỉ Như vậy chúng mình sẽ cùng nhau Đi thay giá trị của M với M bằng 5 Và trong biểu thức 125 chia M Ta được 125 chia cho 5 Và bằng kết quả là 25 Tiếp theo với ý B Tổng của B cộng 4 nhân với 3 Với B bằng 27 Chúng ta cũng làm tương tự với ý A Ta sẽ thay B bằng 27 vào biểu thức Tổng của B cộng 4 nhân với 3 ta được Tổng của B cộng 4 nhân với 3 sẽ bằng Tổng của 27 cộng 4 nhân với 3 Ta được kết quả",
+      "tokens_count": 512,
+      "created_at": "2025-12-18T18:32:57"
+    },
+    {
+      "chunk_id": "math-4-5_p2_c6",
+      "lesson_id": "math-4-5",
+      "parent_index": 2,
+      "child_index": 6,
+      "text": " thức 125 chia M Ta được 125 chia cho 5 Và bằng kết quả là 25 Tiếp theo với ý B Tổng của B cộng 4 nhân với 3 Với B bằng 27 Chúng ta cũng làm tương tự với ý A Ta sẽ thay B bằng 27 vào biểu thức Tổng của B cộng 4 nhân với 3 ta được Tổng của B cộng 4 nhân với 3 sẽ bằng Tổng của 27 cộng 4 nhân với 3 Ta được kết quả là Vậy, trong biểu thức này ta sẽ phải Ưu tiên thực hiện trong hoạt trước Ta lấy 27 cộng 4 bằng 31 31 nhân với 3 ta được kết quả là 93 Vừa rồi thì chúng mình đã cùng nhau Hoàn thành sân bay tập số 1 Bây giờ cô và con sẽ cùng nhau Bước sang bài số 2 Đề bài người ta yêu cầu con tính Chu vi P của hình vuông có độ dài cạnh là A Được tính theo công thức P bằng A nhên 4 Vậy để làm được bài tập số 2 này Thì chúng mình sẽ phải làm như thế nào? À, bạn robot đã nói là Công thức tính chu vi hình vuông là P bằng A nhên 4 A nhên 4 chính là một biểu thức có chứa một chữ Bây giờ đề bài người ta yêu cầu con Hãy tính chu vi hình vuông với A bằng 5cm và A bằng 9cm Bây giờ chúng mình sẽ cùng nhau Dừng video và làm bài tập này cho cô nhé Bây giờ thì chúng mình sẽ cùng nhau đi chữa nào Với A bằng 5 thì chu vi hình vuông sẽ là Ta thay A bằng 5cm ta được A nhên 4 bằng 5 nhên 4 và bằng 20cm Với A bằng 9cm thì chu vi của hình vuông sẽ là Ta sẽ thay A bằng 9 ta được A nhên 4 thì bằng 9 nhên 4 và bằng 36cm Vừa rồi thì chúng mình đã cùng nhau Đi tính chu vi của hình vuông Có công thức là P bằng A nhên 4 Với A bằng 5cm và A bằng 9cm Bây giờ thì chúng mình sẽ cùng nhau bước sang bài số 3 Đề bài người ta yêu cầu con chọn giá trị Của biểu thức 35 cộng 5 nhên A Trong mỗi trường hợp sau Ở đây để tính được giá trị Của biểu thức 35",
+      "tokens_count": 512,
+      "created_at": "2025-12-18T18:32:57"
+    },
+    {
+      "chunk_id": "math-4-5_p2_c7",
+      "lesson_id": "math-4-5",
+      "parent_index": 2,
+      "child_index": 7,
+      "text": "cm Vừa rồi thì chúng mình đã cùng nhau Đi tính chu vi của hình vuông Có công thức là P bằng A nhên 4 Với A bằng 5cm và A bằng 9cm Bây giờ thì chúng mình sẽ cùng nhau bước sang bài số 3 Đề bài người ta yêu cầu con chọn giá trị Của biểu thức 35 cộng 5 nhên A Trong mỗi trường hợp sau Ở đây để tính được giá trị Của biểu thức 35 cộng 5 nhân A Trong mỗi trường hợp này Với A bằng 2, A bằng 5, A bằng 7 và A bằng 6 Thì chúng mình sẽ phải làm như thế nào nhỉ À chúng ta chỉ cần thay giá trị của A bằng 2, A bằng 5, A bằng 7, A bằng 6 Và biểu thức này là ta sẽ ra được kết quả Như vậy với A bằng 2 thì giá trị Của biểu thức 35 cộng 5 nhân A sẽ bằng Ta lấy 35 cộng 5 nhân 2 Và bằng 5 nhân 2 bằng 10 Như vậy 35 cộng 10 sẽ bằng 45 đúng không nhỉ Vậy ta sẽ nối được 45 vào con hải cẩu đầu tiên Tiếp theo là con hải cẩu thứ 2 Giá trị của biểu thức với A bằng 5 Ta sẽ thay 5, A bằng 5 Và ta được 35 cộng 5 nhân 5 5 nhân 5 thì bằng 25 Như vậy 35 cộng với 25 bằng 60 Từ đó ta sẽ nối được với 60 Tiếp theo là con hải mã thứ 3 Giá trị của biểu thức với A bằng 7 Ta sẽ thay giá trị A bằng 7 Và biểu thức ta được 35 cộng 5 nhân 7 Và bằng 35 cộng với 5 nhân 7 bằng 35 Như vậy 35 cộng với 35 bằng 70 Từ đó ta sẽ nối được vào biểu thức thứ 3 Và cuối cùng là giá trị của biểu thức với A bằng 6 Ta sẽ thay A bằng 6 Và ta được 35 cộng 5 nhân 6 và bằng 65 Từ đó ta sẽ nối được 65 vào biểu thức thứ 4 Vừa rồi thì chúng mình đã cùng nhau đi làm phần hoạt động Bây giờ chúng ta sẽ cùng nhau đi tới phần củng cố Bây giờ chúng ta sẽ cùng nhau hoàn thành thử thách sau Để giúp chúng ta",
+      "tokens_count": 512,
+      "created_at": "2025-12-18T18:32:57"
+    },
+    {
+      "chunk_id": "math-4-5_p2_c8",
+      "lesson_id": "math-4-5",
+      "parent_index": 2,
+      "child_index": 8,
+      "text": " 3 Và cuối cùng là giá trị của biểu thức với A bằng 6 Ta sẽ thay A bằng 6 Và ta được 35 cộng 5 nhân 6 và bằng 65 Từ đó ta sẽ nối được 65 vào biểu thức thứ 4 Vừa rồi thì chúng mình đã cùng nhau đi làm phần hoạt động Bây giờ chúng ta sẽ cùng nhau đi tới phần củng cố Bây giờ chúng ta sẽ cùng nhau hoàn thành thử thách sau Để giúp chúng ta phục vụ khách hàng nhé Đề bài người ta yêu cầu con tính giá trị biểu thức 100 chia B với B bằng 4 Bây giờ chúng ta sẽ cùng nhau thay B bằng 4 Và biểu thức 100 chia B Ta được 100 chia cho 4 và bằng 25 Tiếp theo tính giá trị của biểu thức C cộng 5 tất cả nhân với 6 với C bằng 2 Ta chỉ cần thay C bằng 2 ta được C cộng với 5 2 cộng 5 bằng 7 7 nhân 6 bằng 42 Như vậy đáp ản đúng của chúng ta là 42 Và thứ 3 tính giá trị của biểu thức 40 cộng 6 nhân A với A bằng 8 Ta chỉ cần thay A bằng 8 và biểu thức ta được 40 cộng với 6 nhân 8 và bằng 40 cộng với 48 Ta được kết quả là 88 Vừa rồi thì chúng mình đã cùng nhau giúp các bạn Phục vụ được đồ uống rồi Chúng mình đã đạt chỉ tiêu Cô cảm ơn các bạn nhé Vừa rồi thì chúng ta đã cùng nhau đi học về biểu thức có chứa một chữ Cô xin chào và hẹn gặp lại các con ở những bài tiếp theo",
+      "tokens_count": 355,
+      "created_at": "2025-12-18T18:32:58"
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "lesson_id": "science-8-8",
+  "title": "Mat cat doc",
+  "timestamp": "2025-12-18T18:34:05",
+  "timings": {
+    "db_insert_lesson_ms": 279.8452377319336,
+    "chunking_ms": 4571.805477142334,
+    "embedding_ms": 3712.714910507202,
+    "db_insert_chunks_ms": 1400.2466201782227,
+    "total_process_ms": 10232.308149337769
+  },
+  "stats": {
+    "parent_chunk_count": 4,
+    "total_child_chunks": 8
+  },
+  "source_metadata": {
+    "source": "shared_db",
+    "db_id": 8,
+    "lesson_order": 2,
+    "course_title": "Science 8",
+    "content_checksum": "05a9dd6b485921b9cc89a03fc6ba81942c3f5f22de708c4ed748b1fe015fbcc6"
+  },
+  "chunks_metadata": [
+    {
+      "chunk_id": "science-8-8_p0_c0",
+      "lesson_id": "science-8-8",
+      "parent_index": 0,
+      "child_index": 0,
+      "text": "Áp về giách Hỏi 3 địa chỉ Trả lời cước thi Hoa Thu Việt Nam TẠO NGÀY ÁP VỀ GIÁCH Xin chào tất cả các con học sinh quý vến Chào mừng các con lại đến với khóa học Bài giảng toán lớp 4 Bộ sách mang tên Kết nấu tri thức Ở bữa học hôm trước thì chúng mình đã cùng nhau đi tìm hiểu Thế nào là một số có 6 chữ số rồi đúng không nhỉ? Và cũng đi tìm hiểu Số đầu tiên Đó là số 1 triệu Vậy trong buổi học ngày hôm nay thì chúng mình sẽ cùng nhau đi tìm hiểu Những kiến thức mới Đó là hàng và lớp Để ôn lại Kiến thức cũ ngày hôm trước thì chúng mình sẽ cùng nhau Tham gia một trò chơi Mang tên Thử thách làm vườn Trong trò chơi này Thì chúng ta Sẽ Giúp cho cô Thực hiện 3 thử thách Đó là Đào đất này Treo học giống Và cuối cùng Là tưới cây nhé Vậy chúng mình sẽ cùng nhau đi Quan sát Các câu hỏi để hoàn thành thử thách cho cô Với Hoạt động đầu tiên Đó là viết số gồm có 500, 1600 và 2 dân vị Vậy số đó là số nào?",
+      "tokens_count": 281,
+      "created_at": "2025-12-18T18:34:11"
+    },
+    {
+      "chunk_id": "science-8-8_p1_c0",
+      "lesson_id": "science-8-8",
+      "parent_index": 1,
+      "child_index": 0,
+      "text": "A 500602 B 500062 C 506002 Vậy đáp án đúng của chúng mình là đáp án nào? A Chúng mình đã Cùng nhau Đi tìm hiểu Số Có 6 chữ số rồi Vậy số gồm có 500600 và 2 dân vị Chính là đáp án C Đúng không nhỉ? Vậy đáp án C của chúng mình Chính là đáp án đúng Tiếp theo là thử thách thứ 3 Viết số gồm có 200 .000 và 5 dân vị Vậy đáp án nào là đáp án đúng? A 200505 B 200050 C 200005 Chúng ta sẽ cùng nhau suy nghĩ cho cô A Vậy đáp án đúng của chúng mình Chính là đáp án C Đúng không nhỉ? Vậy bây giờ chúng mình đã cùng nhau đi ôn lại Các kiến thức có trong bài học ngày hôm nay Bây giờ cô và con sẽ cùng nhau Bước vào bài học mới ngày hôm nay Là bài số 11 Mang tên hàng và lớp Vậy hàng và lớp của số có 6 chữ số Có gì khác so với hàng và lớp của số?",
+      "tokens_count": 232,
+      "created_at": "2025-12-18T18:34:11"
+    },
+    {
+      "chunk_id": "science-8-8_p2_c0",
+      "lesson_id": "science-8-8",
+      "parent_index": 2,
+      "child_index": 0,
+      "text": "Có 5 chữ số Bây giờ chúng mình sẽ cùng nhau đi tìm hiểu nhé Đầu tiên Về yêu cầu cần đạt của bài học ngày hôm nay Chúng ta sẽ nhận biết được lớp triệu Lớp nghìn và lớp dân vị Tiếp theo Chúng ta sẽ nhận biết được các hàng tương ứng trong mỗi lớp Trong lớp triệu Thì sẽ có Hàng trăm triệu này Hàng chục triệu và hàng triệu Trong lớp nghìn thì sẽ bao gồm có Hàng chục trăm nghìn Hàng chục nghìn và hàng nghìn Trong lớp đơn vị sẽ có Hàng trăm Hàng chục và hàng đơn vị Tiếp theo Cuối cùng đó là nhận biết được Viết được Đọc được các số tròn chục triệu Và tròn trăm triệu Bây giờ chúng mình sẽ cùng nhau Đi tìm hiểu bài học ngày hôm nay nhé Đầu tiên là phần thám phá Chúng ta sẽ cùng nhau quan sát bức tranh này cho cô Bức tranh này cho con biết gì nhỉ? À Chúng ta quan sát bức tranh này Ta thấy rằng Bạn robot Đang ngồi đối diện Với bạn Hình hộp đúng không nhỉ?",
+      "tokens_count": 245,
+      "created_at": "2025-12-18T18:34:12"
+    },
+    {
+      "chunk_id": "science-8-8_p3_c0",
+      "lesson_id": "science-8-8",
+      "parent_index": 3,
+      "child_index": 0,
+      "text": "Và bạn robot thì đang Nói chuyện với hai bạn hình hộp Ở đây có một bản tính Bản tính này Có Các hàng Như sau Đầu tiên là hàng trăm nghìn Có năm Ô tròn này Tiếp theo là hàng chục nghìn Có một ô tròn Hàng nghìn có bốn ô tròn Hàng trăm có hai ô tròn Hàng chục có chín ô tròn Và hàng đơn vị có ba ô tròn Sau khi quan sát bức tranh này Chúng ta Có thấy điều gì không nhỉ? À ta thấy rằng Ở trong số có sáu chữ số Thì chúng ta Sẽ có các hàng Lần lượt đó là hàng trăm nghìn Hàng chục nghìn Hàng nghìn Hàng trăm Hàng chục và hàng đơn vị đúng không nhỉ? Như vậy Sau khi quan sát Bức tranh mà bạn robot Đã Xếp trong bản tính Thì bạn robot đã nói là Tới lập số 514293 Vậy Sau khi quan sát bức tranh này Thì bạn Ô vuông Hình hộp màu đỏ có nói rằng Các chữ số 5, 1 và 4 Thuộc lớp nghìn Và bạn Hình hộp màu xanh thì nói rằng Các chữ số 2, 9 và 3 Thuộc lớp đơn vị Vậy chúng ta Lại cùng nhau đi tìm hiểu Thêm một kiến thức mới Đó là lớp nghìn thì bao gồm Có hàng trăm nghìn, hàng chục nghìn Và hàng nghìn Lớp đơn vị thì sẽ bao gồm có Hàng trăm, hàng chục và hàng đơn vị Từ đó Chúng ta sẽ cùng nhau Quan sát cho cô Lớp đơn vị sẽ bao gồm có Hàng đơn vị này Hàng chục và hàng trăm Còn Còn Có lớp nghìn Sẽ bao gồm có hàng nghìn Hàng chục nghìn và cuối cùng Là hàng trăm nghìn Vậy chúng ta sẽ đọc Thuộc từ dưới lên cho cô Lớp nghìn sẽ bao gồm có Hàng trăm nghìn, hàng chục nghìn Hàng nghìn Lớp đơn vị bao gồm có hàng trăm Hàng chục và hàng đơn vị Từ đó Chúng mình sẽ cùng nhau ghi nhớ cho cô Thuộc kiến thức như sau Hàng đơn vị, hàng chục Hàng trăm sẽ hợp thành Một lớp mang tên lớp đơn vị Hàng nghìn H",
+      "tokens_count": 512,
+      "created_at": "2025-12-18T18:34:12"
+    },
+    {
+      "chunk_id": "science-8-8_p3_c1",
+      "lesson_id": "science-8-8",
+      "parent_index": 3,
+      "child_index": 1,
+      "text": " ta sẽ đọc Thuộc từ dưới lên cho cô Lớp nghìn sẽ bao gồm có Hàng trăm nghìn, hàng chục nghìn Hàng nghìn Lớp đơn vị bao gồm có hàng trăm Hàng chục và hàng đơn vị Từ đó Chúng mình sẽ cùng nhau ghi nhớ cho cô Thuộc kiến thức như sau Hàng đơn vị, hàng chục Hàng trăm sẽ hợp thành Một lớp mang tên lớp đơn vị Hàng nghìn Hàng chục nghìn, hàng trăm nghìn Sẽ hợp thành lớp nghìn Từ đó Các con sẽ cùng nhau quan sát Số ở đây cho cô Số này chúng ta sẽ đọc là gì nhở À, số này ta sẽ đọc là 514293 Sau khi đọc số Chúng ta sẽ cùng nhau Đi phân tích số này Sẽ có những Lớp nào và hàng nào nhé Đầu tiên ta thấy rằng Số này có 2 lớp Là lớp nghìn và lớp đơn vị Như vậy Trong lớp nghìn sẽ bao gồm có Hàng nghìn Hàng chục nghìn và hàng trăm nghìn Từ đó Chúng ta sẽ cùng nhau quan sát Các chữ số và cho cô biết Chữ số 4 Thuộc hàng nào À, ta thấy rằng chữ số 4 Thuộc lớp nghìn và thuộc hàng nghìn Tiếp theo Số 1 thuộc lớp nào nhở À Số 1 sẽ thuộc lớp nghìn Và thuộc hàng chục nghìn Số 5 sẽ thuộc lớp nghìn Và thuộc hàng trăm nghìn, đúng không nhở Như vậy, ta có thể nói rằng Các chữ số 5, 1 và 4 Thuộc lớp nghìn Sau khi chúng ta cùng nhau đi khám phá Các lớp và các hàng Thì chúng ta sẽ cùng nhau Tới phần hoạt động cho cô nhé Cô có bài tập như sau Hoàn thành bảng sau Đây là bài người ta yêu cầu con Điền những Chỗ còn thiếu Như cũng điền những số Còn thiếu ở trong chỗ trống Trong bảng cho cô Như vậy, có các cột viết số Cột Điền các Hàng trăm nghìn, hàng chục nghìn Hàng nghìn, hàng trăm Hàng chục và hàng dân vị Vậy để làm được bài tập này Thì chúng mình sẽ phải làm như thế nào nhở À Để làm được bài tập này Thì chúng ta sẽ phải Nhớ kiến thức Về hàng",
+      "tokens_count": 512,
+      "created_at": "2025-12-18T18:34:13"
+    },
+    {
+      "chunk_id": "science-8-8_p3_c2",
+      "lesson_id": "science-8-8",
+      "parent_index": 3,
+      "child_index": 2,
+      "text": "ền những số Còn thiếu ở trong chỗ trống Trong bảng cho cô Như vậy, có các cột viết số Cột Điền các Hàng trăm nghìn, hàng chục nghìn Hàng nghìn, hàng trăm Hàng chục và hàng dân vị Vậy để làm được bài tập này Thì chúng mình sẽ phải làm như thế nào nhở À Để làm được bài tập này Thì chúng ta sẽ phải Nhớ kiến thức Về hàng và lớp Vậy trong lớp nghìn Thì bao gồm có hàng trăm nghìn Hàng chục nghìn Hàng nghìn Và trong lớp dân vị thì có hàng trăm Hàng chục và hàng dân vị Vậy trong số 377931 Sẽ bao gồm có Lớp Nghìn và lớp dân vị Vậy chúng ta sẽ cùng nhau đi phân tích nhé Đầu tiên Chữ số 3 Sẽ là Ở hàng trăm nghìn này Số 7 ở hàng chục nghìn Số 7 ở hàng nghìn Số 9 ở hàng trăm Số 3 ở hàng chục và số 1 ở hàng dân vị Tiếp theo Số 3 gồm có Chín nghìn, chín chục nghìn Hai nghìn, ba trăm Bốn chục và không dân vị Chính là số 92340 Số 3 gồm có Số 6030 Sẽ bao gồm có Sáu nghìn, không trăm Ba chục và không dân vị Như vậy các con sẽ sửa cho cô hàng dân vị Sẽ là số 0 nhé Và cuối cùng Số bao gồm có 400 nghìn, 50 nghìn 4 nghìn, không trăm Không chục và bốn dân vị Chính là số 454004 Vừa rồi thì chúng mình đã cùng nhau hoàn thành bài số 1 Bây giờ cô và con sẽ cùng nhau bước sang bài số 2 Đây là bài người ta yêu cầu con đọc các số sau và cho biết chữ số 3 ở mỗi số thuộc hàng nào và lớp nào Ở đây cô có các số như sau 172 .938 827389 163222 390 .227 Và cuối cùng là số 862003 Sau khi quan sát các số này thì chúng mình sẽ cùng nhau đọc và cho biết chữ số 3 ở mỗi số thuộc hàng nào và lớp nào cho cô nhé Ở đây cô đã lập một cái bảng và yêu cầu các con đọc số và theo giá trị của",
+      "tokens_count": 512,
+      "created_at": "2025-12-18T18:34:13"
+    },
+    {
+      "chunk_id": "science-8-8_p3_c3",
+      "lesson_id": "science-8-8",
+      "parent_index": 3,
+      "child_index": 3,
+      "text": " cho biết chữ số 3 ở mỗi số thuộc hàng nào và lớp nào Ở đây cô có các số như sau 172 .938 827389 163222 390 .227 Và cuối cùng là số 862003 Sau khi quan sát các số này thì chúng mình sẽ cùng nhau đọc và cho biết chữ số 3 ở mỗi số thuộc hàng nào và lớp nào cho cô nhé Ở đây cô đã lập một cái bảng và yêu cầu các con đọc số và theo giá trị của chữ số 3 ở trong các hàng xem chữ số 3 ở hàng nào và lớp nào chúng ta sẽ suy nghĩ cho cô Như vậy số 172938 ta sẽ đọc là 172938 số này có chữ số 3 ở hàng trục đúng không nhỉ và chữ số 3 thuộc lớp đơn vị số 827389 ta sẽ đọc là 827389 Chữ số 3 sẽ thuộc hàng trăm và thuộc lớp đơn vị số 163222 ta sẽ đọc là 163222 Chữ số 3 thuộc hàng nghìn và thuộc lớp nghìn số 390227 ta sẽ đọc là 390227 Vậy chữ số 3 sẽ thuộc hàng trăm nghìn và thuộc lớp nghìn Cuối cùng là số 862003 ta sẽ đọc là 862003 và chữ số 3 sẽ thuộc hàng đơn vị và thuộc lớp đơn vị Vừa rồi thì chúng mình đã cùng nhau hoàn thành trong bài số 2 bây giờ cô và con sẽ cùng nhau bước sang bài số 3 tìm giá trị theo vị trí của chữ số được gạch chân ở bộ số tham ấu ở đây có bảng bao gồm có hàng số này và hàng giá trị các con sẽ cùng nhau quan sát những số được gạch chân và tìm giá trị tương ứng cô có ví dụ số 362820 được gạch chân ở chữ số 2 thuộc lớp nghìn và thuộc hàng nghìn như vậy có giá trị là 2000 tương tự như vậy số 810003 có chữ số 1 thuộc lớp nghìn và thuộc hàng chục nghìn như vậy giá trị sẽ là 10000 số 736772 được gạch chân ở chữ số 7 thuộc hàng nghìn và thuộc lớp trăm nghìn như vậy thuộc lớp nghìn và thuộc hàng trăm nghìn như vậy giá trị sẽ là 700000 và cuối cùng là số 256837 có chữ số 7 thuộc hàng đơn vị thuộc hàng đơn vị và thuộc lớp đơn vị như vậy có giá trị là 7 sau khi chúng ta đã hoàn thành",
+      "tokens_count": 512,
+      "created_at": "2025-12-18T18:34:14"
+    },
+    {
+      "chunk_id": "science-8-8_p3_c4",
+      "lesson_id": "science-8-8",
+      "parent_index": 3,
+      "child_index": 4,
+      "text": " chục nghìn như vậy giá trị sẽ là 10000 số 736772 được gạch chân ở chữ số 7 thuộc hàng nghìn và thuộc lớp trăm nghìn như vậy thuộc lớp nghìn và thuộc hàng trăm nghìn như vậy giá trị sẽ là 700000 và cuối cùng là số 256837 có chữ số 7 thuộc hàng đơn vị thuộc hàng đơn vị và thuộc lớp đơn vị như vậy có giá trị là 7 sau khi chúng ta đã hoàn thành bài số 3 bây giờ cô và con sẽ tạm biệt nhau ở đây và cô xin chào và tạm biệt các con và chúng ta sẽ gặp nhau ở những bài học tiếp theo nhé",
+      "tokens_count": 141,
+      "created_at": "2025-12-18T18:34:14"
+    }
+  ]
+}

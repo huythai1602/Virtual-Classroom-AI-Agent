@@ -95,7 +95,7 @@ def get_connection():
         try:
             with conn.cursor() as cur:
                 cur.execute("SELECT 1")
-        except (psycopg2.OperationalError, psycopg2.InterfaceError):
+        except (psycopg2.OperationalError, psycopg2.InterfaceError, psycopg2.DatabaseError):
             # Connection is dead, remove it and create a new one
             print("⚠️ Connection dead, resetting...")
             # Ideally we'd remove it from pool, but SimpleConnectionPool is limited.

@@ -1,0 +1,133 @@
+{
+  "lesson_id": "science-8-7",
+  "title": "Mat cat ngang",
+  "timestamp": "2025-12-18T18:33:18",
+  "timings": {
+    "db_insert_lesson_ms": 278.4750461578369,
+    "chunking_ms": 39007.98416137695,
+    "embedding_ms": 5860.312461853027,
+    "db_insert_chunks_ms": 1573.824167251587,
+    "total_process_ms": 46992.04921722412
+  },
+  "stats": {
+    "parent_chunk_count": 12,
+    "total_child_chunks": 12
+  },
+  "source_metadata": {
+    "source": "shared_db",
+    "db_id": 7,
+    "lesson_order": 1,
+    "course_title": "Science 8",
+    "content_checksum": "ec0e608e0c612ff706e7523ee0b4553bf732d926e0a284f50cec4b49dfd77ccf"
+  },
+  "chunks_metadata": [
+    {
+      "chunk_id": "science-8-7_p0_c0",
+      "lesson_id": "science-8-7",
+      "parent_index": 0,
+      "child_index": 0,
+      "text": "Xin chào tất cả các con học sinh thân mến, chào mừng các con đã đến với khóa học bài giảng khóa lớp 4, bộ sách mang tên kết nối trí thức. Chúng mình đã cùng nhau hoàn thành dương bài số 9 mang tên luyện tập trung dùm nhảm. Để khởi động cho bài mới ngày hôm nay, chúng mình sẽ cùng nhau bước sang một trò chơi mang tên đấu bạn. Để chơi được trò chơi này thì chúng mình sẽ cùng nhau quan sát tập chơi cho cô nhé. Tập chơi của trò chơi này như sau, chúng ta hãy viết câu trả lời vào bảng, và nếu mà câu trả lời đúng thì sẽ được thưởng hòa, trả lời sai thì sẽ không được thưởng hòa. Vậy chúng mình sẽ cùng nhau cố gắng viết đáp án chính xác vào trong bảng hoặc là trong vở để chọn một phần quà ưng ý cho mình nhé. Bây giờ cô có câu hỏi như sau, chúng ta hãy viết số 25500 cho cô nào.",
+      "tokens_count": 214,
+      "created_at": "2025-12-18T18:33:59"
+    },
+    {
+      "chunk_id": "science-8-7_p1_c0",
+      "lesson_id": "science-8-7",
+      "parent_index": 1,
+      "child_index": 0,
+      "text": "Chúng ta có 10 giây suy nghĩ. À, số 25500 được viết là 25500 đúng nhỉ? Tiếp theo là câu số 2, chúng ta hãy viết số 47605 cho cô. Vậy số 47 .605 ta viết là 77605. Tiếp theo, chúng ta hãy viết cho cô số 98502. À, số 98502 được viết là 98502. Rồi thì chúng mình đã cùng nhau đi học cách viết số. Đúng nhỉ? Bây giờ cô và con sẽ cùng nhau bước sang bài mới ngày hôm nay. Chính là bài số 7, số có 6 chữ số, số 1 triệu. Ở trong chương trình lớp 3 thì chúng ta đã được học các số có 5 chữ số. Đến chương trình lớp 4 thì chúng ta lại học số lớn hơn là 1 số có 6 chữ số. Hay chúng ta gọi số đầu tiên của số 6 chữ số là số 1 triệu đúng nhỉ?",
+      "tokens_count": 213,
+      "created_at": "2025-12-18T18:33:59"
+    },
+    {
+      "chunk_id": "science-8-7_p2_c0",
+      "lesson_id": "science-8-7",
+      "parent_index": 2,
+      "child_index": 0,
+      "text": "Với bài học mới ngày hôm nay thì chúng mình sẽ phải có số yêu cầu cần đạt cho cô sau. Đầu tiên chúng ta sẽ đọc, viết được các số trong tạm tìm 100000. Thứ 2, chúng ta sẽ nhận biết được các số tròn 100000. 3, chúng ta sẽ nhận biết được cấu tạo thật vân của số. Đó là yêu cầu cần đạt của ngày hôm nay mà chúng ta sau khi học xong bài thì chúng ta sẽ bán để đạt được. Bây giờ chúng ta sẽ cùng nhau bước sang phần thảm thá. Chúng ta sẽ cùng nhau quan sát cho cô bức tranh như sau. Ở đây có một bạn đúng không nhỉ? Và một bạn robot là 5 bạn. Bạn robot đang nói là dân số thành Cà Mau năm 2019 là 226372 người. Đây là thông tin theo trang của Cà Mau GoToVN. Sau khi mà bạn robot đã nói cái số mà dân số của thành phố Cà Mau năm 2019 là 226372 người thì chúng ta sẽ cùng nhau đi phân tích số này sẽ bao gồm những hàng nào và lớp nào nhé.",
+      "tokens_count": 243,
+      "created_at": "2025-12-18T18:34:00"
+    },
+    {
+      "chunk_id": "science-8-7_p3_c0",
+      "lesson_id": "science-8-7",
+      "parent_index": 3,
+      "child_index": 0,
+      "text": "Như vậy ở đây chúng ta thấy rằng có các hàng như sau. Đầu tiên là hàng trăm nghìn, tiếp theo là hàng chục nghìn, hàng nghìn, hàng trăm, hàng chục và hàng đơn vị. Số này bao gồm có 200 nghìn, 20 nghìn, 6 nghìn, 300, 70 và 2 đơn vị. Vậy, số 200 nghìn được viết bởi 2 lần của 100 nghìn, 20 nghìn được viết bởi 2 lần của 10 nghìn, 6 nghìn được viết bởi 6 lần của 1 nghìn, 300 được viết bởi 3 lần của 100, 70 thì được viết 7 lần của số 10. Và 2 đơn vị được viết bởi 2 lần số 1. Sau khi chúng ta đã cùng nhau đi phân tích tạo của số 226372, chúng ta có nhận xét gì nhỉ? À, ta thấy rằng số này là một số gồm có 200 nghìn, 20 nghìn, 6 nghìn, 300, 70 và 2 đơn vị.",
+      "tokens_count": 238,
+      "created_at": "2025-12-18T18:34:00"
+    },
+    {
+      "chunk_id": "science-8-7_p4_c0",
+      "lesson_id": "science-8-7",
+      "parent_index": 4,
+      "child_index": 0,
+      "text": "Từ đó, ta sẽ viết được số bao gồm có 220 nghìn, 6 nghìn, 300, 70 và 2 đơn vị là số 226372. Và ta đập là 226372. Thế vậy hôm nay chúng ta lại cùng nhau học một số có 6 chữ số, đúng không nhỉ? Đây là bước khởi đầu chúng ta cần ghi nhớ và học cách viết số và biết cách đọc cho những số có 6 chữ số nhé. Thế vậy, sau khi chúng mình đã cùng nhau đi khám phá cách đọc, cách viết và tạo của số có 6 chữ số rồi, bây giờ bọn con sẽ cùng nhau bước sang phần hoạt động. Để bài người ta yêu cầu bọn con hoàn thành bảng sau, đây cô có một cái bảng bao gồm có một hàng trăm nghìn, một hàng chục nghìn, một hàng nghìn, một hàng trăm, một hàng chục, một hàng đơn vị và yêu cầu con viết số và đập số.",
+      "tokens_count": 214,
+      "created_at": "2025-12-18T18:34:01"
+    },
+    {
+      "chunk_id": "science-8-7_p5_c0",
+      "lesson_id": "science-8-7",
+      "parent_index": 5,
+      "child_index": 0,
+      "text": "Thế vậy, chúng ta sẽ cùng nhau quan sát những số còn thiếu để điền vào chữ chống nhé. Đầu tiên, số bao gồm có sáu trăm nghìn, năm chục nghìn, không nghìn, không trăm, ba chục và hai đơn vị, ta sẽ viết là số nào nhỉ? À, số bao gồm có sáu trăm nghìn, năm chục nghìn, không nghìn, không trăm, ba chục và hai đơn vị, ta sẽ viết là số sáu trăm năm mươi nghìn, không trăm ba mươi hai và ta đập là sáu trăm năm mươi nghìn, trăm ba mươi hai. Tiếp theo, số được viết là ba trăm nghìn, trăm bảy mươi năm. Số đó bao gồm có ba trăm nghìn, không chục nghìn, không nghìn, không trăm, bảy chục và năm đơn vị và ta đập số này là ba trăm nghìn, trăm bảy mươi năm.",
+      "tokens_count": 225,
+      "created_at": "2025-12-18T18:34:01"
+    },
+    {
+      "chunk_id": "science-8-7_p6_c0",
+      "lesson_id": "science-8-7",
+      "parent_index": 6,
+      "child_index": 0,
+      "text": "Và cuối cùng, số được đập là chín trăm ba mươi tám nghìn, không trăm hai mươi một. Ta sẽ đập, đập là như vậy và chúng ta sẽ viết là Số bao gồm có chín trăm nghìn, ba chục nghìn, tám nghìn, không trăm, hai chục và đơn vị và viết là chín trăm ba mươi tám nghìn, trăm ba mươi một. Thôi rồi, thì chúng mình đã cùng nhau đi hoàn thành bản ở bài số 1 rồi. Bây giờ, các bạn sẽ cùng nhau bước sang bài số 2 để bài người tiêu cầu tiêu số tiền ở mức hình tham ấu. Ở đây, bạn Mai đã quan sát các tờ tiền và bạn Mai nói là tờ tiền, các tờ tiền này có tổng cộng là ba trăm bảy ba nghìn ba trăm đồng. Như vậy, chúng ta sẽ cùng nhau quan sát nhé. Ở đây có ba tờ một trăm nghìn này, một tờ mươi nghìn, ba tờ một nghìn và ba tờ một trăm đồng.",
+      "tokens_count": 243,
+      "created_at": "2025-12-18T18:34:02"
+    },
+    {
+      "chunk_id": "science-8-7_p7_c0",
+      "lesson_id": "science-8-7",
+      "parent_index": 7,
+      "child_index": 0,
+      "text": "Như vậy, bạn Mai cộng vào, ta lấy ba như một trăm nghìn cộng mười nghìn cộng một nghìn như với ba cộng với một trăm như với ba. Ta được kết quả là ba trăm với ba nghìn ba trăm đồng. Như vậy, tương tự như bạn Mai làm, chúng mình sẽ cùng nhau hoàn thành ý A và ý B cho cô nhé. Vậy để làm được ý A và ý B thì chúng mình sẽ cùng nhau đi tiêu số tiền bằng cách nào nhỉ? À, ta sẽ cùng nhau quan sát xem các mệnh giá tiền có bao nhiêu tờ. Như vậy, ở nhà, ta thấy rằng mệnh giá một trăm nghìn có bốn tờ. Có một tờ mệnh giá một nghìn, một tờ mệnh giá một nghìn và một tờ mệnh giá một trăm đồng. Như vậy, ta chỉ cần lấy một trăm nghìn thêm về bốn là bốn trăm nghìn cộng với mười nghìn cộng với một nghìn và cộng trăm đồng.",
+      "tokens_count": 227,
+      "created_at": "2025-12-18T18:34:02"
+    },
+    {
+      "chunk_id": "science-8-7_p8_c0",
+      "lesson_id": "science-8-7",
+      "parent_index": 8,
+      "child_index": 0,
+      "text": "Ta sẽ được kết quả là bốn trăm nghìn một trăm mười một, bốn trăm mười một nghìn, một trăm đồng. Tiếp theo ở ý B, ta thấy rằng có một tờ một trăm nghìn này và có sáu tờ một nghìn và một tờ một trăm đồng. Như vậy, ta chỉ cần lấy một trăm nghìn cộng sáu như với một nghìn là một trăm linh sáu nghìn cộng với một trăm. Ta được kết quả là một trăm linh sáu nghìn một trăm đồng. Vừa rồi chúng mình đã cùng nhau hoàn thành xong bài số 2. Bây giờ chúng ta sẽ cùng nhau đọc một loại báo cáo dưới đây và trả lời câu hỏi cho cô nhé. Tê giác là loài động vật trên cạ lớn thứ hai trên trời đất. Năm 1900, người ta ước tính có 500000 con tê giác ngoài tự nhiên.",
+      "tokens_count": 208,
+      "created_at": "2025-12-18T18:34:02"
+    },
+    {
+      "chunk_id": "science-8-7_p9_c0",
+      "lesson_id": "science-8-7",
+      "parent_index": 9,
+      "child_index": 0,
+      "text": "Tuy nhiên thì do nạn sân bạc bắn bất thờ pháp mà ngày nay người ta ước tính chỉ có khoảng 27000 con tê giác. Như vậy, sau khi đọc đoạn báo cáo này thì chúng mình sẽ cùng nhau đi trả lời cho cô hai câu hỏi như sau. A. Năm 1900, ước tính có bao nhiêu con tê giác sống ngoài tự nhiên? B. Ngày nay, ước tính có bao nhiêu con tê giác sống ngoài tự nhiên? Vậy để trả lời cho hai câu hỏi IA và IB, thì chúng mình sẽ cùng nhau quan sát các dữ liệu đoạn báo cáo này cho con biết nhé. Vậy, đoạn báo cáo cho con biết rằng, năm 1900, người ta ước tính có 500000 con tê giác ngoài tự nhiên đúng không nhỉ? Vậy chúng mình sẽ dễ dàng trả lời cho IA, đó là năm 1900, ước tính có 500000 con tê giác sống ngoài tự nhiên.",
+      "tokens_count": 213,
+      "created_at": "2025-12-18T18:34:03"
+    },
+    {
+      "chunk_id": "science-8-7_p10_c0",
+      "lesson_id": "science-8-7",
+      "parent_index": 10,
+      "child_index": 0,
+      "text": "IB. Ngày nay, ước tính có bao nhiêu con tê giác sống ngoài tự nhiên? Chúng ta lại quan sát này. Tuy nhiên, do ngạn sân bắn bất hợp pháp, mà ngày nay, người ta ước tính chỉ có 27000 con tê giác. Vậy, chúng ta sẽ trả lời là, ngày nay, ước tính có 27000 con tê giác sống ngoài tự nhiên. Bây giờ thì chúng mình đã cùng nhau đoạn báo cáo và trả lời được câu hỏi. Bây giờ, bọn con sẽ cùng nhau lắng nghe những tận dòng của cô nhé. Đầu tiên thì chúng ta sẽ cùng nhau xem lại nội dung bài học của nay cho cô, và chuẩn bị bài tiếp theo nhé. Vừa rồi, chúng mình đã cùng nhau đi tìm hiểu xong về bài số có 6 chữ số, số 1 triệu. Cô xin chào và hẹn gặp lại các con ở những bài tiếp theo.",
+      "tokens_count": 204,
+      "created_at": "2025-12-18T18:34:03"
+    },
+    {
+      "chunk_id": "science-8-7_p11_c0",
+      "lesson_id": "science-8-7",
+      "parent_index": 11,
+      "child_index": 0,
+      "text": "Khóa học về giách Sự lựa chọn của hàng triệu phụ huynh và học sinh Trải nghiệm ngay khóa học về giách",
+      "tokens_count": 29,
+      "created_at": "2025-12-18T18:34:04"
+    }
+  ]
+}

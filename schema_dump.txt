@@ -1,0 +1,9 @@
+Columns in quiz_answers:
+- id (integer)
+- attempt_id (integer)
+- question_id (integer)
+- is_correct (boolean)
+- user_answer (character varying)
+
+Sample data (first row):
+(1, 1, 7, '0', True)

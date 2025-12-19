@@ -1,0 +1,223 @@
+{
+  "lesson_id": "math-4-1",
+  "title": "On tap cac so den 100000",
+  "timestamp": "2025-12-18T18:28:14",
+  "timings": {
+    "db_insert_lesson_ms": 457.3488235473633,
+    "chunking_ms": 124855.18598556519,
+    "embedding_ms": 10672.17469215393,
+    "db_insert_chunks_ms": 4263.18097114563,
+    "total_process_ms": 140549.7546195984
+  },
+  "stats": {
+    "parent_chunk_count": 22,
+    "total_child_chunks": 22
+  },
+  "source_metadata": {
+    "source": "shared_db",
+    "db_id": 1,
+    "lesson_order": 1,
+    "course_title": "Math 4",
+    "content_checksum": "4d5f666b07599f0cf63b7bdc86734780190c2d7bd4689f9188a4b256b1029398"
+  },
+  "chunks_metadata": [
+    {
+      "chunk_id": "math-4-1_p0_c0",
+      "lesson_id": "math-4-1",
+      "parent_index": 0,
+      "child_index": 0,
+      "text": "Xin chào tất cả các con học sinh thân mến, chào mừng các con đã đến với khóa học bài giảng toán lớp 4, bộ sách mang tên Kết nối tri thức. Hôm nay cô và các con sẽ cùng nhau bước vào chủ đề đầu tiên trong chương trình, đó là chủ đề 1 mang tên Ôn tập và bổ sung. Và bài học ngày hôm nay của chúng ta chính là bài số 1, Ôn tập các số đến 100000. Chúng mình đã cùng nhau học các số trong phạm vi 100000 rồi đúng không nhở? Hôm nay chúng mình sẽ cùng nhau đi ôn tập lại các kiến thức đã có trong chương trình lớp 3. Để củng cố lại kiến thức thì cô và con sẽ cùng nhau bước vào một trò chơi mang tên Tấm Cám. Trong trò chơi này thì chúng mình sẽ cùng nhau đi giúp vua tìm lại tấm bằng cách trả lời đúng từng thử thách và hóa giải chúng trong cuộc đời của tấm.",
+      "tokens_count": 213,
+      "created_at": "2025-12-18T18:30:21"
+    },
+    {
+      "chunk_id": "math-4-1_p1_c0",
+      "lesson_id": "math-4-1",
+      "parent_index": 1,
+      "child_index": 0,
+      "text": "Bọn em sẽ chọn hóa giải, một thử thách hóa giải được tất cả thử thách sẽ giúp nhà vua và nàng tấm quay trở về bên nhau mãi mãi. Nếu trả lời sai một thử thách đồng nghĩa với việc trở về bên nhau không thành công. Và bây giờ chúng ta sẽ cùng nhau đi quan sát những thử thách mà chúng ta sẽ phải vượt qua nhé. Đầu tiên là khi tấm biến thành chim vàng anh. Thứ hai là khi tấm biến thành cây son đảo. Thứ ba khi tấm biến thành khung cửi. Thứ tư khi tấm biến thành quả thị. Và cuối cùng là khi tấm và nhà vua gặp lại nhau. Bây giờ chúng mình sẽ cùng nhau đi hoàn thành từng thử thách một nhé. Đầu tiên là tấm biến thành chim vàng anh. Câu số 1. Chữ số 4 trong số 52431 thuộc hàng nào? A.",
+      "tokens_count": 199,
+      "created_at": "2025-12-18T18:30:21"
+    },
+    {
+      "chunk_id": "math-4-1_p2_c0",
+      "lesson_id": "math-4-1",
+      "parent_index": 2,
+      "child_index": 0,
+      "text": "Hàng trăm B. Hàng nghìn C. Hàng chục nghìn Và D. Hàng chục Chúng ta có 5 giây suy nghĩ cho cô. Sau 5 giây suy nghĩ, bây giờ cô chào mình sẽ cùng nhau đi trả lời câu số 1 nhé. Chữ số 4 trong số 52431 Như vậy chúng ta sẽ phải quan sát chữ số 4. Ta thấy rằng chữ số 4 thuộc hàng trăm. Vậy đảm bản đúng của chúng mình chính là đáp án A đúng không nhỉ? Bây giờ chúng mình sẽ cùng nhau đi hoàn thành thử thách số 2. Số 20305 được viết là A. 20503 B. 20305 C. 20455 D. 25043 Vậy chúng ta sẽ cùng nhau suy nghĩ cho cô và chọn được đáp án đúng nhé. Bây giờ cô và con sẽ cùng nhau đi trả lời câu số 2. Số 20305 được viết là Như vậy đáp án đúng của chúng mình sẽ là đáp án B đúng không nhỉ?",
+      "tokens_count": 228,
+      "created_at": "2025-12-18T18:30:22"
+    },
+    {
+      "chunk_id": "math-4-1_p3_c0",
+      "lesson_id": "math-4-1",
+      "parent_index": 3,
+      "child_index": 0,
+      "text": "Rồi, bây giờ cô và con sẽ cùng nhau bước vào thử thách số 3. Số 13786 được đọc là A. 13686 B. 20 .813 C. 13786 Và D. 13004 Chúng ta có 5 giây suy nghĩ. Sau 5 giây suy nghĩ, bây giờ cô và con sẽ cùng nhau đi trả lời câu số 3 nhé. Số 13 .786 được đọc là 13786 Vậy đáp án đúng của chúng mình chính là đáp án C đúng không nhỉ? Rồi, bây giờ cô và con sẽ cùng nhau bước vào thử thách số 4. Giá trị của chữ số 0 trong số 84562 là A. 400 B. 40000 C. 40 D. 4000 Chúng ta có 5 giây suy nghĩ. Bây giờ cô và con sẽ cùng nhau đi trả lời câu số 4 nhé. Giá trị của chữ số 4 trong số 84562 là 4000 đúng không nhỉ?",
+      "tokens_count": 220,
+      "created_at": "2025-12-18T18:30:22"
+    },
+    {
+      "chunk_id": "math-4-1_p4_c0",
+      "lesson_id": "math-4-1",
+      "parent_index": 4,
+      "child_index": 0,
+      "text": "Vậy chúng ta sẽ chọn đáp án của chúng mình chính là đáp án D. Và bây giờ chính là thử thách cuối cùng để giúp nhà vua gặp được tấm. Số tròn trục liền trước số 100000 được viết là A. 99 .998 B. 99999 C. 99990 Và D. 100010 Chúng ta có 5 giây suy nghĩ. Sau 5 giây suy nghĩ, bây giờ cô và con sẽ cùng nhau đi chọn đáp án đúng cho thử thách số 5 này nhé. Số tròn trục liền trước số 100000 Ta biết rằng số liền trước số 100000 là số 99999 đúng không nhỉ? Và đây người ta hỏi số tròn trục. Vậy ta sẽ loại được đáp án A và B. Và đáp án đúng của chúng mình chính là đáp án C. Vậy sau khi hoàn thành được 5 thử thách và chúng ta đã giúp được nhà vua và tấm đã có thể trở về bên nhau rồi.",
+      "tokens_count": 220,
+      "created_at": "2025-12-18T18:30:22"
+    },
+    {
+      "chunk_id": "math-4-1_p5_c0",
+      "lesson_id": "math-4-1",
+      "parent_index": 5,
+      "child_index": 0,
+      "text": "Vừa rồi thì các con và cô đã cùng nhau đi giúp nhà vua gặp được tấm rồi. Bây giờ chúng mình sẽ cùng nhau bước sang phần ôn tập lại kiến thức á học nhé. Ở đây cô có một bức ảnh về số có 5 chữ số. Số có 5 chữ số thì chúng ta sẽ nhớ lại cách đọc này, cách viết và xem số đó thì bao gồm những hàng nào. Như vậy ở đây chúng ta quan sát, ta thấy rằng có hàng trục nghìn này, hàng nghìn, hàng trăm, hàng trục và hàng đơn vị. Như vậy ta quan sát, có tổng cộng là 1, 2, 3, 4, 5. Vậy có 5 khối, bao gồm mỗi khối thì sẽ có 100 khối lớp phương nhỏ. Như vậy ta sẽ có tổng cộng là có 1000 khối lớp phương nhỏ. Như vậy ta có tổng cộng là 1000 x 10 là 10 .000.",
+      "tokens_count": 215,
+      "created_at": "2025-12-18T18:30:23"
+    },
+    {
+      "chunk_id": "math-4-1_p6_c0",
+      "lesson_id": "math-4-1",
+      "parent_index": 6,
+      "child_index": 0,
+      "text": "Như vậy hàng trục nghìn ta có 10000 này. Tiếp theo là hàng nghìn ta thấy rằng có 2 khối, mỗi khối thì bao gồm có 1000 hình lớp phương nhỏ. Như vậy đây sẽ có 2000 này. Hàng trăm ta thấy rằng có 3 khối hình lớp phương. Mỗi khối thì sẽ có bao gồm 100 khối lớp phương nhỏ. Như vậy ta có tổng cộng là 300. Và tiếp theo tới hàng trục ta thấy rằng ta có 2 trục và 4 khối lớp phương nhỏ, tức là 4 thức vị. Vậy số này sẽ là số bao gồm có 1000, 2000, 300, 2 trục và 4 thức vị. Vậy số gồm có 1000, 2000, 300, 2 trục và 4 thức vị ta sẽ đọc là gì nhỉ? À, như vậy số gồm 1000, 2000, 300, 2 trục và 4 thức vị ta sẽ viết là 12 .324.",
+      "tokens_count": 232,
+      "created_at": "2025-12-18T18:30:23"
+    },
+    {
+      "chunk_id": "math-4-1_p7_c0",
+      "lesson_id": "math-4-1",
+      "parent_index": 7,
+      "child_index": 0,
+      "text": "Và ta đọc là 12324. Vừa rồi chúng ta đã cùng nhau đi ôn lại về số có 5 chiếc số. Tiếp theo chúng mình sẽ cùng nhau đi học cách so sánh, ôn lại cách so sánh số có 5 chiếc số nhé. Ở đây chúng ta sẽ cùng nhau quan sát bức tranh cho cô. Số dân 2 huyện của 1 tỉnh lần lượt là 41217 người và 46 .616 người. Hỏi huyện nào đông dân hơn? Vậy chúng ta sẽ cùng nhau quan sát bạn Mai thì nó là 41 .217 và 46616. Số nào lớn hơn? À, bạn Mai đã thắc mắc là số nào lớn hơn? Vậy bạn robot thì nói là so sánh tương tự như là so sánh các số trong phạm ví 10000. Vậy thì chúng ta chỉ cần áp dụng cách so sánh tương tự như là so sánh các số trong phạm ví 10000.",
+      "tokens_count": 205,
+      "created_at": "2025-12-18T18:30:24"
+    },
+    {
+      "chunk_id": "math-4-1_p8_c0",
+      "lesson_id": "math-4-1",
+      "parent_index": 8,
+      "child_index": 0,
+      "text": "Ta đi so sánh 2 số 41217 và 46616. Đầu tiên ta sẽ phải đi đếm xem có bao nhiêu chữ số đúng không nhỉ? Ta thấy rằng số 41217 có 5 chữ số, số 46616 có 5 chữ số. Thế vậy 2 số này thì có số chữ số bằng nhau đều là 5 chữ số. Tiếp theo ta sẽ phải đi so sánh lần được từ hàng cao nhất tới hàng thấp nhất. Ta quan sát ta thấy rằng hàng chục nghìn của số 41 .217 là 4, hàng chục nghìn của số 46616 là 4. Vậy các chữ số ở hàng chục nghìn của chúng bằng nhau. Tiếp theo ta sẽ phải đi so sánh hàng nghìn. Ta thấy rằng hàng nghìn của số 41217 là 1, hàng nghìn của số 46616 là 6. Vậy ở hàng nghìn có 1 nhỏ hơn 6.",
+      "tokens_count": 208,
+      "created_at": "2025-12-18T18:30:24"
+    },
+    {
+      "chunk_id": "math-4-1_p9_c0",
+      "lesson_id": "math-4-1",
+      "parent_index": 9,
+      "child_index": 0,
+      "text": "Từ đó ta dễ dàng kết luận được là 41217 nhỏ hơn 46616. Vừa rồi chúng mình đã cùng nhau đi ôn lại về các hàng, cách viết, cách đọc và cách so sánh 2 số có 5 chữ số. Bây giờ chúng mình sẽ cùng nhau đi ôn tập lại. Đầu tiên chúng mình sẽ cùng nhau bước sang phần luyện tập. Đêm ba người yêu cầu con điền số thích hợp vào chỗ trống. Vậy chúng ta sẽ cùng nhau đi điền các số thích hợp vào chỗ trống nhé. Đầu tiên người ta hồng dẫn con như sau. Số 36515 bao gồm có 30000, 6 .500, 1000, 5000 vị và số này sẽ đọc là 36515. Tương tự như vậy chúng ta sẽ cùng nhau đi điền các số còn thiếu vào chỗ trống cho cô. Ở hàng thứ 2, hàng thứ 3 người ta cho con cách đọc số là 61 .034.",
+      "tokens_count": 217,
+      "created_at": "2025-12-18T18:30:25"
+    },
+    {
+      "chunk_id": "math-4-1_p10_c0",
+      "lesson_id": "math-4-1",
+      "parent_index": 10,
+      "child_index": 0,
+      "text": "Như vậy ta sẽ phải định hình cái số đó ở trong đầu. Vậy ta sẽ phải đi viết số đó là 61 .034. Tiếp theo sau khi viết được số thì ta sẽ dễ dàng viết được các số ở từng hàng một đúng không nhỉ. Đầu tiên là hàng chục nghìn sẽ là số 6. Tiếp theo là 1030 và 4 nhân vị. Tương tự như vậy với số được đọc là 7941. Ta sẽ viết là 7941. Vậy số này sẽ bao gồm có 0 .0007940 và 1 nhân vị đúng không nhỉ. Và cuối cùng là số được đọc là 20809. Vậy ta sẽ viết là 20809. Số này ta sẽ đọc. Sau khi đọc rồi thì ta sẽ dễ dàng viết được các chiếc số ở từng hàng một. Như vậy đầu tiên sẽ có 20000. Tiếp theo là 0809. Vừa rồi thì chúng mình đã cùng nhau đi ôn lại cách viết, cách đọc số và cách xác định các hàng chục nghìn, hàng nghìn, hàng trăm, hàng chục và hàng đơn vị rồi.",
+      "tokens_count": 244,
+      "created_at": "2025-12-18T18:30:26"
+    },
+    {
+      "chunk_id": "math-4-1_p11_c0",
+      "lesson_id": "math-4-1",
+      "parent_index": 11,
+      "child_index": 0,
+      "text": "Bây giờ cô và con sẽ cùng nhau đi bước sang bài số 2. Viết số rồi đọc số. Viết số đó bao gồm có. A. 40000, 2000, 500 và 30 .000. B. 8000, 800, 80 và 8 đơn vị. C. 50000, 700, 10 và 4 đơn vị. D. 90000, 4000 và 5 đơn vị. Vậy để làm được bài tập số 2 này thì chúng mình sẽ phải làm như thế nào nhỉ? À, để làm được bài tập số 2 thì chúng ta sẽ cùng nhau đi xác định lại cái đề bài. Đề bài người ta yêu cầu con viết số này. Sau khi viết số xong thì sẽ đọc số. Như vậy với A, số gồm 40000, 2000, 500 và 30000 sẽ là số nào? À, số gồm 40000, 2000, 500 và 30000 sẽ là số 42 đến 530.",
+      "tokens_count": 223,
+      "created_at": "2025-12-18T18:30:26"
+    },
+    {
+      "chunk_id": "math-4-1_p12_c0",
+      "lesson_id": "math-4-1",
+      "parent_index": 12,
+      "child_index": 0,
+      "text": "Và ta đọc số đó là 42 .530. Tương tự với YB, số gồm có 8000, 800, 80 và 8 đơn vị. Ta sẽ viết là 8888 và đọc là 8888. Tiếp theo với YC, số gồm 50700, 1000 và 4 đơn vị sẽ được viết là 50714. Và số này ta sẽ đọc là 50714. Tiếp theo với YD, số gồm có 90000, 4000 và 5 đơn vị. Ta sẽ viết là gì nhỉ? À, ta sẽ viết là 94005 và ta sẽ đọc là 94005. Vừa rồi chúng mình đã cùng nhau đi học cách viết số và đọc số rồi. Như vậy đến bài tập tiếp theo ta sẽ cùng nhau đi phân tích các tập. Số đó sẽ bao gồm có các hàng nào cộng với nhau. Như vậy ta sẽ cùng nhau bước sang bài số 3.",
+      "tokens_count": 203,
+      "created_at": "2025-12-18T18:30:27"
+    },
+    {
+      "chunk_id": "math-4-1_p13_c0",
+      "lesson_id": "math-4-1",
+      "parent_index": 13,
+      "child_index": 0,
+      "text": "Tên bài người ta yêu cầu con điền các số còn thiếu vào chỗ trống. Như vậy chúng mình sẽ cùng nhau đi điền các số còn thiếu ở YA, YB, YC và YD nhé. Đầu tiên với YA, 6 .825 bao gồm có 6820 và 5 đơn vị. Như vậy ta sẽ điền số 5 vào chỗ trống. Tiếp theo là số 33471, số này bao gồm có 30003470 .1 đơn vị. Như vậy ta sẽ điền số 400 vào chỗ trống. Tiếp theo là số 75850, số này bao gồm có 70 .005850 đơn vị đúng không nhỉ? Và cuối cùng là YD. YD ta sẽ lấy số 86209 sẽ bằng số 80000 cộng số 6000 cộng với 200 cộng với 0 chục và 9 đơn vị. Như vậy ở YD ta sẽ điền số 200 vào chỗ trống.",
+      "tokens_count": 211,
+      "created_at": "2025-12-18T18:30:27"
+    },
+    {
+      "chunk_id": "math-4-1_p14_c0",
+      "lesson_id": "math-4-1",
+      "parent_index": 14,
+      "child_index": 0,
+      "text": "Tiếp theo chúng mình sẽ cùng nhau bước sang bài để ôn tập về số liền trước và số liền sau. Vậy, khi mà ta đã biết số đã cho, muốn tìm số liền trước và số liền sau ta sẽ phải làm như thế nào nhỉ? À, để tìm được số liền trước và số liền sau, muốn tìm số liền trước ta chỉ cần lấy số đã cho trừ đi 1 đơn vị. Muốn tìm số liền sau ta chỉ cần lấy số đã cho cộng thêm 1 đơn vị. Như vậy ta sẽ áp dụng cách làm đó vào bài tập số 5 cho cô nhé. Đầu tiên, số liền trước là 8290. Như vậy muốn, số đã cho là 8290. Vậy muốn tìm số liền trước ta phải làm như thế nào? À, ta sẽ phải lấy 8290 trừ đi 1 bằng 8289. Muốn tìm số liền sau ta sẽ lấy 8290 cộng thêm 1 bằng 8291.",
+      "tokens_count": 218,
+      "created_at": "2025-12-18T18:30:28"
+    },
+    {
+      "chunk_id": "math-4-1_p15_c0",
+      "lesson_id": "math-4-1",
+      "parent_index": 15,
+      "child_index": 0,
+      "text": "Tương tự như vậy, với số đã cho là 42135. Muốn tìm số liền trước ta sẽ lấy 42135 trừ đi 1, ta được kết quả là 42134. Muốn tìm số liền sau ta sẽ lấy 42135 cộng thêm 1, ta được kết quả là 42136. Cô xin lỗi, ở đây chúng ta sẽ phải điền là 42136. Số đã cho là 80000, như vậy muốn tìm số liền trước ta sẽ phải lấy 80 .000 trừ đi 1, ta được kết quả là 79999. Muốn tìm số liền sau ta sẽ lấy 80000 cộng thêm 1, ta được kết quả là 80 .001. Tiếp theo, số đã cho là 99999. Muốn tìm số liền trước ta sẽ lấy 99999 trừ đi 1, ta được kết quả là 99998. Muốn tìm số liền sau ta sẽ lấy 99999 cộng thêm 1, ta được kết quả là 100000.",
+      "tokens_count": 223,
+      "created_at": "2025-12-18T18:30:28"
+    },
+    {
+      "chunk_id": "math-4-1_p16_c0",
+      "lesson_id": "math-4-1",
+      "parent_index": 16,
+      "child_index": 0,
+      "text": "Vừa rồi thì chúng mình đã cùng nhau đi ôn tập về số liền trước và số liền sau rồi. Bây giờ chúng ta lại đi ôn tập để cách so sánh 2 số có 5 triệu số. Như vậy, chúng ta sẽ cùng nhau bước sang phần luyện tập trang số 7, bài số 1. Đề bài người ta yêu cầu con điền dấu lớn, dấu nhỏ, dấu bằng, thích hợp và trợ chống. Với EA, 9897 như thế nào so với 10000? 68 .534 như thế nào so với 68499? 34000 như thế nào so với 33979? IB, 8563 như thế nào so với 8000 cộng 500 cộng 60 cộng với 3? 45031 như thế nào so với 40000 cộng 5000 cộng 100 cộng với 30? 70208 như thế nào so với 60000 cộng 9000 cộng 700 cộng với 9?",
+      "tokens_count": 208,
+      "created_at": "2025-12-18T18:30:28"
+    },
+    {
+      "chunk_id": "math-4-1_p17_c0",
+      "lesson_id": "math-4-1",
+      "parent_index": 17,
+      "child_index": 0,
+      "text": "Về tế lan về tập số 1 này thì chúng mình sẽ phải làm như thế nào nhỉ? Đầu tiên ta sẽ phải đi đến số chữ số ở 2 số đó. Số nào có nhiều số chữ số hơn thì số đó lớn hơn. Nếu mà số chữ số của chúng bằng nhau thì ta sẽ phải đi so sánh lần được từ hàng cao nhất tới hàng thấp nhất. Đó là từ hàng chục nghìn rồi tới hàng lín, hàng trăm, hàng chục và hàng đơn vị. Nếu mà ở IB, bài toán thì chưa có. Ở bên về phải thì chưa thành một số nhưng vậy ta sẽ phải đi tính xem số đó là số nào. Rồi ta cũng thực hiện so sánh tương tự như vậy. Vậy vừa đi A, số 9897 với 10000 ta thấy rằng số 9897 có 4 chữ số, số 10000 có 5 chữ số. Vậy số 9 .897 sẽ nhỏ hơn số 10000 đúng không nhỉ?",
+      "tokens_count": 213,
+      "created_at": "2025-12-18T18:30:29"
+    },
+    {
+      "chunk_id": "math-4-1_p18_c0",
+      "lesson_id": "math-4-1",
+      "parent_index": 18,
+      "child_index": 0,
+      "text": "Tiếp theo với số 68534 với số 68499, về đầu tiên của chúng ta sẽ phải đi tìm xem số chữ số của 2 số này có bằng nhau hay không. Như vậy ta sẽ thấy rằng số 68534 và số 68499 đều có 5 chữ số. Vậy ta sẽ phải đi so sánh các hàng lần lượt từ cao xuống thấp. Ta thấy rằng số 68 .534 có chữ số hàng trăm là 6, là 5 đúng không nhỉ? Và số 68499 có chữ số hàng trăm là 4, vậy 5 lớn hơn 4. Từ đó số 68534 lớn hơn số 68499. Với số tiếp theo 34000 như thế nào so với 33979? Đầu tiên ta sẽ phải đi đếm số chữ số của 2 số đó. Ta thấy rằng số 34000 có 5 chữ số và số 33979 cũng có 5 chữ số.",
+      "tokens_count": 201,
+      "created_at": "2025-12-18T18:30:29"
+    },
+    {
+      "chunk_id": "math-4-1_p19_c0",
+      "lesson_id": "math-4-1",
+      "parent_index": 19,
+      "child_index": 0,
+      "text": "Vậy ta sẽ phải đi so sánh số chữ số ở từ hàng cao nhất tới hàng thấp nhất. Đầu tiên ta sẽ quan sát từ hàng chục nghìn. Ta thấy rằng hàng chục nghìn của 2 số này bằng nhau và bằng 3. Như vậy ta sẽ xét tới hàng nghìn. Ta thấy rằng số 34000 có chữ số hàng nghìn là 4, số 33979 thì có chữ số hàng nghìn là 3. Vậy 4 lớn hơn 3. Từ đó số 34000 sẽ lớn hơn số 33979. Tiếp theo với YB. Muốn so sánh được 2 vế thì ta sẽ phải đi tính vế bên phải. 8000 cộng 500 cộng 60 cộng vế 3 sẽ bằng số 8563. Như vậy ta thấy rằng 2 số này bằng nhau và ta sẽ điền được số bằng vào chỗ trống. Tiếp theo là số 45031 với tổng của 40000 cộng 5000 cộng 100 cộng 30.",
+      "tokens_count": 223,
+      "created_at": "2025-12-18T18:30:30"
+    },
+    {
+      "chunk_id": "math-4-1_p20_c0",
+      "lesson_id": "math-4-1",
+      "parent_index": 20,
+      "child_index": 0,
+      "text": "Tổng này sẽ cộng với nhau ra được số 45130. Như vậy ta sẽ phải đi so sánh các chữ số. Ta thấy rằng 2 số này đều có 5 chữ số. Như vậy ta sẽ phải đi so sánh lần lượt từ hàng chục nghìn. Ta thấy rằng hàng chục nghìn của số 45031 là 4, hàng chục nghìn của số 45130 cũng là 4. Như vậy ta sẽ phải đi so sánh tới hàng nghìn. Hàng nghìn của 2 số này cũng bằng nhau và bằng 5. Tiếp theo ta sẽ phải đi so sánh tới hàng trăm. Hàng trăm của số 45031 là 0, hàng trăm của số 45130 là 1. Như vậy 0 nhỏ hơn 1. Từ đó số 45 .031 ta sẽ điền được dấu nhỏ. Nhỏ hơn tổng của 40000 cộng 5000 cộng 100 cộng 30.",
+      "tokens_count": 210,
+      "created_at": "2025-12-18T18:30:30"
+    },
+    {
+      "chunk_id": "math-4-1_p21_c0",
+      "lesson_id": "math-4-1",
+      "parent_index": 21,
+      "child_index": 0,
+      "text": "Cuối cùng là số 70208 so sánh với tổng của 60000 cộng 9000 cộng 700 cộng 9. Ta được số 69709. Như vậy ta sẽ đi so sánh số chữ số. Ta thấy rằng 2 số này đều có 5 chữ số. Vậy ta sẽ phải đi so sánh lần lượt từ hàng chục nghìn. Ta thấy rằng hàng chục nghìn của số 70 .208 là 7, hàng chục nghìn của số 69709 là 6. 7 lớn hơn 6. Như vậy ta sẽ dễ dàng điền được dấu lớn vào chỗ chấm, đúng không nhỉ? Vừa rồi chúng mình đã cùng nhau đi hoàn thành xong lý thuyết của bài số 1. Ôn tập các số tới 100000. Cô xin chào và hẹn gặp các con ở những bài tiếp theo nhé.",
+      "tokens_count": 193,
+      "created_at": "2025-12-18T18:30:31"
+    }
+  ]
+}

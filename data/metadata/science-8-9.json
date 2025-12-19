@@ -1,0 +1,106 @@
+{
+  "lesson_id": "science-8-9",
+  "title": "Ban ve nha",
+  "timestamp": "2025-12-18T18:34:16",
+  "timings": {
+    "db_insert_lesson_ms": 286.3740921020508,
+    "chunking_ms": 8726.03440284729,
+    "embedding_ms": 4511.907577514648,
+    "db_insert_chunks_ms": 1315.645456314087,
+    "total_process_ms": 15148.802042007446
+  },
+  "stats": {
+    "parent_chunk_count": 5,
+    "total_child_chunks": 9
+  },
+  "source_metadata": {
+    "source": "shared_db",
+    "db_id": 9,
+    "lesson_order": 8,
+    "course_title": "Science 8",
+    "content_checksum": "f32a179da127b9d1a1b896bc4e54c8a60da2833ae2406a3c357e2f2fb0c3a7c7"
+  },
+  "chunks_metadata": [
+    {
+      "chunk_id": "science-8-9_p0_c0",
+      "lesson_id": "science-8-9",
+      "parent_index": 0,
+      "child_index": 0,
+      "text": "Áp viên giách Hỏi 3 địa chỉ Trả lời cước thi Hoa Thu Việt Nam TẠO NGÀY ÁP VIÊN GIÁCH Xin chào tất cả các con học sinh thân mến Chào mừng các con đã đến với khóa học bài giảng và lớp 4 bộ sách mang tên Kết núi tri thức Chúng mình đã cùng nhau đi tìm hiểu về số cận 6 chữ số Số cận 6 chữ số thì bao gồm có hàng và lớp Đó là lớp nghìn và lớp đơn vị Trong lớp nghìn thì bao gồm có hàng trăm nghìn, hàng chục nghìn và hàng nghìn Trong lớp đơn vị thì có hàng trăm, hàng chục và hàng đơn vị đúng không nhỉ? Đến bài học ngày hôm nay thì chúng mình sẽ cùng nhau bước sang một số mà chúng ta đã được học ở trong bài số 7 Đó là bài mang tên Các số trăm phạm vi lớp triệu Vậy, các số trăm phạm vi lớp triệu thì có gì khác biệt so với số 6 chữ số?",
+      "tokens_count": 229,
+      "created_at": "2025-12-18T18:34:26"
+    },
+    {
+      "chunk_id": "science-8-9_p1_c0",
+      "lesson_id": "science-8-9",
+      "parent_index": 1,
+      "child_index": 0,
+      "text": "Thì chúng mình sẽ cùng nhau đi tìm hiểu trong bài học ngày hôm nay nhé Đầu tiên thì chúng ta sẽ cùng nhau đi ôn lại các kiến thức đã có trong bài học hôm trước Bây giờ cô và con sẽ cùng nhau bước vào phần khởi động Cô có một trò chơi mang tên hái sao Ở đây có bốn hôi sao vàng Xanh Đúng không nhỉ? Vậy thì chúng ta sẽ cùng nhau đi hái các hôi sao này với cô nhé Đầu tiên Với câu hỏi thứ nhất Lớp đơn vị gồm những hàng nào? Đầu tiên đáp ản thứ nhất hàng nghìn, hàng chục, hàng trăm Đáp ản thứ hai hàng đơn vị, hàng chục, hàng trăm Đáp ản thứ ba hàng đơn vị, hàng chục, hàng nghìn Vậy Lớp đơn vị gồm những hàng nào? À Trong bữa học như hôm trước thì chúng ta đã được học Đó là Lớp đơn vị gồm những hàng, trăm, hàng chục và hàng đơn vị Thế vậy đáp ản đúng của chúng mình chính là đáp ản B Đúng không nhỉ?",
+      "tokens_count": 244,
+      "created_at": "2025-12-18T18:34:26"
+    },
+    {
+      "chunk_id": "science-8-9_p2_c0",
+      "lesson_id": "science-8-9",
+      "parent_index": 2,
+      "child_index": 0,
+      "text": "Và đáp ản A và đáp ản C là đáp ản sai Tiếp theo chúng mình sẽ đến với câu số 2 Số nào chứa số 0 ở lớp đơn vị? A. 819 .055 B. 700198 C. 340155 Vậy Chúng ta sẽ cùng nhau quan sát xem Chữ số 0 ở trong đáp ản nào ở lớp đơn vị nhỉ? À tôi thấy rằng Chữ số 0 ở trong đáp ản A thuộc lớp đơn vị và thuộc hàng trăm đúng không nhỉ? Và đáp ản B và đáp ản C thì chữ số 0 đều thuộc lớp nghìn Vậy đáp ản đúng thì chính là đáp ản A và đáp ản B đáp ản C là sai Tiếp theo chúng mình sẽ đến với câu số 3 Lớp đơn vị gồm những hàng nào? A. hàng nghìn, hàng chục, hàng trăm B. hàng đơn vị, hàng chục, hàng trăm C. hàng đơn vị, hàng chục, hàng nghìn Vậy lớp đơn vị gồm những hàng nào? À ta biết rằng lớp đơn vị bao gồm có hàng đơn vị hàng chục và hàng trăm Vậy đáp ản đúng của chúng mình chính là đáp ản B đáp ản A và C là sai Câu hỏi cuối cùng số nào chứa số 5 ở lớp nghìn?",
+      "tokens_count": 288,
+      "created_at": "2025-12-18T18:34:26"
+    },
+    {
+      "chunk_id": "science-8-9_p3_c0",
+      "lesson_id": "science-8-9",
+      "parent_index": 3,
+      "child_index": 0,
+      "text": "A. 374950 B. 208 .495 C. 650374 Vậy với câu này thì chúng mình sẽ cùng nhau quan sát xem chữ số 0 Chữ số 5 ở số nào thuộc lớp nghìn? À ta thấy rằng chữ số 0 ở đáp ản A thuộc lớp đơn vị và thuộc hàng đơn vị Vậy đáp ản B có chữ số 5 thuộc lớp đơn vị và thuộc hàng đơn vị Đơn vị đúng không nhở? Và như vậy đáp ản đúng của chúng mình chính là đáp ản C Chữ số 5 thuộc lớp nghìn và thuộc hàng trăm nghìn hàng chục nghìn Như vậy đáp ản đúng của chúng mình đáp ản C đáp ản A và B là sai Với rồi thì chúng mình đã cùng nhau hoàn thành xong thử thách mang tên Hái sao Bây giờ cô và con sẽ cùng nhau đi tìm hiểu bài học ngày hôm nay đó là bài Các số trong phạm vi lớp triệu Vậy để tìm hiểu bài học ngày hôm nay chúng mình sẽ cùng nhau bước vào phần yêu cầu cần đạt Sau khi học xong bài ngày hôm nay thì chúng mình sẽ biết cách phân tích cấu tạo số cách đọc và cách viết các số trong phạm vi lớp triệu Tiếp theo là củng cố kiến thức về hàng và lớp đó là yêu cầu cần đạt của bài học ngày hôm nay Bây giờ cô và con sẽ cùng nhau bước sang phần khám phá Ở đây chúng ta có một thử thách mang tên Du hành vô trụ Cô có các ngôi các ngôi sao vực hệ mặt trời đúng không nhỉ Bây giờ chúng ta sẽ cùng nhau đi khám phá ngôi sao đầu tiên mang tên sao hỏa Chúng ta sẽ cùng nhau quan sát video này cho cô nhé Trong video này tôi sẽ cho các bạn biết khoảng cách từ trái đất đến mặt trời là bao nhiêu xa Do trái đất chuyển động quanh mặt trời theo một quỹ đạo hình ellipse gần tròn với khoảng cách gần nhất tại điểm cậy Nhật là 149 triệu km và điểm viễn Nhật là khoảng gần 152 triệu km khoảng cách trung bình được lấy là 150 triệu km Trong thiên văn khoảng cách này được gọi là một đơn vị thiên văn với vận tốc trung bình của ánh sáng là 300000 km giây thì ánh sáng mặt trời phải mất 8 phút 19 giây mới chạm đến bề mặt trái đất Vậy trái đất chuyển động quanh mặt trời thì một vòng sẽ kết quảng thời gian",
+      "tokens_count": 512,
+      "created_at": "2025-12-18T18:34:27"
+    },
+    {
+      "chunk_id": "science-8-9_p3_c1",
+      "lesson_id": "science-8-9",
+      "parent_index": 3,
+      "child_index": 1,
+      "text": " cậy Nhật là 149 triệu km và điểm viễn Nhật là khoảng gần 152 triệu km khoảng cách trung bình được lấy là 150 triệu km Trong thiên văn khoảng cách này được gọi là một đơn vị thiên văn với vận tốc trung bình của ánh sáng là 300000 km giây thì ánh sáng mặt trời phải mất 8 phút 19 giây mới chạm đến bề mặt trái đất Vậy trái đất chuyển động quanh mặt trời thì một vòng sẽ kết quảng thời gian bao lâu Rồi, chúng mình đã cùng nhau quan sát một video về các hành tinh trên hệ mặt trời Bây giờ cô và con sẽ cùng nhau bước vào phần khám phá Ở đây hai bạn, Mai và Việt Nam và Robot đã cùng nhau đi khám phá trên hệ mặt trời đúng không nhỉ Vậy thì các bạn bạn Nam thì đã nói rằng trái đất cách mặt trời khoảng 149 .597876 km Đây là thông tin theo Hiệp hội Thiên Văn Học Quốc Tế Vậy số 149597876 là số gì chúng ta đã được học chưa nhỉ À, số này chúng ta chưa được học ở ngác Hôm trước thì chúng ta mới được học đến số có 6 chữ số thôi Thì vậy hôm nay chúng ta lại học số có tận 9 chữ số Vậy chúng ta sẽ cùng nhau đi phân tích xem số 149597 .876 bao gồm có những lớp nào và hàng nào nhé Ở trong số này thì số 149 .597876 sẽ có lớp triệu, lớp nghìn và lớp đơn vị Trong lớp triệu thì sẽ có hàng trăm triệu hàng chục triệu và hàng triệu Trong lớp nghìn thì bao gồm có hàng trăm nghìn hàng chục nghìn và hàng nghìn Trong lớp đơn vị thì có hàng trăm hàng chục và hàng đơn vị Như vậy Sau khi chúng ta quan sát bản thì các con lại cho cô biết những số nào thuộc lớp triệu những số nào thuộc lớp nghìn và những số nào thuộc lớp đơn vị À, ta thấy rằng số 149597876 thì sẽ có 3 lớp lớp triệu, lớp nghìn và lớp đơn vị Trong lớp triệu thì sẽ có hàng trăm triệu, hàng chục triệu và hàng triệu Như vậy, số 149 .597876 số 1 sẽ là sẽ có 100 triệu này Tiếp theo, 40 triệu và 9 triệu Ta sẽ xét tới lớp nghìn lớp nghìn sẽ có 500 nghìn 90 nghìn và 7 nghìn Trong lớp đơn",
+      "tokens_count": 512,
+      "created_at": "2025-12-18T18:34:27"
+    },
+    {
+      "chunk_id": "science-8-9_p3_c2",
+      "lesson_id": "science-8-9",
+      "parent_index": 3,
+      "child_index": 2,
+      "text": " rằng số 149597876 thì sẽ có 3 lớp lớp triệu, lớp nghìn và lớp đơn vị Trong lớp triệu thì sẽ có hàng trăm triệu, hàng chục triệu và hàng triệu Như vậy, số 149 .597876 số 1 sẽ là sẽ có 100 triệu này Tiếp theo, 40 triệu và 9 triệu Ta sẽ xét tới lớp nghìn lớp nghìn sẽ có 500 nghìn 90 nghìn và 7 nghìn Trong lớp đơn vị sẽ có 870 và 6 đơn vị Sau khi chúng ta đã cùng nhau lập bảng để phân cách các lớp và các hàng có trong số 149597876 Bây giờ, bọn con sẽ cùng nhau quan sát này Số 149597876 gồm có 100 triệu 40 triệu 9 triệu 500 nghìn 90 nghìn 7 nghìn 800 7 trục và 6 đơn vị Số này ta sẽ đọc là 149 .597876 Bây giờ, ta sẽ cùng nhau quan sát IP cho cô Cô có các số như sau 999999997 999999 .998 999999999 Và cuối cùng là số 1 tỷ Vậy, các số này rất là lớn đối với chúng ta đúng không nhỉ?",
+      "tokens_count": 258,
+      "created_at": "2025-12-18T18:34:28"
+    },
+    {
+      "chunk_id": "science-8-9_p4_c0",
+      "lesson_id": "science-8-9",
+      "parent_index": 4,
+      "child_index": 0,
+      "text": "Vậy, các con sẽ cùng nhau quan sát Bạn, việc đã có 1 phát hiện đó là Số liền sau của số 999 triệu 999 nghìn 999 là số 1 tỷ Hay ta còn đọc là 1 tỷ Các con sẽ bỏ 1 chữ số 9 ở lớp Nghìn và 1 chữ số 9 ở lớp Đơn vị cho cô nhé Như vậy, ta sẽ ghi nhớ cho cô Số này ta đọc là 1 tỷ Và là số liền sau của số 999 triệu 999 nghìn 999 Như đó, chúng mình đã hoàn thành Xong chặng số 1 Đó là chặng Sao Hỏa Và chúng ta cũng đã tìm hiểu Thêm kiến thức về Sao Hỏa như sau Sao Hỏa hay Hỏa Vinh Là hành tinh thứ 4 ở hệ mặt trời Nó thường được gọi với tên khác là hành tinh đỏ Do bề mặt hành tinh Có rất nhiều sắc oxy Làm cho bề mặt nó hiện lên Với màu đỏ đặc trưng Bây giờ, chúng ta lại cùng nhau Tới phần hoạt động Trong phần hoạt động thì sẽ có Chặng 2 Đó là chặng khám phá sao mộc Bây giờ, ta sẽ cùng nhau Đi khám phá sao mộc với cô nhé Để khám phá được sao mộc Thì chúng ta sẽ cùng nhau hoàn thành Bài tập số 1 cho cô Để bàn tiêu cầu con đọc số dân Theo tổng hợp dữ liệu Đây là tổng hợp dữ liệu của bàn dân số Năm 2019 của mỗi nước dưới đây Ở đây cô có 3 lá cờ của 3 nước Đó là nước Nhật Bản Việt Nam Và Indonesia Trong nước Nhật Bản thì dân số là 126476461 người Ở Việt Nam là 97338579 người Ở Indonesia là 273 .273523615 người Từ đó chúng mình sẽ cùng nhau đi đọc số dân của các nước này nhé Đầu tiên là Nhật Bản sẽ là 126476461 người Việt Nam sẽ là 97338579 người Indonesia là 273 .523615 người Sau khi chúng ta hoàn thành sân bè tập số 1 thì chúng ta đã đi khám phá được sao mộc rồi đấy Như vậy, sao mộc hay là mộc tinh là hành tinh thứ 5 tính từ mặt trời Đây là hành tinh lớn nhất trong hệ mặt trời Nó là hành tinh khí khổng lồ với khối lượng bằng 1 phân nghìn của mặt trời Nhưng bằng",
+      "tokens_count": 512,
+      "created_at": "2025-12-18T18:34:29"
+    },
+    {
+      "chunk_id": "science-8-9_p4_c1",
+      "lesson_id": "science-8-9",
+      "parent_index": 4,
+      "child_index": 1,
+      "text": " người Việt Nam sẽ là 97338579 người Indonesia là 273 .523615 người Sau khi chúng ta hoàn thành sân bè tập số 1 thì chúng ta đã đi khám phá được sao mộc rồi đấy Như vậy, sao mộc hay là mộc tinh là hành tinh thứ 5 tính từ mặt trời Đây là hành tinh lớn nhất trong hệ mặt trời Nó là hành tinh khí khổng lồ với khối lượng bằng 1 phân nghìn của mặt trời Nhưng bằng 2 lần rưỡi tổng lượng của tất cả hành tinh khác trong hệ mặt trời cộng lại Đây là kiến thức về sao mộc Bây giờ chúng ta lại cùng nhau đi Đối trạng số 3 mang tên Khám phá sao thổ Để khám phá được sao thổ thì chúng ta sẽ cùng nhau khám phá, hoàn thành bài tập số 2 để kiểm tra xem sao thổ có gì nhé Đây là bài người ta yêu cầu con viết số thành tổng sao mẫu Và đây cô có 3 cái mái Và yêu cầu các con sẽ viết cát số 27 triệu 900 109 triệu 140 nghìn 900 đinh 3 3 triệu 045 nghìn 302 thành tổng sao mẫu Cô có ví dụ 27 triệu 900 cô sẽ viết được thành 20 triệu cộng 7 triệu cộng với 900 Như vậy chúng ta sẽ làm tương tự với các số còn lại cho cô nhé Chúng ta sẽ cùng nhau suy nghĩ và làm cùng nhau nào Đầu tiên là số 109 triệu 140 nghìn 900 đinh 3 Ta sẽ viết được số đó thành tổng là 100 triệu cộng 9 triệu cộng 100 nghìn cộng 40 cộng 900 và cộng với 3 Số 3 triệu 045 nghìn 302 Ta sẽ phân tích thành tổng là 3 triệu cộng 40 nghìn cộng 500 cộng 5500 cộng 300 và cộng với 2 Như vậy chúng ta đã cùng nhau đi khám phá sao thổ hay còn gọi là thổ tinh Đây là hành tinh thứ 6 tính theo khoảng cách trung bình từ mặt trời và là hành tinh lớn thứ 2 về đường kính như khối lượng sao mập trong hệ mặt trời Vừa rồi thì chúng mình đã cùng nhau đi khám phá sao thổ Bây giờ cô và con sẽ cùng nhau đi tới chạm cuối cùng là chạm số 4 mang tên khám phá sao thiên vương Trong thử thách này thì chúng ta sẽ hoàn thành bài tập",
+      "tokens_count": 512,
+      "created_at": "2025-12-18T18:34:29"
+    },
+    {
+      "chunk_id": "science-8-9_p4_c2",
+      "lesson_id": "science-8-9",
+      "parent_index": 4,
+      "child_index": 2,
+      "text": " gọi là thổ tinh Đây là hành tinh thứ 6 tính theo khoảng cách trung bình từ mặt trời và là hành tinh lớn thứ 2 về đường kính như khối lượng sao mập trong hệ mặt trời Vừa rồi thì chúng mình đã cùng nhau đi khám phá sao thổ Bây giờ cô và con sẽ cùng nhau đi tới chạm cuối cùng là chạm số 4 mang tên khám phá sao thiên vương Trong thử thách này thì chúng ta sẽ hoàn thành bài tập số 3 Đây cũng là thử thách cuối cùng trong ngày hôm nay nhé Để bàn người ta yêu cầu con đó là mỗi chữ số từ gạch chân dưới đây thuộc hàng nào và lớp nào Chúng ta sẽ cùng nhau quan sát các số cho cô Đầu tiên là số 63782910 được gạch chân ở số 8 Vậy số 8 ở đây thuộc hàng nào và lớp nào nhỉ À ta thấy rằng chữ số 8 ở trong số này thuộc hàng thuộc hàng chục nghìn và thuộc lớp nghìn Vậy ta nói rằng số 63782910 có chữ số 8 trong số đó thuộc hàng chục nghìn và lớp nghìn số 839038 Ta thấy rằng chữ số 3 trong số 839038 sẽ thuộc hàng chục triệu và lớp triệu Số 9 .300037 sẽ có chữ số 3 thuộc hàng chục và thuộc lớp đơn vị Cuối cùng là số 239111003 có chữ số 2 thuộc hàng trăm triệu và lớp triệu Vừa rồi thì chúng mình đã cùng nhau đi khám phá hồi sao cuối cùng trong hệ mặt trời là sao thiên vương Đây là hành tinh đầu tiên trong hệ mặt trời được phát hiện chỉ bằng kính thiên văn nhà thiên văn học người Đức William Herschel là người đã phát hiện ra hành tinh này vào năm 1781 Vừa rồi thì chúng mình đã cùng nhau khám phá các hồi sao trong hệ mặt trời rồi Bây giờ cô xin chào và hẹn gặp lại các con ở những bản tiếp theo nhé Học sinh và học sinh trải nghiệm ngay khóa học của Việt Trắng",
+      "tokens_count": 427,
+      "created_at": "2025-12-18T18:34:29"
+    }
+  ]
+}

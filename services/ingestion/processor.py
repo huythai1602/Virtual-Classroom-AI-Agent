@@ -78,100 +78,56 @@ class IngestionService:
                 sha256_hash.update(byte_block)
         return sha256_hash.hexdigest()
 
-    def process_file(self, file_path: str, force: bool = False) -> Dict[str, Any]:
+    def process_lesson_data(self, lesson_data: Dict[str, Any], force: bool = False) -> Dict[str, Any]:
         """
-        Process a single text file:
-        1. Parse metadata
-        2. Check existing
-        3. Insert Lesson
-        4. Semantic Chunking
-        5. Embedding
-        6. Insert Chunks
+        Process lesson data (agnostic of source):
+        1. Check existing
+        2. Insert Lesson
+        3. Semantic Chunking
+        4. Embedding
+        5. Insert Chunks
         """
-        path = Path(file_path)
-        if not path.exists():
-            return {"status": "error", "message": f"File not found: {file_path}"}
-            
-        filename = path.name
-        print(f"📄 Processing: {filename}")
+        lesson_id = lesson_data["lesson_id"]
+        print(f"📄 Processing Lesson: {lesson_id} ({lesson_data.get('title')})")
         
-        # 1. Parse Metadata
-        metadata = self.parse_filename(filename)
-        lesson_id = metadata["lesson_id"]
-        
-        # Metrics collection
+        # Metrics initialization
         start_time = time.time()
-        file_checksum = self.calculate_checksum(str(path))
-        
-        # Root Metadata Schema
         metrics = {
-            "lesson_id": lesson_id,
-            "filename": filename,
-            "file_size_bytes": path.stat().st_size,
-            "file_checksum": file_checksum,
-            "version": "1.0",
-            "source_type": "transcript",
+            "lesson_id": lesson_data["lesson_id"],
+            "title": lesson_data.get("title"),
             "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(start_time)),
-            "provenance": {
-                "asr_engine": "unknown", 
-                "human_reviewed": False
-            },
             "timings": {},
             "stats": {},
-            "chunks_metadata": []
+            "source_metadata": lesson_data.get("metadata", {})
         }
-        
-        # 2. Check existing
+
+        # 1. Check existing
         if not force:
             existing = get_lesson(lesson_id)
             if existing and existing.get("status") == "indexed":
                 print(f"   ⏭️  Skipping {lesson_id} (already indexed)")
                 return {"status": "skipped", "lesson_id": lesson_id}
 
-        # Read content
-        read_start = time.time()
-        try:
-            with open(path, "r", encoding="utf-8") as f:
-                content = f.read().strip()
-            
-            metrics["timings"]["read_file_ms"] = (time.time() - read_start) * 1000
-                
-            if not content:
-                print(f"   ⚠️  Empty file")
-                return {"status": "error", "message": "Empty file"}
-                
-        except Exception as e:
-            return {"status": "error", "message": str(e)}
+        content = lesson_data.get("transcript", "")
+        if not content:
+             print(f"   ⚠️  Empty content")
+             return {"status": "error", "message": "Empty content"}
 
-        # 3. Insert/Update Lesson
+        # 2. Insert/Update Lesson
         insert_start = time.time()
-        lesson_data = {
-            "lesson_id": lesson_id,
-            "title": metadata["title"],
-            "subject": metadata["subject"],
-            "grade": metadata["grade"],
-            "transcript": content,
-            "metadata": {
-                **metadata.get("metadata", {}),
-                "source_file": filename,
-                "lesson_number": metadata.get("lesson_number", 0),
-                "file_checksum": file_checksum
-            }
-        }
         insert_lesson(lesson_data)
         metrics["timings"]["db_insert_lesson_ms"] = (time.time() - insert_start) * 1000
         
-        # 4. Semantic Chunking (PARENT CHUNKS)
+        # 3. Semantic Chunking
         print(f"   🧠 Semantic chunking (creating Parent Chunks)...")
         chunk_start = time.time()
-        # Semantic chunking now creates PARENT chunks (large context contexts)
         parent_chunks = self.processor.semantic_chunk(content, max_chunk_size=2000, min_chunk_size=200) 
         metrics["timings"]["chunking_ms"] = (time.time() - chunk_start) * 1000
         metrics["stats"]["parent_chunk_count"] = len(parent_chunks)
         
         print(f"   Created {len(parent_chunks)} parent chunks. Generating child chunks...")
         
-        # 5. Child Chunk Generation & Embedding
+        # 4. Child Chunk Generation & Embedding
         embed_start = time.time()
         chunks_data = []
         chunks_metadata_list = []
@@ -179,30 +135,25 @@ class IngestionService:
         total_child_chunks = 0
         
         for p_idx, parent_text in enumerate(parent_chunks):
-            # Create Child Chunks (fixed size for precision search)
             child_texts = self.processor.split_by_tokens(parent_text, chunk_size=512, overlap=100)
             
             for c_idx, child_text in enumerate(child_texts):
                 embedding = self.processor.get_embedding(child_text)
                 
-                # Logic ID
                 chunk_id = f"{lesson_id}_p{p_idx}_c{c_idx}"
                 
-                # Chunk Metadata Record
                 chunk_meta = {
                     "chunk_id": chunk_id,
                     "lesson_id": lesson_id,
                     "parent_index": p_idx,
                     "child_index": c_idx,
                     "text": child_text,
-                    # We don't save full parent text in JSON metadata to save space if needed, 
-                    # but we DO save it in DB.
                     "tokens_count": self.processor.count_tokens(child_text),
                     "created_at": time.strftime("%Y-%m-%dT%H:%M:%S")
                 }
                 
                 chunks_data.append({
-                    "chunk_index": total_child_chunks, # Global index for the lesson
+                    "chunk_index": total_child_chunks,
                     "text": child_text,
                     "embedding": embedding,
                     "parent_content": parent_text 
@@ -215,7 +166,7 @@ class IngestionService:
         metrics["timings"]["embedding_ms"] = (time.time() - embed_start) * 1000
         metrics["stats"]["total_child_chunks"] = total_child_chunks
 
-        # 6. Insert Chunks
+        # 5. Insert Chunks
         chunk_insert_start = time.time()
         insert_chunks_batch(lesson_id, chunks_data)
         update_lesson_status(lesson_id, "indexed", total_child_chunks)
@@ -238,8 +189,56 @@ class IngestionService:
         return {
             "status": "success", 
             "lesson_id": lesson_id, 
-            "chunks_count": len(chunks)
+            "chunks_count": total_child_chunks
         }
+
+    def process_file(self, file_path: str, force: bool = False) -> Dict[str, Any]:
+        """
+        Wrapper to process a file by converting it to lesson_data format
+        """
+        path = Path(file_path)
+        if not path.exists():
+            return {"status": "error", "message": f"File not found: {file_path}"}
+            
+        filename = path.name
+        
+        # Parse Metadata
+        metadata = self.parse_filename(filename)
+        lesson_id = metadata["lesson_id"]
+        
+        # Check existing (optimization: check before reading file)
+        if not force:
+            existing = get_lesson(lesson_id)
+            if existing and existing.get("status") == "indexed":
+                print(f"📄 Skipping file {filename} (already indexed as {lesson_id})")
+                return {"status": "skipped", "lesson_id": lesson_id}
+
+        # Read content
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                content = f.read().strip()
+        except Exception as e:
+            return {"status": "error", "message": str(e)}
+
+        file_checksum = self.calculate_checksum(str(path))
+
+        # Construct Lesson Data
+        lesson_data = {
+            "lesson_id": lesson_id,
+            "title": metadata["title"],
+            "subject": metadata["subject"],
+            "grade": metadata["grade"],
+            "transcript": content,
+            "metadata": {
+                **metadata.get("metadata", {}),
+                "source_file": filename,
+                "lesson_number": metadata.get("lesson_number", 0),
+                "file_checksum": file_checksum,
+                "file_size_bytes": path.stat().st_size
+            }
+        }
+        
+        return self.process_lesson_data(lesson_data, force)
 
     def process_directory(self, directory: str, force: bool = False) -> Dict[str, int]:
         """Process all .txt files in a directory"""
