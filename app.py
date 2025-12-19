@@ -570,29 +570,7 @@ async def clear_session(
 
 
 
-# ============================================================
-# DEBUG ENDPOINT
-# ============================================================
 
-@app.get(
-    "/api/debug/token",
-    summary="Debug Token Payload",
-    description="Returns the full decoded JWT payload to find hidden fields",
-)
-async def debug_token(
-    credentials: HTTPAuthorizationCredentials = Security(security)
-):
-    from utils.auth import verify_token
-    try:
-        token = credentials.credentials
-        payload = verify_token(f"Bearer {token}")
-        return {
-            "status": "success",
-            "payload": payload,
-            "message": "Token decoded successfully"
-        }
-    except Exception as e:
-        return {"status": "error", "message": str(e)}
 
 if __name__ == "__main__":
     import uvicorn

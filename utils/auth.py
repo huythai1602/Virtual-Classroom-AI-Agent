@@ -33,10 +33,10 @@ def get_user_id(authorization: Optional[str] = Header(None)) -> str:
     
     try:
         payload = verify_token(authorization)
-        # Support multiple user_id field names
-        user_id = payload.get("sub") or payload.get("user_id") or payload.get("userId")
+        # Support multiple user_id field names, prioritizing 'uid' (BigInt mapped in DB)
+        user_id = payload.get("uid") or payload.get("sub") or payload.get("user_id") or payload.get("userId")
         
-        if not user_id:
+        if user_id is None:
             raise HTTPException(status_code=401, detail="User ID not found in token")
         
         return str(user_id)
