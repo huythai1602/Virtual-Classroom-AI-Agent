@@ -175,7 +175,7 @@ async def get_lessons(
 # CHAT ENDPOINT (Streaming with Auto Intent Detection)
 # ============================================================
 
-from models.responses import StandardResponse, MindmapData, AnalyzerData, LessonsData, SessionData, UserLevelData, LessonItem, ChatData
+from models.responses import StandardResponse, MindmapData, AnalyzerData, LessonsData, SessionData, LessonItem, ChatData
 
 # ... (Previous imports are fine, just make sure ChatData is available if not adding it here - wait, I can't easily add it to the import line without knowing the exact line. Let's assume the user handles imports or I do another pass. Actually, I can replace the import line separately or just use fully qualified if needed, let's try to update the imports at the top first or just rewrite the endpoint and let Python resolve if I imported it. 
 # Wait, I see "from models.responses import ..." at line 19. I should update that too.
