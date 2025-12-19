@@ -229,16 +229,21 @@ async def agent_chat(
         # Unique thread_id per user AND lesson
         thread_id = f"user_{user_id}_lesson_{request.lessonId}"
         
-        # Get or create session (with persistence)
-        session = session_memory.get_session(thread_id, user_id=user_id)
-        messages = session.get("messages", [])
+        # Validate and convert user_id to int
+        try:
+            db_user_id = int(user_id)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid User ID (must be numeric for shared DB)")
+            
+        # Load history from Shared DB
+        from repositories import chat_history as chat_repo
+        messages = chat_repo.get_messages(db_user_id, request.lessonId)
         
-        # Summarize old messages if needed
-        if len(messages) > 10:
-            messages = summarize_conversation(messages, keep_recent=6)
-            session_memory.update_session(thread_id, {"messages": messages})
+        # Add current user message to DB
+        chat_repo.add_message(db_user_id, request.lessonId, "user", request.userMessage)
         
-        # Add user message
+        # Create input messages list (history + new)
+        # Note: We append the new user message to the list for the Agent logic
         messages.append(HumanMessage(content=request.userMessage))
         
         # Prepare input
@@ -261,22 +266,22 @@ async def agent_chat(
         intent = "normal"
         
         if "messages" in result:
-             # Find last AI message
+             # Find last AI message from the result
             for msg in reversed(result["messages"]):
                 if hasattr(msg, 'type') and msg.type == 'ai':
                     full_response = msg.content
                     break
         
-        # Rough intent detection from result state if available, or just default
-        # The agent state has 'intent', let's try to get it if we can access the state.
-        # ainvoke returns the final state.
+        # Rough intent detection from result state
         if "intent" in result:
             intent = result["intent"]
             
-        # Update session
-        messages.append(AIMessage(content=full_response))
-        session["messages"] = messages
-        session_memory.update_session(thread_id, session, persist=True)
+        # Save AI response to DB
+        if full_response:
+             chat_repo.add_message(db_user_id, request.lessonId, "ai", full_response)
+        
+        # We no longer use local session_memory for persistence
+        # session_memory.update_session(thread_id, session, persist=True) # DEPRECATED
         
         return StandardResponse(
             status="success",
@@ -422,12 +427,25 @@ async def analyzer(
         # Auto-generate thread_id from user_id
         thread_id = f"user_{user_id}_lesson_{lesson_id}"
         
-        # Get session
-        session = session_memory.get_session(thread_id, user_id=user_id)
-        messages = session.get("messages", [])
+        # Validate and convert user_id to int
+        try:
+            db_user_id = int(user_id)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid User ID (must be numeric for shared DB)")
+            
+        # Get session history from Shared DB
+        from repositories import chat_history as chat_repo
+        messages = chat_repo.get_messages(db_user_id, lesson_id)
+        
+        # Convert messages to string format for analyzer
+        # Analyzer expects a string transcript of the conversation
+        history_str = ""
+        for msg in messages:
+            role = "Student" if msg.type == "human" else "AI"
+            history_str += f"{role}: {msg.content}\n"
         
         # Analyze session with user_id for quiz stats
-        analysis_result = analyze_session(messages, lesson_id, user_id=user_id)
+        analysis_result = analyze_session(history_str, lesson_id, user_id=user_id)
         
         # Build response
         response_data = AnalyzerData(
