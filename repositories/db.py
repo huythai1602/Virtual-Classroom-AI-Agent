@@ -43,36 +43,13 @@ def init_connection_pool():
 
 
 def init_shared_connection_pool():
-    """Initialize Shared PostgreSQL connection pool (Supabase)"""
-    global shared_connection_pool
-    
-    if shared_connection_pool is None:
-        try:
-            # Check if shared config exists
-            if not settings.SHARED_POSTGRES_HOST:
-                print("⚠️ Shared database not configured, skipping pool init")
-                return None
-                
-            shared_connection_pool = psycopg2.pool.ThreadedConnectionPool(
-                minconn=1,
-                maxconn=5, # Lower limit for shared pool
-                host=settings.SHARED_POSTGRES_HOST,
-                port=settings.SHARED_POSTGRES_PORT,
-                database=settings.SHARED_POSTGRES_DB,
-                user=settings.SHARED_POSTGRES_USER,
-                password=settings.SHARED_POSTGRES_PASSWORD,
-                keepalives=1,
-                keepalives_idle=30,
-                keepalives_interval=10,
-                keepalives_count=5
-            )
-            print("✅ Shared PostgreSQL connection pool initialized")
-        except Exception as e:
-            print(f"❌ Failed to initialize shared connection pool: {e}")
-            # Don't raise here, allow app to run without shared DB (soft failure)
-            return None
-    
-    return shared_connection_pool
+    """
+    DEPRECATED: Shared PostgreSQL connection pool (Supabase)
+    This function is kept for compatibility but will always return None.
+    Use RabbitMQ RPC for accessing shared data.
+    """
+    print("⚠️ Shared database connection is DEPRECATED. Use RabbitMQ Service.")
+    return None
 
 
 @contextmanager
@@ -153,33 +130,7 @@ def test_connection() -> bool:
 @contextmanager
 def get_shared_connection():
     """
-    Context manager for SHARED database connection
+    DEPRECATED: Shared database connection
     """
-    pool = init_shared_connection_pool()
-    
-    if pool is None:
-        # Yield None if pool failed to init (soft failure)
-        # Verify call sites handle None!
-        yield None
-        return
-
-    conn = None
-    try:
-        conn = pool.getconn()
-        # Basic liveness check skipped for perf or added if needed
-        yield conn
-        conn.commit()
-    except Exception as e:
-        if conn and not conn.closed:
-            try:
-                conn.rollback()
-            except Exception:
-                pass
-        raise e
-    finally:
-        if conn:
-            try:
-                is_closed = conn.closed
-                pool.putconn(conn, close=bool(is_closed)) 
-            except Exception:
-                pass
+    print("⚠️ Use of get_shared_connection is DEPRECATED. Please use RabbitMQ RPC.")
+    yield None
