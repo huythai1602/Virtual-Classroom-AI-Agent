@@ -19,7 +19,7 @@ from models import ChatRequest, MindmapRequest, AnalyzerRequest
 from models.responses import StandardResponse, MindmapData, AnalyzerData, LessonsData, SessionData, LessonItem, ChatData
 from tools import generate_mindmap_json, analyze_session, summarize_conversation
 from utils import get_optional_user, get_user_id
-
+from services.rabbitmq import rabbitmq_service
 
 # Security scheme for Swagger UI
 security = HTTPBearer(
@@ -36,6 +36,18 @@ app = FastAPI(
         "docExpansion": "none"
     }
 )
+
+@app.on_event("startup")
+async def startup_event():
+    print("🚀 Starting Agent Service...")
+    # Initialize RabbitMQ connection
+    # Note: Pika BlockingConnection is blocking, might slow down startup if connection fails.
+    # Consider async connection (aio-pika) later or run in thread.
+    try:
+        rabbitmq_service.connect()
+    except Exception as e:
+        print(f"⚠️ Warning: RabbitMQ Connection Failed on Startup: {e}")
+
 
 # CORS
 app.add_middleware(

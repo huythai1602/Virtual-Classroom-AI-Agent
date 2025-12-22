@@ -8,6 +8,9 @@ from langchain_core.messages import HumanMessage
 from config.prompts import SYSTEM_PROMPTS, format_prompt, DEFAULT_METADATA
 from services.rag import get_context
 from repositories.lessons import get_lesson
+from services.rabbitmq import rabbitmq_service
+from repositories.remote_data import get_quiz_data, get_quiz_attempts, get_analysis_history
+from datetime import datetime, timezone
 
 # Lazy init
 _llm = None
@@ -47,21 +50,39 @@ def analyze_session(
     # Get transcript
     transcript = get_context(metadata["topic"], k=10, lesson_id=lesson_id)
     
-    # Get quiz stats
-    from repositories.quiz import get_quiz_stats
-    quiz_stats = get_quiz_stats(user_id=user_id, lesson_id=lesson_id) if user_id else None
+    # Get quiz content (Questions)
+    quiz_data = get_quiz_data(lesson_id)
     
+    # Get user quiz attempts (Results)
+    # This provides the actual score and incorrect answers
+    quiz_attempts = get_quiz_attempts(user_id, lesson_id) if user_id else None
+    
+    # Get previous analysis history
+    history_logs = get_analysis_history(user_id, lesson_id) if user_id else []
+
     quiz_context = ""
-    if quiz_stats:
-        quiz_context = f"""
-QUIZ RESULTS:
-- Score: {quiz_stats['correct_count']}/{quiz_stats['total_questions']} ({quiz_stats['score_percentage']:.1f}%)
-- Incorrect Answers (Concept Gaps):
+    if quiz_attempts:
+        # If we have real attempts, use them
+        quiz_context += f"""
+QUIZ RESULTS (Latest Attempt):
+- Score: {quiz_attempts.get('score_percentage', 0):.1f}% ({quiz_attempts.get('correct_count', 0)}/{quiz_attempts.get('total_questions', 0)})
+- Incorrect Answers:
 """
-        for inc in quiz_stats.get('incorrect_details', []):
+        for inc in quiz_attempts.get('incorrect_details', []):
             quiz_context += f"  * Question: {inc['question']}\n    Student Answer: {inc['user_answer']}\n    Correct Answer: {inc['correct_answer']}\n"
-    
-        quiz_context += "\nUse these quiz results to identify specific knowledge gaps.\n"
+    elif quiz_data and "questions" in quiz_data:
+        # Fallback to just questions if no attempt found
+        quiz_context += "\nQUIZ CONTENT (What the student was tested on):\n"
+        for q in quiz_data["questions"]:
+            quiz_context += f"- {q.get('questionText')}\n"
+
+    # Add History Context
+    history_context = ""
+    if history_logs:
+        history_context = "\nPREVIOUS ANALYSIS HISTORY (Progress Tracking):\n"
+        for log in history_logs:
+            history_context += f"- {log.get('created_at')}: Level {log.get('level')} - {log.get('analysis_summary')}\n"
+
 
     # Format prompt
     prompt = format_prompt(
@@ -72,9 +93,11 @@ QUIZ RESULTS:
         topic=metadata["topic"]
     )
     
-    # Inject quiz context into prompt
+    # Inject contexts into prompt
     if quiz_context:
         prompt += f"\n\n{quiz_context}"
+    if history_context:
+        prompt += f"\n\n{history_context}"
     
     # Generate analysis
     llm = get_llm()
@@ -106,5 +129,29 @@ QUIZ RESULTS:
         "analysis": analysis,
         "level": level,
         "level_reason": level_reason,
-        "quiz_stats": quiz_stats
+        "level_reason": level_reason,
+        "quiz_stats": quiz_attempts # Pass full attempts for UI
+    }
+
+    # SAVE ANALYSIS LOG via RabbitMQ Event
+    if user_id:
+        try:
+            log_payload = {
+                "userId": user_id,
+                "lessonId": lesson_id,
+                "analysis": analysis,
+                "level": level,
+                "levelReason": level_reason,
+                "createdAt": datetime.now(timezone.utc).isoformat()
+            }
+            rabbitmq_service.publish_event("SAVE_ANALYSIS_LOG", log_payload)
+            print(f"📝 Analysis Log saved for user {user_id}")
+        except Exception as e:
+            print(f"❌ Failed to save analysis log: {e}")
+
+    return {
+        "analysis": analysis,
+        "level": level,
+        "level_reason": level_reason,
+        "quiz_stats": quiz_attempts
     }

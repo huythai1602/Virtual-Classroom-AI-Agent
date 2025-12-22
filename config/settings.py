@@ -36,6 +36,12 @@ class Settings(BaseSettings):
     SHARED_POSTGRES_USER: str = os.getenv("SHARED_POSTGRES_USER", "postgres")
     SHARED_POSTGRES_PASSWORD: str = os.getenv("SHARED_POSTGRES_PASSWORD", "")
     
+    # RabbitMQ
+    RABBITMQ_URL: str = os.getenv("RABBITMQ_URL", "")
+    RABBITMQ_OUT_QUEUE: str = os.getenv("RABBITMQ_OUT_QUEUE", "ai_to_course") 
+    RABBITMQ_IN_QUEUE: str = os.getenv("RABBITMQ_IN_QUEUE", "course_to_ai")
+    RABBITMQ_TIMEOUT: int = 5 # seconds for RPC timeout
+    
     # JWT Authentication
     # Support both JWT_SECRET (common) and JWT_SECRET_KEY
     JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY") or os.getenv("JWT_SECRET") or "your-secret-key-change-in-production"
