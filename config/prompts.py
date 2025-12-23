@@ -183,6 +183,11 @@ You will see "QUIZ RESULTS" in the chat history if the student took a quiz.
 
 
 
+INTENT_DETECTION_PROMPT = """
+Classify the question intent based on the user's need for depth.
+RETURN ONLY: "normal" or "deep".
+"""
+
 CONDENSE_QUESTION_PROMPT = """
 Given the following conversation and a follow-up question, rephrase the follow-up question to be a standalone question.
 
