@@ -166,6 +166,7 @@ You will see "QUIZ RESULTS" in the chat history if the student took a quiz.
      - For EACH wrong answer, explain **SPECIFICALLY** what misconception caused the error.
      - Link it back to the Lesson Theory (e.g., "{user_address} sai câu 2 vì chưa nhớ quy tắc nhân...").
      - **DO NOT** just say "Cần cẩn thận hơn". You MUST point out the technical gap.
+     - **MANY ERRORS (>5)**: If the student has many wrong answers, **DO NOT** list them all. Instead, **IDENTIFY COMMON PATTERNS** (Lỗi sai hệ thống) (e.g., "Weak in division", "Misunderstands negative numbers").
 - **IF NO QUIZ**: Focus on their questions and interaction quality.
 
 **SPECIAL INSTRUCTION FOR PASSIVE LEARNERS**:

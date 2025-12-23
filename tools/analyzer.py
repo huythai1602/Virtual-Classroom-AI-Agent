@@ -68,8 +68,15 @@ QUIZ RESULTS (Latest Attempt):
 - Score: {quiz_attempts.get('score_percentage', 0):.1f}% ({quiz_attempts.get('correct_count', 0)}/{quiz_attempts.get('total_questions', 0)})
 - Incorrect Answers:
 """
-        for inc in quiz_attempts.get('incorrect_details', []):
+        incorrect_list = quiz_attempts.get('incorrect_details', [])
+        display_limit = 5
+        
+        for inc in incorrect_list[:display_limit]:
             quiz_context += f"  * Question: {inc['question']}\n    Student Answer: {inc['user_answer']}\n    Correct Answer: {inc['correct_answer']}\n"
+            
+        if len(incorrect_list) > display_limit:
+            remaining = len(incorrect_list) - display_limit
+            quiz_context += f"\n  ... (And {remaining} other incorrect answers. Please analyze the SYSTEMATIC ERROR PATTERN from the sample above)\n"
     elif quiz_data and "questions" in quiz_data:
         # Fallback to just questions if no attempt found
         quiz_context += "\nQUIZ CONTENT (What the student was tested on):\n"
