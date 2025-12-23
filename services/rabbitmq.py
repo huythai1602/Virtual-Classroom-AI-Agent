@@ -65,10 +65,16 @@ class RabbitMQService:
                 headers={'pattern': pattern}
             )
             
+            # NestJS Compatibility: Wrap payload in packet structure
+            packet = {
+                "pattern": pattern,
+                "data": payload
+            }
+            
             self.channel.basic_publish(
                 exchange='',
                 routing_key=settings.RABBITMQ_OUT_QUEUE,
-                body=json.dumps(payload),
+                body=json.dumps(packet),
                 properties=properties
             )
             print(f"📤 Published Event [{pattern}] to {settings.RABBITMQ_OUT_QUEUE}")
@@ -120,10 +126,20 @@ class RabbitMQService:
                 headers={'pattern': pattern}
             )
             
+            # NestJS Compatibility: Wrap payload in packet structure if needed, 
+            # OR just ensure headers are correct. 
+            # But the 'Pattern: undefined' error strongly suggests NestJS is looking for the pattern in the deserialized packet.
+            # Standard NestJS Microservice packet: { pattern: string, data: any, id: string }
+            packet = {
+                "pattern": pattern,
+                "data": payload,
+                "id": corr_id
+            }
+
             self.channel.basic_publish(
                 exchange='',
                 routing_key=settings.RABBITMQ_OUT_QUEUE, # Send request to Course Service
-                body=json.dumps(payload),
+                body=json.dumps(packet), # Send wrapped packet
                 properties=properties
             )
             
@@ -136,6 +152,11 @@ class RabbitMQService:
                 if time.time() - start_time > settings.RABBITMQ_TIMEOUT:
                     raise TimeoutError("RPC request timed out")
                 time.sleep(0.05)
+                
+            # Unwrap response if it comes back wrapped (NestJS reply structure)
+            # NestJS reply: { response: ..., isDisposed: true }
+            if isinstance(response, dict) and "response" in response:
+                 return response["response"]
                 
             return response
 

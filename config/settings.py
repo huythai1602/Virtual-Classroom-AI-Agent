@@ -35,7 +35,7 @@ class Settings(BaseSettings):
     RABBITMQ_URL: str = os.getenv("RABBITMQ_URL", "")
     RABBITMQ_OUT_QUEUE: str = os.getenv("RABBITMQ_OUT_QUEUE", "ai_to_course") 
     RABBITMQ_IN_QUEUE: str = os.getenv("RABBITMQ_IN_QUEUE", "course_to_ai")
-    RABBITMQ_TIMEOUT: int = 5 # seconds for RPC timeout
+    RABBITMQ_TIMEOUT: int = 15 # seconds for RPC timeout
     
     # JWT Authentication
     # Support both JWT_SECRET (common) and JWT_SECRET_KEY
