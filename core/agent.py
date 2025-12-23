@@ -241,28 +241,100 @@ def rewrite_node(state: AgentState) -> dict:
     return {"current_query": rewritten_query}
 
 
+def mindmap_node(state: AgentState) -> dict:
+    """Generate Mindmap Node"""
+    from tools import generate_mindmap_json
+    
+    lesson_id = state.get("lesson_id")
+    try:
+        result = generate_mindmap_json(str(lesson_id))
+        return {"final_output": result}
+    except Exception as e:
+        return {"final_output": {"error": str(e)}}
+
+
+def analyzer_node(state: AgentState) -> dict:
+    """Analyze Session Node"""
+    from tools import analyze_session
+    from repositories import chat_history as chat_repo
+    
+    lesson_id = state.get("lesson_id")
+    user_id = state.get("user_id")
+    
+    # Needs full history string for analysis
+    # If app.py didn't load it into messages, we fetch it here.
+    # However, standard AgentState messages might be empty for analyzer task.
+    
+    try:
+        # Fetch history from DB if not provided in messages or distinct format needed
+        # Analyzer expects a string transcript.
+        # We can re-fetch for safety or use what's passed.
+        # Let's re-fetch to ensure we have the full session, 
+        # as state["messages"] might be limited or empty in this flow.
+        
+        # Ensure user_id is int for DB
+        db_user_id = int(str(user_id))
+        messages = chat_repo.get_messages(db_user_id, str(lesson_id))
+        
+        history_str = ""
+        for msg in messages:
+            # msg is HumanMessage or AIMessage or generic structure from repo
+            # Repo returns Pydantic models or dicts? msg.type suggests object.
+            # Let's assume repo returns objects as per app.py usage.
+            role = "Student" if getattr(msg, "type", "") == "human" else "AI"
+            history_str += f"{role}: {getattr(msg, 'content', '')}\n"
+            
+        result = analyze_session(history_str, str(lesson_id), user_id=str(user_id))
+        return {"final_output": result}
+        
+    except Exception as e:
+        return {"final_output": {"error": str(e)}}
+
+
+def route_task(state: AgentState) -> Literal["intent", "mindmap", "analyzer"]:
+    """Route based on task type"""
+    task = state.get("task", "chat")
+    if task == "mindmap":
+        return "mindmap"
+    elif task == "analyzer":
+        return "analyzer"
+    return "intent"
+
+
 def create_agent():
     """Create and compile LangGraph agent"""
     workflow = StateGraph(AgentState)
     
     # Add nodes
     workflow.add_node("intent", intent_node)
-    workflow.add_node("rewrite", rewrite_node) # NEW
+    workflow.add_node("rewrite", rewrite_node)
     workflow.add_node("metadata", metadata_node)
     workflow.add_node("retrieve", retrieve_node)
     workflow.add_node("answer", answer_node)
     workflow.add_node("explain", explain_node)
     
-    # Build edges
-    # Old: START -> intent -> metadata
-    # New: START -> intent -> rewrite -> metadata
+    # New Nodes
+    workflow.add_node("mindmap", mindmap_node)
+    workflow.add_node("analyzer", analyzer_node)
     
-    workflow.add_edge(START, "intent")
+    # Build edges
+    # START -> route_task -> [intent, mindmap, analyzer]
+    
+    workflow.add_conditional_edges(
+        START,
+        route_task,
+        {
+            "intent": "intent",
+            "mindmap": "mindmap",
+            "analyzer": "analyzer"
+        }
+    )
+    
+    # Chat Flow
     workflow.add_edge("intent", "rewrite")
     workflow.add_edge("rewrite", "metadata")
     workflow.add_edge("metadata", "retrieve")
     
-    # Conditional routing by intent
     workflow.add_conditional_edges(
         "retrieve",
         route_intent,
@@ -271,6 +343,10 @@ def create_agent():
     
     workflow.add_edge("answer", END)
     workflow.add_edge("explain", END)
+    
+    # Task Flow End
+    workflow.add_edge("mindmap", END)
+    workflow.add_edge("analyzer", END)
     
     # Compile with memory
     return workflow.compile(checkpointer=memory_saver)

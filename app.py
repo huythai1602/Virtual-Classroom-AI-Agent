@@ -17,7 +17,7 @@ from core.memory import session_memory
 from core.state import ChatContext
 from models import ChatRequest, MindmapRequest, AnalyzerRequest
 from models.responses import StandardResponse, MindmapData, AnalyzerData, LessonsData, SessionData, LessonItem, ChatData
-from tools import generate_mindmap_json, analyze_session, summarize_conversation
+from tools import summarize_conversation
 from utils import get_optional_user, get_user_id
 from services.rabbitmq import rabbitmq_service
 from routers.audio import router as audio_router
@@ -365,8 +365,23 @@ async def create_mindmap(
     **Path Param:** `lesson_id` (e.g. 2, "bai_2_phan_so")
     """
     try:
-        # Generate mindmap
-        mindmap_data = generate_mindmap_json(lesson_id)
+        # Use Agent Unified Graph
+        thread_id = f"user_{user_id}_lesson_{lesson_id}_mindmap" # Separate thread for isolation or reuse? 
+        # Actually, mindmap doesn't depend on history much, but let's keep it consistent.
+        
+        input_data = {
+            "task": "mindmap",
+            "lesson_id": lesson_id,
+            "user_id": user_id
+        }
+        
+        config = {"configurable": {"thread_id": thread_id}}
+        
+        result = await agent.ainvoke(input_data, config)
+        mindmap_data = result.get("final_output", {})
+        
+        if "error" in mindmap_data:
+             raise Exception(mindmap_data["error"])
         
         return StandardResponse(
             status="success",
@@ -448,25 +463,28 @@ async def analyzer(
         except ValueError:
             raise HTTPException(status_code=400, detail="Invalid User ID (must be numeric for shared DB)")
             
-        # Get session history from Shared DB
-        from repositories import chat_history as chat_repo
-        messages = chat_repo.get_messages(db_user_id, lesson_id)
+        # Use Agent Unified Graph
+        # Note: analyzer_node inside agent will fetch the history.
         
-        # Convert messages to string format for analyzer
-        # Analyzer expects a string transcript of the conversation
-        history_str = ""
-        for msg in messages:
-            role = "Student" if msg.type == "human" else "AI"
-            history_str += f"{role}: {msg.content}\n"
+        input_data = {
+            "task": "analyzer",
+            "lesson_id": lesson_id,
+            "user_id": user_id
+        }
         
-        # Analyze session with user_id for quiz stats
-        analysis_result = analyze_session(history_str, lesson_id, user_id=user_id)
+        config = {"configurable": {"thread_id": thread_id}}
+        
+        result = await agent.ainvoke(input_data, config)
+        analysis_result = result.get("final_output", {})
+        
+        if "error" in analysis_result:
+            raise Exception(analysis_result["error"])
         
         # Build response
         response_data = AnalyzerData(
-            analysis=analysis_result["analysis"],
-            level=analysis_result["level"],
-            levelReason=analysis_result["level_reason"],
+            analysis=analysis_result.get("analysis", ""),
+            level=analysis_result.get("level", ""),
+            levelReason=analysis_result.get("level_reason", ""),
             threadId=thread_id,
             quizStats=analysis_result.get("quiz_stats")
         )
