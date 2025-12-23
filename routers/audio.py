@@ -46,7 +46,11 @@ client = OpenAI(api_key=settings.OPENAI_API_KEY)
     }
 )
 async def transcribe_audio(
-    file: UploadFile = File(...),
+    file: UploadFile = File(
+        ..., 
+        description="**Audio File** to transcribe.\n- **Max Size**: 25MB\n- **Formats**: mp3, wav, m4a, webm",
+        media_type="audio/*"
+    ),
     credentials: HTTPAuthorizationCredentials = Security(security)
 ):
     """
