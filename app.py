@@ -20,6 +20,7 @@ from models.responses import StandardResponse, MindmapData, AnalyzerData, Lesson
 from tools import generate_mindmap_json, analyze_session, summarize_conversation
 from utils import get_optional_user, get_user_id
 from services.rabbitmq import rabbitmq_service
+from routers.audio import router as audio_router
 
 # Security scheme for Swagger UI
 security = HTTPBearer(
@@ -58,6 +59,8 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["*"],
 )
+
+app.include_router(audio_router)
 
 
 # Logging middleware

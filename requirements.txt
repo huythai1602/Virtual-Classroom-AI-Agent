@@ -15,6 +15,7 @@ psycopg2-binary>=2.9.9
 pgvector>=0.2.4
 python-jose[cryptography]>=3.3.0
 pika>=1.3.0
+python-multipart>=0.0.9
 
 # Reranking & Evaluation
 sentence-transformers>=2.2.2

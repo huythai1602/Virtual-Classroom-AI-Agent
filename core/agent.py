@@ -184,20 +184,82 @@ def route_intent(state: AgentState) -> Literal["answer", "explain"]:
     return "explain" if state.get("intent") == "deep" else "answer"
 
 
+def rewrite_node(state: AgentState) -> dict:
+    """Rewrite query to be standalone based on history (Context Awareness)"""
+    from langchain_core.messages import HumanMessage
+    
+    messages = state["messages"]
+    if not messages:
+        return {"current_query": ""}
+        
+    # Get last message (current user query)
+    last_message = messages[-1]
+    original_query = last_message.content if isinstance(last_message, HumanMessage) else ""
+    
+    # Get recent history (excluding the very last new message for context)
+    # We want to see what came BEFORE this query
+    # However, state["messages"] includes the current query at the end.
+    conversation_window = ""
+    if len(messages) > 1:
+        # Use last 4 messages as context (2 turns)
+        history_msgs = messages[:-1][-4:] 
+        for msg in history_msgs:
+            role = "Student" if isinstance(msg, HumanMessage) else "Teacher"
+            conversation_window += f"{role}: {msg.content}\n"
+            
+    # If no history, no need to rewrite (or just identical)
+    if not conversation_window:
+        return {"current_query": original_query}
+        
+    # Format Rewrite Prompt
+    prompt = format_prompt(
+        "CONDENSE_QUESTION_PROMPT", # Special key string, or we import variable directly if not in dict
+        # Wait, format_prompt uses kwargs matching keys in template. 
+        # But prompts.py stores templates in SYSTEM_PROMPTS dict usually.
+        # Let's import CONDENSE_QUESTION_PROMPT provided it's in config/prompts.py 
+        # (I just added it as a variable, not in SYSTEM_PROMPTS dict yet. 
+        #  Use direct string or add to dict. I will use direct variable import here or format manually).
+        # To be safe and consistent with previous code usage (if any), let's see. 
+        # Previous code used format_prompt with SYSTEM_PROMPTS["normal"]. 
+        # I should assume I can import it.
+    )
+    
+    # Let's do the import inside function to avoid circular if needed, or stick to pattern.
+    from config.prompts import CONDENSE_QUESTION_PROMPT
+    
+    formatted_prompt = CONDENSE_QUESTION_PROMPT.format(
+        chat_history=conversation_window,
+        question=original_query
+    )
+    
+    # Call LLM
+    response = llm.invoke(formatted_prompt)
+    rewritten_query = response.content.strip()
+    
+    print(f"🔄 Query Rewritten: '{original_query}' -> '{rewritten_query}'")
+    
+    return {"current_query": rewritten_query}
+
+
 def create_agent():
     """Create and compile LangGraph agent"""
     workflow = StateGraph(AgentState)
     
     # Add nodes
     workflow.add_node("intent", intent_node)
+    workflow.add_node("rewrite", rewrite_node) # NEW
     workflow.add_node("metadata", metadata_node)
     workflow.add_node("retrieve", retrieve_node)
     workflow.add_node("answer", answer_node)
     workflow.add_node("explain", explain_node)
     
     # Build edges
+    # Old: START -> intent -> metadata
+    # New: START -> intent -> rewrite -> metadata
+    
     workflow.add_edge(START, "intent")
-    workflow.add_edge("intent", "metadata")
+    workflow.add_edge("intent", "rewrite")
+    workflow.add_edge("rewrite", "metadata")
     workflow.add_edge("metadata", "retrieve")
     
     # Conditional routing by intent

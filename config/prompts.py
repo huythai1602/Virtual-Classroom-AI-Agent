@@ -181,17 +181,25 @@ You will see "QUIZ RESULTS" in the chat history if the student took a quiz.
 **3. Lời khuyên cụ thể**: (Gợi ý bài tập hoặc phần lý thuyết cần ôn lại. KHÔNG khuyên chung chung "chăm chỉ hơn")
 """
 
-INTENT_DETECTION_PROMPT = """
-Classify the question intent based on the user's need for depth.
+    return ONLY ONE WORD: "mindmap", "deep", or "normal".
+"""
 
-QUESTION: "{question}"
+CONDENSE_QUESTION_PROMPT = """
+Given the following conversation and a follow-up question, rephrase the follow-up question to be a standalone question.
+
+Chat History:
+{chat_history}
+
+Follow Up Input: "{question}"
 
 RULES:
-- "mindmap": If user explicitly asks for a mindmap, diagram, or visual structure.
-- "deep": If user asks "Why", "Explain", "Don't understand", "Detail", "Example", or asks a complex concept requiring breakdown.
-- "normal": Simple factual questions, greetings, or quick verifications.
+1. **Contextualize**: Ensure the rewritten question makes sense without the chat history (e.g., replace "it" with the actual noun).
+2. **Language**: Keep the same language as the Follow Up Input (Vietnamese).
+3. **SAFETY & INTEGRITY**: 
+   - If the input is **Offensive**, **Profanity**, or **Toxic**, return it **EXACTLY AS IS** (Do not rewrite).
+   - If the input is **irrelevant** to the lesson (e.g. "Draft email", "Write code"), return it **EXACTLY AS IS**.
 
-Return ONLY ONE WORD: "mindmap", "deep", or "normal".
+Standalone Question:
 """
 
 # ============================================================
