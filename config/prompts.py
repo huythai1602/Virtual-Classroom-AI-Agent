@@ -10,8 +10,8 @@ Refined for Extensibility and High-Performance Instruction Following (English in
 TEACHER_ROLE = """You are a friendly, encouraging **{subject}** Teaching Assistant for **Grade {grade}** students.
 
 **PERSONA & TONE:**
-- **Role Name**: "Cô" (Teacher/Auntie - friendly female teacher persona).
-- **User Address**: "Con" (Child/Student).
+- **Role Name**: "Cô" (Friendly teacher persona).
+- **User Address**: "{user_address}" (Student).
 - **Tone**: Enthusiastic, patient, warm, and supportive. Use natural exclamation (e.g., "À", "Đúng rồi!", "Hay quá!").
 - **Goal**: Help the student understand the concept deeply, love the subject, and feel confident. Do not just give answers; guide them.
 
@@ -52,11 +52,9 @@ ACCURACY_CONSTRAINTS = """
    - If the question is outside the scope of {subject} Grade {grade}, politely redirect or decline.
 
 4. **PEDAGOGICAL GUARDRAILS (GRADE {grade})**:
-   - **Grade 1-5 (Primary School)**:
-     - Domain: **Natural Numbers Only** (Số tự nhiên).
-     - **NO NEGATIVE NUMBERS**: If a calculation results in a negative number (e.g., 3000 - 3570), you MUST NOT output the negative result.
-     - Instead, explain: "Phép trừ này không thực hiện được vì số bị trừ (3000) nhỏ hơn số trừ (3570)" (Cannot subtract larger from smaller).
-     - Do not use decimals unless explicitly taught in the lesson context.
+   - **Grade 1-3**: Natural Numbers Only (No decimals, No negative numbers).
+   - **Grade 4-5**: Decimals Allowed. **NO NEGATIVE NUMBERS** (e.g., 3 - 5 is impossible).
+   - **Grade 6+**: No specific restrictions on number types.
 """
 
 # ============================================================
@@ -108,7 +106,7 @@ DEEP_EXPLAIN_PROMPT = """
 **PLANNING INSTRUCTION (Internal Thought)**:
 Before generating the response, think about:
 1. **Barrier Analysis**: What specific concept is confusing the student?
-2. **Analogy/Example**: What real-world example (e.g., candy, money, toys) fits this concept?
+2. **Analogy/Example**: What real-world example (e.g., candy, money, mechanics, daily scenarios) fits this concept?
 3. **Structure**: How to break this down into simple steps (Step 1, Step 2...)?
 
 **RESPONSE GUIDELINES**:
@@ -209,17 +207,28 @@ def format_prompt(template: str, **kwargs) -> str:
     kwargs.setdefault("subject", "Môn học")
     kwargs.setdefault("grade", "4")
     
+    # Dynamic Address determination
+    try:
+        grade_int = int(str(kwargs.get("grade", "4")).split()[0]) # Handle "4" or "4 (Low)"
+    except:
+        grade_int = 4
+        
+    user_address = "Con" if grade_int <= 5 else "Em"
+    kwargs["user_address"] = user_address
+
     if "{teacher_role}" in template:
         kwargs["teacher_role"] = TEACHER_ROLE.format(
             subject=kwargs.get("subject"),
-            grade=kwargs.get("grade")
+            grade=kwargs.get("grade"),
+            user_address=user_address
         )
     if "{assessor_role}" in template:
         kwargs["assessor_role"] = ASSESSOR_ROLE
     if "{accuracy_constraints}" in template:
         kwargs["accuracy_constraints"] = ACCURACY_CONSTRAINTS.format(
             subject=kwargs.get("subject"),
-            grade=kwargs.get("grade")
+            grade=kwargs.get("grade"),
+            user_address=user_address
         )
     return template.format(**kwargs)
 

@@ -85,7 +85,7 @@ class RabbitMQService:
             raise Exception("RabbitMQ unavailable")
 
         # Create a temporary callback queue for this request
-        callback_queue = None
+        callback_queue_name = None # Initialize to avoid UnboundLocalError
         response = None
         corr_id = str(uuid.uuid4())
         
