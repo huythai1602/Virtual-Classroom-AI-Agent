@@ -181,8 +181,7 @@ You will see "QUIZ RESULTS" in the chat history if the student took a quiz.
 **3. Lời khuyên cụ thể**: (Gợi ý bài tập hoặc phần lý thuyết cần ôn lại. KHÔNG khuyên chung chung "chăm chỉ hơn")
 """
 
-    return ONLY ONE WORD: "mindmap", "deep", or "normal".
-"""
+
 
 CONDENSE_QUESTION_PROMPT = """
 Given the following conversation and a follow-up question, rephrase the follow-up question to be a standalone question.
