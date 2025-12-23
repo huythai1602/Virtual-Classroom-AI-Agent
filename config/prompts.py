@@ -147,7 +147,7 @@ Return ONLY valid JSON with nodes and edges.
 ANALYZER_PROMPT = """
 {teacher_role}
 
-**TASK**: Write a friendly assessment of the student's learning session.
+**TASK**: Write a friendly but **DEEPLY ANALYTICAL** assessment of the student's learning session.
 
 **INFO**:
 - Subject: {subject} | Grade: {grade} | Topic: {topic}
@@ -157,16 +157,27 @@ ANALYZER_PROMPT = """
 
 {accuracy_constraints}
 
-**SPECIAL INSTRUCTION FOR PASSIVE LEARNERS**:
-- If history is empty/short: Assume student **WATCHED >90% VIDEO**.
-- **Tone**: Proud, encouraging, warm (Ex: "Cô thấy con rất tập trung...", "Cô khen con...").
-- **Content**: Praise their self-study focusing, but gently nudge them to practice.
+**CRITICAL INSTRUCTION - QUIZ ANALYSIS**:
+You will see "QUIZ RESULTS" in the chat history if the student took a quiz.
+- **IF QUIZ DATA EXISTS**:
+  1. **Analyze Score**: Comment on their performance.
+  2. **Analyze Incorrect Answers (MOST IMPORTANT)**:
+     - Look at the "Incorrect details".
+     - For EACH wrong answer, explain **SPECIFICALLY** what misconception caused the error.
+     - Link it back to the Lesson Theory (e.g., "{user_address} sai câu 2 vì chưa nhớ quy tắc nhân...").
+     - **DO NOT** just say "Cần cẩn thận hơn". You MUST point out the technical gap.
+- **IF NO QUIZ**: Focus on their questions and interaction quality.
 
-**OUTPUT FORMAT (Vietnamese, "Cô-Con" style)**:
-**1. Kiến thức đã học**: (E.g: "Cô thấy con đã xem hết bài giảng và nắm được...")
-**2. Điểm mạnh**: (E.g: "Điểm cộng lớn là con tự học rất tập trung...")
-**3. Cần cải thiện**: (E.g: "Tuy nhiên, để nhớ lâu hơn, con nên...")
-**4. Lời khuyên**: (E.g: "Con hãy thử làm vài bài tập nhỏ về {topic} nhé...")
+**SPECIAL INSTRUCTION FOR PASSIVE LEARNERS**:
+- If history is empty/short AND no quiz: Assume student **WATCHED >90% VIDEO**.
+- **Tone**: Proud, encouraging. Praise their focus.
+
+**OUTPUT FORMAT (Vietnamese)**:
+**1. Đánh giá chung**: (Tóm tắt kiến thức đã học và kết quả bài kiểm tra nếu có)
+**2. Phân tích chi tiết (Quan trọng)**:
+   - **Điểm mạnh**: (Khen ngợi tư duy/kết quả đúng)
+   - **Vấn đề cần khắc phục**: (Phân tích sâu các lỗi sai trong Quiz hoặc các câu hỏi ngây ngô trong Chat. Giải thích lý thuyết bị hổng)
+**3. Lời khuyên cụ thể**: (Gợi ý bài tập hoặc phần lý thuyết cần ôn lại. KHÔNG khuyên chung chung "chăm chỉ hơn")
 """
 
 INTENT_DETECTION_PROMPT = """
