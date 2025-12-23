@@ -125,14 +125,6 @@ QUIZ RESULTS (Latest Attempt):
         level = "Cần cải thiện"
         level_reason = "Học sinh chưa tương tác đủ để đánh giá"
     
-    return {
-        "analysis": analysis,
-        "level": level,
-        "level_reason": level_reason,
-        "level_reason": level_reason,
-        "quiz_stats": quiz_attempts # Pass full attempts for UI
-    }
-
     # SAVE ANALYSIS LOG via RabbitMQ Event
     if user_id:
         try:
@@ -153,5 +145,5 @@ QUIZ RESULTS (Latest Attempt):
         "analysis": analysis,
         "level": level,
         "level_reason": level_reason,
-        "quiz_stats": quiz_attempts
+        "quiz_stats": quiz_attempts # Pass full attempts for UI
     }
