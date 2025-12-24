@@ -249,17 +249,36 @@ class IngestionService:
         title = payload.get("title", "")
         content = payload.get("transcript", "") or payload.get("content", "")
         
+        try:
+            grade = int(payload.get("grade", 0))
+        except (ValueError, TypeError):
+            # If grade is "Medium" or other string, default to 0
+            grade = 0
+
         # 1. Base Lesson Data
         lesson_data = {
             "lesson_id": lesson_id,
             "title": title,
             "transcript": content,
             "subject": payload.get("subject", "Unknown"),
-            "grade": payload.get("grade", 0),
+            "grade": grade,
             "metadata": payload.get("metadata", {})
         }
         
         # 2. Enrich if Grade/Subject are missing or default
+        # Priority:
+        # 1. 'course_title' (Perfect source, e.g. "Math 4")
+        # 2. 'title' (Lesson Title, e.g. "Toán lớp 4 Bài 1...")
+        
+        course_title = payload.get("course_title", "")
+        if grade == 0 and course_title:
+             # Try to extract number from course title
+             match = re.search(r"(\d+)", course_title)
+             if match:
+                 grade = int(match.group(1))
+                 lesson_data["grade"] = grade
+                 print(f"🕵️ Extracted grade {grade} from course_title: '{course_title}'")
+        
         if lesson_data["grade"] == 0 or lesson_data["subject"] == "Unknown":
             print(f"🕵️ Extracting metadata from title: '{title}'")
             # Reuse parse_filename logic by treating title as filename
