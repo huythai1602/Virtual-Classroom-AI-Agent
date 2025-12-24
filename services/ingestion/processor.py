@@ -240,12 +240,49 @@ class IngestionService:
         
         return self.process_lesson_data(lesson_data, force)
 
+    def process_event_data(self, payload: Dict[str, Any], force: bool = False) -> Dict[str, Any]:
+        """
+        Process raw event payload from RabbitMQ.
+        Auto-extracts metadata from Title if missing in payload.
+        """
+        lesson_id = str(payload.get("lesson_id", ""))
+        title = payload.get("title", "")
+        content = payload.get("transcript", "") or payload.get("content", "")
+        
+        # 1. Base Lesson Data
+        lesson_data = {
+            "lesson_id": lesson_id,
+            "title": title,
+            "transcript": content,
+            "subject": payload.get("subject", "Unknown"),
+            "grade": payload.get("grade", 0),
+            "metadata": payload.get("metadata", {})
+        }
+        
+        # 2. Enrich if Grade/Subject are missing or default
+        if lesson_data["grade"] == 0 or lesson_data["subject"] == "Unknown":
+            print(f"🕵️ Extracting metadata from title: '{title}'")
+            # Reuse parse_filename logic by treating title as filename
+            extracted = self.parse_filename(title)
+            
+            # Only override if we found something useful
+            if extracted["grade"] != 0:
+                lesson_data["grade"] = extracted["grade"]
+                lesson_data["subject"] = extracted["subject"]
+                lesson_data["lesson_number"] = extracted.get("lesson_number")
+                
+                # Merge extra metadata
+                if "metadata" in extracted:
+                    lesson_data["metadata"].update(extracted["metadata"])
+                    
+        return self.process_lesson_data(lesson_data, force)
+
     def process_directory(self, directory: str, force: bool = False) -> Dict[str, int]:
         """Process all .txt files in a directory"""
         path = Path(directory)
         if not path.exists():
              return {"status": "error", "message": "Directory not found"}
-             
+            
         results = {"success": 0, "skipped": 0, "error": 0, "total_chunks": 0}
         
         for file_path in path.glob("*.txt"):

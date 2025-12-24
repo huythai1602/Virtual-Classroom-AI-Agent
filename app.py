@@ -41,11 +41,44 @@ app = FastAPI(
 @app.on_event("startup")
 async def startup_event():
     print("🚀 Starting Agent Service...")
-    # Initialize RabbitMQ connection
-    # Note: Pika BlockingConnection is blocking, might slow down startup if connection fails.
-    # Consider async connection (aio-pika) later or run in thread.
+    
+    # helper handler
+    def handle_lesson_update(data):
+        try:
+            print(f"🔄 RabbitMQ: Received lesson update for {data.get('lesson_id')}")
+            from services.ingestion.processor import IngestionService
+            service = IngestionService()
+            # process_event_data handles metadata extraction from title if needed
+            # PULL MODEL: Fetch fresh data from Course Service
+            lesson_id = data.get("lesson_id") or data.get("id")
+            if not lesson_id:
+                print("⚠️ RabbitMQ: No lesson_id in update event")
+                return
+
+            print(f"📥 Fetching fresh details for Lesson {lesson_id}...")
+            # Pattern must match what Course Service expects. validating 'get_lesson' or 'lesson.get'
+            # Assuming 'get_lesson' based on common conventions, validatable via logs later
+            fresh_data = rabbitmq_service.rpc_call_safe("get_lesson", {"id": lesson_id})
+            
+            if not fresh_data:
+                print(f"❌ Failed to fetch data for Lesson {lesson_id}")
+                return
+
+            service.process_event_data(fresh_data, force=True)
+            print(f"✅ RabbitMQ: Lesson {data.get('lesson_id')} processed successfully.")
+        except Exception as e:
+            print(f"❌ RabbitMQ Handler Error: {e}")
+
+    # Initialize RabbitMQ connection and consumer
     try:
         rabbitmq_service.connect()
+        
+        # Start Consumer with Handlers
+        handlers = {
+            "lesson.updated": handle_lesson_update
+        }
+        rabbitmq_service.start_consumer(handlers)
+        
     except Exception as e:
         print(f"⚠️ Warning: RabbitMQ Connection Failed on Startup: {e}")
 

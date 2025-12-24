@@ -172,4 +172,135 @@ class RabbitMQService:
                  except:
                      pass
 
+    def rpc_call_safe(self, pattern: str, payload: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """
+        Thread-safe RPC call using a transient connection.
+        SAFE to call from inside the consumer thread.
+        """
+        print(f"🔄 RPC Safe Call [{pattern}] init...")
+        connection = None
+        try:
+            if not settings.RABBITMQ_URL:
+                return None
+                
+            params = pika.URLParameters(settings.RABBITMQ_URL)
+            connection = pika.BlockingConnection(params)
+            channel = connection.channel()
+            
+            result = channel.queue_declare(queue='', exclusive=True)
+            callback_queue_name = result.method.queue
+            
+            response = None
+            corr_id = str(uuid.uuid4())
+            
+            def on_response(ch, method, props, body):
+                nonlocal response
+                if props.correlation_id == corr_id:
+                    response = json.loads(body)
+
+            channel.basic_consume(
+                queue=callback_queue_name,
+                on_message_callback=on_response,
+                auto_ack=True
+            )
+
+            properties = pika.BasicProperties(
+                reply_to=callback_queue_name,
+                correlation_id=corr_id,
+                content_type='application/json',
+                headers={'pattern': pattern}
+            )
+
+            # NestJS Compatibility: Wrap payload in packet structure
+            packet = {
+                "pattern": pattern,
+                "data": payload,
+                "id": corr_id
+            }
+
+            channel.basic_publish(
+                exchange='',
+                routing_key=settings.RABBITMQ_OUT_QUEUE,
+                body=json.dumps(packet),
+                properties=properties
+            )
+
+            # Wait for response with timeout
+            start_time = time.time()
+            while response is None:
+                connection.process_data_events()
+                if time.time() - start_time > settings.RABBITMQ_TIMEOUT:
+                    raise TimeoutError("RPC request timed out")
+                time.sleep(0.05)
+                
+            if isinstance(response, dict) and "response" in response:
+                 return response["response"]
+                 
+            return response
+
+        except Exception as e:
+            print(f"❌ RPC Safe Call failed: {str(e)}")
+            return None
+        finally:
+            if connection and not connection.is_closed:
+                connection.close()
+
+    def start_consumer(self, handlers: Dict[str, Any]):
+        """
+        Start a background consumer thread.
+        handlers: Dict mapping 'pattern' -> callback function
+        """
+        def run_consumer():
+            print("🐰 Consumer Thread Started...")
+            try:
+                # Create a DEDICATED connection for this thread
+                if not settings.RABBITMQ_URL:
+                    return
+                    
+                params = pika.URLParameters(settings.RABBITMQ_URL)
+                connection = pika.BlockingConnection(params)
+                channel = connection.channel()
+                
+                channel.queue_declare(queue=settings.RABBITMQ_IN_QUEUE, durable=True)
+                
+                def on_message(ch, method, properties, body):
+                    try:
+                        payload = json.loads(body)
+                        # Support both NestJS packet structure and direct JSON
+                        pattern = payload.get("pattern")
+                        data = payload.get("data")
+                        
+                        # If pattern comes from headers (standard AMQP)
+                        if not pattern and properties.headers:
+                            pattern = properties.headers.get("pattern")
+                            data = payload # If not wrapped, payload is data (careful here)
+                        
+                        if pattern and pattern in handlers:
+                            print(f"📥 Received Event [{pattern}]")
+                            handlers[pattern](data)
+                            ch.basic_ack(delivery_tag=method.delivery_tag)
+                        else:
+                            print(f"⚠️ Unhandled pattern: {pattern}")
+                            # Ack anyway to remove from queue? Or Nack? 
+                            # Better Ack to prevent loop if we just don't have handler
+                            ch.basic_ack(delivery_tag=method.delivery_tag)
+                            
+                    except Exception as e:
+                        print(f"❌ Error processing message: {e}")
+                        # ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
+                        ch.basic_ack(delivery_tag=method.delivery_tag) # Ack to skip bad message
+
+                channel.basic_qos(prefetch_count=1)
+                channel.basic_consume(queue=settings.RABBITMQ_IN_QUEUE, on_message_callback=on_message)
+                
+                print(f"👂 Listening on {settings.RABBITMQ_IN_QUEUE}")
+                channel.start_consuming()
+                
+            except Exception as e:
+                print(f"❌ Consumer Thread Crashed: {e}")
+
+        # Start thread
+        thread = threading.Thread(target=run_consumer, daemon=True)
+        thread.start()
+
 rabbitmq_service = RabbitMQService()

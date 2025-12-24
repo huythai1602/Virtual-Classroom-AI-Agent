@@ -11,7 +11,9 @@ def get_lesson(lesson_id: Union[str, int]) -> dict:
     """Get lesson by ID"""
     with get_connection() as conn:
         cursor = conn.cursor()
+        row = None
         
+        # 1. Try treating as numeric ID (primary key)
         try:
             numeric_id = int(lesson_id)
             query = """
@@ -20,15 +22,20 @@ def get_lesson(lesson_id: Union[str, int]) -> dict:
                 WHERE id = %s;
             """
             cursor.execute(query, (numeric_id,))
+            row = cursor.fetchone()
         except ValueError:
+            pass # Not a number, skip to step 2
+            
+        # 2. If not found by numeric ID, try as string lesson_id
+        if not row:
             query = """
                 SELECT lesson_id, title, subject, grade, transcript, total_chunks, status, metadata
                 FROM lessons
                 WHERE lesson_id = %s;
             """
-            cursor.execute(query, (lesson_id,))
+            cursor.execute(query, (str(lesson_id),))
+            row = cursor.fetchone()
         
-        row = cursor.fetchone()
         cursor.close()
         
         if row:
