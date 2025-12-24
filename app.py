@@ -63,6 +63,10 @@ async def startup_event():
                 print(f"❌ Failed to fetch data for Lesson {lesson_id}")
                 return
             
+            if "err" in fresh_data or "error" in fresh_data:
+                 print(f"❌ RPC Error for {lesson_id}: {fresh_data.get('err') or fresh_data.get('error')}")
+                 return
+
             print(f"📦 RPC Response for {lesson_id}: {list(fresh_data.keys())} | Title: '{fresh_data.get('title')}' | Content Len: {len(fresh_data.get('transcript', '') or fresh_data.get('content', '') or '')}")
 
             service.process_event_data(fresh_data, force=True)
