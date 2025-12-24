@@ -13,28 +13,30 @@ def get_lesson(lesson_id: Union[str, int]) -> dict:
         cursor = conn.cursor()
         row = None
         
-        # 1. Try treating as numeric ID (primary key)
-        try:
-            numeric_id = int(lesson_id)
-            query = """
-                SELECT lesson_id, title, subject, grade, transcript, total_chunks, status, metadata
-                FROM lessons
-                WHERE id = %s;
-            """
-            cursor.execute(query, (numeric_id,))
-            row = cursor.fetchone()
-        except ValueError:
-            pass # Not a number, skip to step 2
+        # 1. Start by treating it as the Public 'lesson_id' (varchar)
+        # This is the primary identifier used by Frontend/Agent
+        query = """
+            SELECT lesson_id, title, subject, grade, transcript, total_chunks, status, metadata
+            FROM lessons
+            WHERE lesson_id = %s;
+        """
+        cursor.execute(query, (str(lesson_id),))
+        row = cursor.fetchone()
             
-        # 2. If not found by numeric ID, try as string lesson_id
+        # 2. Fallback: If not found, check if it's an internal Numeric PK
+        # Only do this if ignoring the lesson_id didn't work and it looks like an int
         if not row:
-            query = """
-                SELECT lesson_id, title, subject, grade, transcript, total_chunks, status, metadata
-                FROM lessons
-                WHERE lesson_id = %s;
-            """
-            cursor.execute(query, (str(lesson_id),))
-            row = cursor.fetchone()
+            try:
+                numeric_id = int(lesson_id)
+                query_pk = """
+                    SELECT lesson_id, title, subject, grade, transcript, total_chunks, status, metadata
+                    FROM lessons
+                    WHERE id = %s;
+                """
+                cursor.execute(query_pk, (numeric_id,))
+                row = cursor.fetchone()
+            except ValueError:
+                pass
         
         cursor.close()
         
