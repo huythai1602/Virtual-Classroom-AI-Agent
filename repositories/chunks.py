@@ -18,30 +18,18 @@ def search_similar_chunks(query_embedding: list, lesson_id: Union[str, int] = No
         cursor = conn.cursor()
         
         if lesson_id:
-            try:
-                numeric_id = int(lesson_id)
-                query = """
-                    SELECT 
-                        c.id, c.lesson_id, c.chunk_index, c.text, c.parent_content,
-                        1 - (c.embedding <=> %s::vector) AS similarity
-                    FROM chunks c
-                    JOIN lessons l ON c.lesson_id = l.lesson_id
-                    WHERE l.id = %s
-                    ORDER BY c.embedding <=> %s::vector
-                    LIMIT %s;
-                """
-                cursor.execute(query, (query_embedding, numeric_id, query_embedding, k))
-            except ValueError:
-                query = """
-                    SELECT 
-                        id, lesson_id, chunk_index, text, parent_content,
-                        1 - (embedding <=> %s::vector) AS similarity
-                    FROM chunks
-                    WHERE lesson_id = %s
-                    ORDER BY embedding <=> %s::vector
-                    LIMIT %s;
-                """
-                cursor.execute(query, (query_embedding, lesson_id, query_embedding, k))
+            # Always treat lesson_id as the string identifier (Public ID)
+            # This matches the 'lesson_id' column in 'chunks' table
+            query = """
+                SELECT 
+                    id, lesson_id, chunk_index, text, parent_content,
+                    1 - (embedding <=> %s::vector) AS similarity
+                FROM chunks
+                WHERE lesson_id = %s
+                ORDER BY embedding <=> %s::vector
+                LIMIT %s;
+            """
+            cursor.execute(query, (query_embedding, str(lesson_id), query_embedding, k))
         else:
             query = """
                 SELECT 
@@ -70,28 +58,20 @@ def search_similar_chunks(query_embedding: list, lesson_id: Union[str, int] = No
 
 
 def get_chunks_by_lesson(lesson_id: Union[str, int]) -> list:
-    """Get all chunks for a lesson (supports both lesson_id string and lessons.id integer)"""
+    """Get all chunks for a lesson (always by lesson_id string)"""
     with get_connection() as conn:
         cursor = conn.cursor()
         
-        # If integer, join with lessons table to get lesson_id
-        if isinstance(lesson_id, int):
-            query = """
-                SELECT c.id, c.lesson_id, c.chunk_index, c.text
-                FROM chunks c
-                JOIN lessons l ON c.lesson_id = l.lesson_id
-                WHERE l.id = %s
-                ORDER BY c.chunk_index;
-            """
-        else:
-            query = """
-                SELECT id, lesson_id, chunk_index, text
-                FROM chunks
-                WHERE lesson_id = %s
-                ORDER BY chunk_index;
-            """
+        # Always use the string/varchar lesson_id
+        # This prevents the PK vs ID confusion (e.g. "15" vs 15)
+        query = """
+            SELECT id, lesson_id, chunk_index, text
+            FROM chunks
+            WHERE lesson_id = %s
+            ORDER BY chunk_index;
+        """
         
-        cursor.execute(query, (lesson_id,))
+        cursor.execute(query, (str(lesson_id),))
         rows = cursor.fetchall()
         cursor.close()
         
