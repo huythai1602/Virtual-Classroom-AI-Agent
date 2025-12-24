@@ -47,11 +47,8 @@ def intent_node(state: AgentState) -> dict:
     return {"intent": intent, "current_query": query}
 
 
-# Metadata cache to avoid repeated DB queries
-_metadata_cache = {}
-
 def metadata_node(state: AgentState) -> dict:
-    """Fetch lesson metadata with caching and enrichment"""
+    """Fetch lesson metadata with enrichmnent"""
     from repositories.lessons import get_lesson
     import json
     
@@ -59,10 +56,6 @@ def metadata_node(state: AgentState) -> dict:
     metadata = DEFAULT_METADATA.copy()
     
     if lesson_id:
-        # Check cache first
-        if lesson_id in _metadata_cache:
-            return {"metadata": _metadata_cache[lesson_id]}
-        
         lesson = get_lesson(lesson_id)
         if lesson:
             # Basic metadata
@@ -87,9 +80,6 @@ def metadata_node(state: AgentState) -> dict:
                     metadata["keywords"] = extra_metadata.get("keywords", [])
                 except:
                     pass
-            
-            # Cache it
-            _metadata_cache[lesson_id] = metadata
     
     return {"metadata": metadata}
 
