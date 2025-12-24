@@ -56,9 +56,8 @@ async def startup_event():
                 return
 
             print(f"📥 Fetching fresh details for Lesson {lesson_id}...")
-            # Pattern must match what Course Service expects. validating 'get_lesson' or 'lesson.get'
-            # Assuming 'get_lesson' based on common conventions, validatable via logs later
-            fresh_data = rabbitmq_service.rpc_call_safe("get_lesson", {"id": lesson_id})
+            # Pattern must match what Course Service expects. Validated as 'GET_LESSON'
+            fresh_data = rabbitmq_service.rpc_call_safe("GET_LESSON", {"id": lesson_id})
             
             if not fresh_data:
                 print(f"❌ Failed to fetch data for Lesson {lesson_id}")
