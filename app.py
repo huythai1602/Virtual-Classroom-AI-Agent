@@ -62,6 +62,8 @@ async def startup_event():
             if not fresh_data:
                 print(f"❌ Failed to fetch data for Lesson {lesson_id}")
                 return
+            
+            print(f"📦 RPC Response for {lesson_id}: {list(fresh_data.keys())} | Title: '{fresh_data.get('title')}' | Content Len: {len(fresh_data.get('transcript', '') or fresh_data.get('content', '') or '')}")
 
             service.process_event_data(fresh_data, force=True)
             print(f"✅ RabbitMQ: Lesson {data.get('lesson_id')} processed successfully.")
