@@ -17,7 +17,7 @@ router = APIRouter(
     tags=["Audio"]
 )
 
-security = HTTPBearer()
+from utils.auth import security
 
 # Initialize OpenAI client
 client = OpenAI(api_key=settings.OPENAI_API_KEY)

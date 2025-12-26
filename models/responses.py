@@ -59,8 +59,6 @@ class AnalyzerData(BaseModel):
     analysis: str = Field(..., description="Detailed analysis of student's understanding")
     level: str = Field(..., description="Student's proficiency level")
     levelReason: str = Field(..., description="Reason for the assessed level", alias="levelReason")
-    quizStats: Optional[Dict[str, Any]] = Field(None, description="Detailed quiz statistics", alias="quizStats")
-    threadId: str = Field(..., description="Session thread ID", alias="threadId")
     
     class Config:
         populate_by_name = True
@@ -68,8 +66,7 @@ class AnalyzerData(BaseModel):
             "example": {
                 "analysis": "Học sinh đã nắm vững khái niệm phân số. Tuy nhiên, cần rèn luyện thêm về kỹ năng quy đồng mẫu số. Thông qua các câu trả lời, em cho thấy khả năng tư duy logic tốt nhưng còn vội vàng.",
                 "level": "Khá",
-                "levelReason": "Trả lời đúng 80% câu hỏi về lý thuyết, nhưng sai ở bài tập vận dụng cao.",
-                "threadId": "user_123_session_abc"
+                "levelReason": "Trả lời đúng 80% câu hỏi về lý thuyết, nhưng sai ở bài tập vận dụng cao."
             }
         }
 

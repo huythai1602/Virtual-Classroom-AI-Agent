@@ -6,6 +6,13 @@ from jose import JWTError, jwt
 from typing import Optional
 
 from config.settings import settings
+from fastapi.security import HTTPBearer
+
+# Shared Security Scheme for Swagger UI
+security = HTTPBearer(
+    scheme_name="Bearer Token",
+    description="Enter your JWT token (without 'Bearer' prefix)"
+)
 
 
 def verify_token(authorization: str) -> dict:

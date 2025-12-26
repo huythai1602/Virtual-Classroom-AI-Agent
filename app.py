@@ -22,11 +22,7 @@ from utils import get_optional_user, get_user_id
 from services.rabbitmq import rabbitmq_service
 from routers.audio import router as audio_router
 
-# Security scheme for Swagger UI
-security = HTTPBearer(
-    scheme_name="Bearer Token",
-    description="Enter your JWT token (without 'Bearer' prefix)"
-)
+from utils.auth import security
 
 # Initialize app
 app = FastAPI(
@@ -456,13 +452,7 @@ async def create_mindmap(
                         "data": {
                             "analysis": "Học sinh đã nắm vững khái niệm phân số. Tuy nhiên, cần rèn luyện thêm về kỹ năng quy đồng mẫu số...",
                             "level": "Khá",
-                            "levelReason": "Trả lời đúng 80% câu hỏi về lý thuyết, nhưng sai ở bài tập vận dụng cao.",
-                            "quizStats": {
-                                "total_questions": 10,
-                                "correct_count": 8,
-                                "score_percentage": 80.0
-                            },
-                            "threadId": "user_123_session_abc"
+                            "levelReason": "Trả lời đúng 80% câu hỏi về lý thuyết, nhưng sai ở bài tập vận dụng cao."
                         },
                         "message": "Analysis completed successfully",
                         "createdAt": "2025-12-15T12:00:00Z"
@@ -520,9 +510,7 @@ async def analyzer(
         response_data = AnalyzerData(
             analysis=analysis_result.get("analysis", ""),
             level=analysis_result.get("level", ""),
-            levelReason=analysis_result.get("level_reason", ""),
-            threadId=thread_id,
-            quizStats=analysis_result.get("quiz_stats")
+            levelReason=analysis_result.get("level_reason", "")
         )
         
         return StandardResponse(
