@@ -106,7 +106,7 @@ def retrieve_node(state: AgentState) -> dict:
     
     # Get recent conversation for context from State (injected by app.py)
     conversation_window = ""
-        if messages:
+    if messages:
         # Use last 10 messages (excluding current query if it's there)
         # 5 turns of conversation should be enough context
         history_msgs = messages[:-1][-10:] 
