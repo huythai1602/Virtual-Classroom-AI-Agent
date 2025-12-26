@@ -94,10 +94,25 @@ def retrieve_node(state: AgentState) -> dict:
     lesson_id = state.get("lesson_id", None)
     thread_id = state.get("thread_id", "")
     
-    # Get recent conversation for context
+def retrieve_node(state: AgentState) -> dict:
+    """Retrieve context from RAG with conversation awareness"""
+    from services.rag.retriever import get_context
+    # No longer depend on session_memory (local DB)
+    
+    query = state.get("current_query", "")
+    intent = state.get("intent", "normal")
+    lesson_id = state.get("lesson_id", None)
+    messages = state.get("messages", [])
+    
+    # Get recent conversation for context from State (injected by app.py)
     conversation_window = ""
-    if thread_id:
-        conversation_window = session_memory.get_conversation_window(thread_id, n=2)
+        if messages:
+        # Use last 10 messages (excluding current query if it's there)
+        # 5 turns of conversation should be enough context
+        history_msgs = messages[:-1][-10:] 
+        for msg in history_msgs:
+            role = "Student" if isinstance(msg, HumanMessage) else "Teacher"
+            conversation_window += f"{role}: {msg.content}\n"
     
     # Enhance query with conversation context for better retrieval
     enhanced_query = query
@@ -191,8 +206,8 @@ def rewrite_node(state: AgentState) -> dict:
     # However, state["messages"] includes the current query at the end.
     conversation_window = ""
     if len(messages) > 1:
-        # Use last 4 messages as context (2 turns)
-        history_msgs = messages[:-1][-4:] 
+        # Use last 10 messages as context for rewriting (5 turns)
+        history_msgs = messages[:-1][-10:] 
         for msg in history_msgs:
             role = "Student" if isinstance(msg, HumanMessage) else "Teacher"
             conversation_window += f"{role}: {msg.content}\n"
