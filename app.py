@@ -10,6 +10,10 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from langchain_core.messages import HumanMessage, AIMessage
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+from starlette.requests import Request
 
 from config.settings import settings
 from core.agent import agent
@@ -24,6 +28,22 @@ from routers.audio import router as audio_router
 
 from utils.auth import security
 
+# Rate Limiter Setup
+def get_user_id_for_limiter(request: Request) -> str:
+    """Extract user_id from JWT for rate limiting, fallback to IP"""
+    try:
+        auth_header = request.headers.get("Authorization", "")
+        if auth_header.startswith("Bearer "):
+            from jose import jwt
+            token = auth_header.split(" ")[1]
+            payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
+            return f"user_{payload.get('sub', 'anonymous')}"
+    except:
+        pass
+    return get_remote_address(request)
+
+limiter = Limiter(key_func=get_user_id_for_limiter)
+
 # Initialize app
 app = FastAPI(
     title=settings.APP_NAME,
@@ -33,6 +53,22 @@ app = FastAPI(
         "docExpansion": "none"
     }
 )
+
+# Add Rate Limiter Exception Handler
+@app.exception_handler(RateLimitExceeded)
+async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
+    from fastapi.responses import JSONResponse
+    return JSONResponse(
+        status_code=429,
+        content={
+            "status": "error",
+            "data": None,
+            "message": f"Quá nhiều yêu cầu! Vui lòng đợi 1 phút rồi thử lại. (Rate limit: {exc.detail})",
+            "createdAt": datetime.now(timezone.utc).isoformat()
+        }
+    )
+
+app.state.limiter = limiter
 
 @app.on_event("startup")
 async def startup_event():
@@ -441,7 +477,7 @@ async def create_mindmap(
     "/api/agent/analyzer/{lesson_id}",
     response_model=StandardResponse[AnalyzerData],
     summary="Analyze Student Session",
-    description="Get AI-powered analysis of student's understanding and performance",
+    description="Get AI-powered analysis of student's understanding and performance (Rate limited: 5/minute)",
     responses={
         200: {
             "description": "Successful response",
@@ -462,7 +498,9 @@ async def create_mindmap(
         }
     }
 )
+@limiter.limit("5/minute")
 async def analyzer(
+    request: Request,
     lesson_id: str,
     credentials: HTTPAuthorizationCredentials = Security(security),
     user_id: str = Depends(get_user_id)
