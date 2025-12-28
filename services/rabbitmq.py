@@ -145,12 +145,23 @@ class RabbitMQService:
             
             print(f"🔄 RPC Call [{pattern}] sent. Waiting for reply...")
             
-            # Wait for response with timeout
+            # Wait for response with timeout AND retry limit
             start_time = time.time()
+            max_retries = 3
+            retry_count = 0
+            
             while response is None:
                 self.connection.process_data_events()
+                
                 if time.time() - start_time > settings.RABBITMQ_TIMEOUT:
-                    raise TimeoutError("RPC request timed out")
+                    retry_count += 1
+                    if retry_count >= max_retries:
+                        print(f"❌ RPC Call [{pattern}] failed after {max_retries} retries")
+                        raise TimeoutError(f"RPC request timed out after {max_retries} retries")
+                    else:
+                        print(f"⚠️ RPC Call [{pattern}] timeout, retry {retry_count}/{max_retries}...")
+                        start_time = time.time()  # Reset timer for retry
+                        
                 time.sleep(0.05)
                 
             # Unwrap response if it comes back wrapped (NestJS reply structure)

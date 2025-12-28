@@ -498,7 +498,7 @@ async def create_mindmap(
         }
     }
 )
-@limiter.limit("5/minute")
+@limiter.limit("2/minute")
 async def analyzer(
     request: Request,
     lesson_id: str,
