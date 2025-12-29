@@ -1,21 +1,32 @@
 """
 RAG Retrieval Service
 Consolidated from agent/tools/advanced_retriever.py
-Refactored to use core.text_processing
+Refactored to use Cohere Rerank API instead of local sentence-transformers
 """
 from typing import List, Dict, Optional, Union
 import numpy as np
 from rank_bm25 import BM25Okapi
-from sentence_transformers import CrossEncoder
 
 from config.settings import settings
 from core.text_processing import TextProcessor
+
 
 class RAGRetriever:
     """Advanced RAG retriever with hybrid search, reranking, and semantic chunking"""
     
     def __init__(self):
-        self.reranker = CrossEncoder(settings.RERANK_MODEL)
+        # Cache Cohere client (if API key is set)
+        self.cohere_client = None
+        if settings.COHERE_API_KEY:
+            try:
+                import cohere
+                self.cohere_client = cohere.Client(settings.COHERE_API_KEY)
+                print("✅ Cohere Rerank API initialized")
+            except Exception as e:
+                print(f"⚠️ Cohere init failed: {e}, will use BM25 fallback")
+        else:
+            print("⚠️ COHERE_API_KEY not set, using BM25 fallback for reranking")
+        
         self.processor = TextProcessor()
         print(f"✅ RAG Retriever initialized")
     
@@ -142,46 +153,66 @@ class RAGRetriever:
         candidates: List[Dict],
         k: int = 5
     ) -> List[Dict]:
-        """Cross-encoder reranking with memory optimization"""
+        """Rerank with Cohere API + BM25 fallback"""
         if not candidates:
             return []
-            
-        import gc
-        import torch
         
-        # Prepare pairs
-        pairs = [[query, chunk["text"]] for chunk in candidates]
-        
-        try:
-            # Predict with low memory overhead
-            rerank_scores = self.reranker.predict(
-                pairs,
-                batch_size=8,               # Small batch size for free tier
-                convert_to_tensor=False,    # Return numpy array, saves torch overhead
-                show_progress_bar=False,
-                apply_softmax=False
-            )
-            
-            for chunk, score in zip(candidates, rerank_scores):
-                chunk["rerank_score"] = float(score)
-                
-            # Sort and slice
-            results = sorted(candidates, key=lambda x: x["rerank_score"], reverse=True)[:k]
-            
-            return results
-            
-        except Exception as e:
-            print(f"⚠️ Rerank failed (likely OOM), falling back to original order: {e}")
+        # If too few candidates, no need to rerank
+        if len(candidates) <= k:
             return candidates[:k]
-            
-        finally:
-            # Aggressive cleanup
-            del pairs
-            if 'rerank_scores' in locals():
-                del rerank_scores
-            gc.collect()
-            if torch.cuda.is_available():
-                torch.cuda.empty_cache()
+        
+        # Use Cohere if available
+        if self.cohere_client:
+            try:
+                docs = [c["text"] for c in candidates]
+                
+                response = self.cohere_client.rerank(
+                    query=query,
+                    documents=docs,
+                    top_n=k,
+                    model="rerank-multilingual-v3.0"  # Vietnamese support
+                )
+                
+                results = []
+                for r in response.results:
+                    chunk = candidates[r.index].copy()
+                    chunk["rerank_score"] = float(r.relevance_score)
+                    results.append(chunk)
+                
+                print(f"✅ Cohere reranked {len(candidates)} → {len(results)} chunks")
+                return results
+                
+            except Exception as e:
+                print(f"⚠️ Cohere rerank failed: {e}, using BM25 fallback")
+                return self._fallback_rerank(query, candidates, k)
+        else:
+            return self._fallback_rerank(query, candidates, k)
+    
+    def _fallback_rerank(
+        self,
+        query: str,
+        candidates: List[Dict],
+        k: int
+    ) -> List[Dict]:
+        """BM25-based fallback when Cohere unavailable"""
+        docs = [c["text"] for c in candidates]
+        tokenized_docs = [doc.lower().split() for doc in docs]
+        tokenized_query = query.lower().split()
+        
+        bm25 = BM25Okapi(tokenized_docs)
+        scores = bm25.get_scores(tokenized_query)
+        
+        # Get top-k indices
+        top_indices = np.argsort(scores)[::-1][:k]
+        
+        results = []
+        for idx in top_indices:
+            chunk = candidates[idx].copy()
+            chunk["rerank_score"] = float(scores[idx])
+            results.append(chunk)
+        
+        print(f"⚠️ BM25 fallback reranked {len(candidates)} → {len(results)} chunks")
+        return results
     
     def mmr_selection(
         self,
@@ -307,6 +338,7 @@ class RAGRetriever:
             context_parts.append(f"[Nguồn {i}: {chunk['source']}]\n{chunk['content']}")
         
         return "\n\n".join(context_parts)
+
 
 # Global instance
 _retriever = None
